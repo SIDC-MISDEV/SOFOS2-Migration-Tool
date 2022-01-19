@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="SOFOS2_Migration_Tool.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="HOST" Type="System.String" Scope="User">
+      <Value Profile="(Default)">127.0.0.1</Value>
+    </Setting>
+    <Setting Name="SOURCE_DB" Type="System.String" Scope="User">
+      <Value Profile="(Default)">mahabang_parang</Value>
+    </Setting>
+    <Setting Name="DESTINATION_DB" Type="System.String" Scope="User">
+      <Value Profile="(Default)">sofos2_1_13</Value>
+    </Setting>
+    <Setting Name="USERNAME" Type="System.String" Scope="User">
+      <Value Profile="(Default)">root</Value>
+    </Setting>
+    <Setting Name="PASSWORD" Type="System.String" Scope="User">
+      <Value Profile="(Default)">supervisor</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
