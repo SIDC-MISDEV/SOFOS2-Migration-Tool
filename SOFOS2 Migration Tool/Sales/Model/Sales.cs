@@ -24,7 +24,7 @@ namespace SOFOS2_Migration_Tool.Sales.Model
         public string YoungCoopName { get; set; }
         public string AccountCode { get; set; }
         public string AccountName { get; set; }
-        public decimal paidToDate { get; set; }
+        public decimal PaidToDate { get; set; }
         public decimal Total { get; set; }
         public decimal AmountTendered { get; set; }
         public decimal InterestPaid { get; set; }
