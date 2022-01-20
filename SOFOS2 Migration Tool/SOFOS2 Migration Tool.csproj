@@ -57,11 +57,13 @@
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
+    <Compile Include="Payment\Model\TransactionPayment.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Purchasing\Controller\PurchaseRequestController.cs" />
     <Compile Include="Purchasing\Model\PurchaseRequest.cs" />
     <Compile Include="Purchasing\Model\ReceiveFromVendor.cs" />
+    <Compile Include="Sales\Model\Sales.cs" />
     <Compile Include="Service\MySQLHelper.cs" />
     <Compile Include="Service\PurchasingQuery.cs" />
     <Compile Include="Service\Query.cs" />
@@ -96,9 +98,7 @@
     <Folder Include="Inventory\Controller\" />
     <Folder Include="Inventory\Model\" />
     <Folder Include="Payment\Controller\" />
-    <Folder Include="Payment\Model\" />
     <Folder Include="Sales\Controller\" />
-    <Folder Include="Sales\Model\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
