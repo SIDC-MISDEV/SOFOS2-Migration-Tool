@@ -57,9 +57,13 @@ namespace SOFOS2_Migration_Tool.Service
                                     l.lrBatch AS 'LrBatch',
                                     l.lrType AS 'LrType',
                                     0 AS 'SrDiscount',
-                                    l.kanegodiscount AS 'FeedsDiscount',
-                                    SUM(IF(s.taxable = '1' and LEFT(l.idfile, 2) IN ('NM'), (i.selling * i.quantity/(1+(12/100)))*12/100,0)) AS 'Vat',
+                                    l.kanegodiscount AS 'Kanegodiscount',
+                                    SUM(ifnull(i.discount,0)) AS 'Feedsdiscount',
                                     
+                                    /* start of Vat*/
+                                    SUM(IF(s.taxable = '1' and LEFT(l.idfile, 2) IN ('NM'), (i.selling * i.quantity/(1+(12/100)))*12/100,0)) AS 'Vat',
+                                    /* end of Vat*/
+
                                     /* start of VatExemptSales*/
                                     (
                                         CASE
@@ -68,6 +72,15 @@ namespace SOFOS2_Migration_Tool.Service
                                         END
                                     ) AS 'VatExemptSales',
                                     /* end of VatExemptSales*/
+
+                                    /* start of VatAmount*/
+                                    (
+                                        CASE
+                                            WHEN LEFT(l.idfile, 2) IN ('NM') THEN SUM(IF(s.taxable = 1, i.selling * i.quantity,0))
+                                            ELSE SUM(i.selling * i.quantity)
+                                        END
+                                    ) AS 'VatAmount',
+                                    /* end of VatAmount*/
                                     
                                     DATE_FORMAT(l.timeStamp, '%Y-%m-%d %H:%i:%s') AS 'SystemDate',
                                     null AS 'ColaReference'
@@ -158,8 +171,8 @@ namespace SOFOS2_Migration_Tool.Service
             {
                 case SalesEnum.SalesHeader:
 
-                    sQuery.Append(@"INSERT INTO SAPT0 (transNum, transDate, transType, reference, crossreference, NoEffectOnInventory, customerType, memberId, memberName, employeeID, employeeName, youngCoopID, youngCoopName, accountCode, accountName, paidToDate, Total, amountTendered, interestPaid, interestBalance, cancelled, status, extracted, colaReference, segmentCode, businessSegment, branchCode, signatory, remarks, systemDate, idUser, lrBatch, lrType, srDiscount, feedsDiscount, vat, vatExemptSales, vatAmount, warehouseCode, lrReference, kanegoDiscount, grossTotal, sow, parity, intComputed, dedDiscount, series, lastpaymentdate, allowNoEffectInventory, printed, TerminalNo, AccountNo) 
-                            VALUES (@transNum, @transDate, @transType, @reference, @crossreference, @NoEffectOnInventory, @customerType, @memberId, @memberName, @employeeID, @employeeName, @youngCoopID, @youngCoopName, @accountCode, @accountName, @paidToDate, @Total, @amountTendered, @interestPaid, @interestBalance, @cancelled, @status, @extracted, @colaReference, @segmentCode, @businessSegment, @branchCode, @signatory, @remarks, @systemDate, @idUser, @lrBatch, @lrType, @srDiscount, @feedsDiscount, @vat, @vatExemptSales, @vatAmount, @warehouseCode, @lrReference, @kanegoDiscount, @grossTotal, @sow, @parity, @intComputed, @dedDiscount, @series, @lastpaymentdate, @allowNoEffectInventory, @printed, @TerminalNo, @AccountNo)");
+                    sQuery.Append(@"INSERT INTO SAPT0 (transNum, transDate, transType, reference, crossreference, NoEffectOnInventory, customerType, memberId, memberName, employeeID, employeeName, youngCoopID, youngCoopName, accountCode, accountName, paidToDate, Total, amountTendered, interestPaid, interestBalance, cancelled, status, extracted, colaReference, segmentCode, businessSegment, branchCode, signatory, remarks, systemDate, idUser, lrBatch, lrType, srDiscount, feedsDiscount, vat, vatExemptSales, vatAmount, warehouseCode, lrReference, kanegoDiscount, grossTotal, series, lastpaymentdate, allowNoEffectInventory, printed, TerminalNo, AccountNo) 
+                            VALUES (@transNum, @transDate, @transType, @reference, @crossreference, @NoEffectOnInventory, @customerType, @memberId, @memberName, @employeeID, @employeeName, @youngCoopID, @youngCoopName, @accountCode, @accountName, @paidToDate, @Total, @amountTendered, @interestPaid, @interestBalance, @cancelled, @status, @extracted, @colaReference, @segmentCode, @businessSegment, @branchCode, @signatory, @remarks, @systemDate, @idUser, @lrBatch, @lrType, @srDiscount, @feedsDiscount, @vat, @vatExemptSales, @vatAmount, @warehouseCode, @lrReference, @kanegoDiscount, @grossTotal, @series, @lastpaymentdate, @allowNoEffectInventory, @printed, @TerminalNo, @AccountNo)");
 
                     break;
                 case SalesEnum.SalesDetail:

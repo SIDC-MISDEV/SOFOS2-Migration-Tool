@@ -47,10 +47,11 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                                 AccountCode = dr["AccountCode"].ToString(),
                                 AccountName = dr["AccountName"].ToString(),
                                 PaidToDate = Convert.ToDecimal(dr["PaidToDate"]),
-                                Total = Convert.ToDecimal(dr["Total"]),
+                                Total = Convert.ToDecimal(dr["Total"]),// for check
                                 InterestPaid = Convert.ToDecimal(dr["InterestPaid"]),
                                 InterestBalance = Convert.ToDecimal(dr["InterestBalance"]),
-                                Cancelled = Convert.ToBoolean(dr["cancelled"]),
+                                AmountTendered = Convert.ToDecimal(dr["AmountTendered"]),
+                                Cancelled = Convert.ToBoolean(dr["Cancelled"]),
                                 Status = dr["Status"].ToString(),
                                 Extracted = dr["Extracted"].ToString(),
                                 ColaReference = dr["ColaReference"].ToString(),
@@ -61,8 +62,12 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                                 LrType = dr["LrType"].ToString(),
                                 SrDiscount = Convert.ToDecimal(dr["SrDiscount"]),
                                 FeedsDiscount = Convert.ToDecimal(dr["FeedsDiscount"]),
-                                Vat = Convert.ToDecimal(dr["Vat"]),
-                                VatExemptSales = Convert.ToDecimal(dr["VatExemptSales"]),
+                                Vat = Convert.ToDecimal(dr["Vat"]),// for check
+                                VatExemptSales = Convert.ToDecimal(dr["VatExemptSales"]),// for check
+                                VatAmount = Convert.ToDecimal(dr["VatAmount"]),// for check
+                                LrReference = "",
+                                GrossTotal = Convert.ToDecimal(dr["Total"]), // for check
+
                                 SystemDate = dr["SystemDate"].ToString(),
 
                                 SegmentCode = Global.MainSegment,
@@ -146,20 +151,25 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
         public void InsertSales(List<Sales.Model.Sales> _header, List<SalesItem> _detail)
         {
+            string currentReference = "";
+            string currentReferenceDetail = "";
+            transType = "";
             try
             {
                 Global g = new Global();
                 int transNum = 0;
                 long series = 0;
-
+                
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
 
 
-                    transNum = g.GetLatestTransNum("sapt0", "transNum");
+                    transNum = g.GetLatestTransNum("sapt0", "transNum") + 1;
 
                     foreach (var item in _header)
                     {
+                        currentReference = item.Reference;
+                        transType = item.TransType;
                         var param = new Dictionary<string, object>()
                         {
                             { "@transDate", item.TransDate },
@@ -181,6 +191,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             { "@total", item.Total },
                             { "@interestPaid", item.InterestPaid },
                             { "@interestBalance", item.InterestBalance },
+                            { "@amountTendered", item.AmountTendered },
+                            { "@cancelled", item.Cancelled },
                             { "@status", item.Status },
                             { "@extracted", item.Extracted },
                             { "@colaReference", item.ColaReference },
@@ -191,15 +203,28 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             { "@lrType", item.LrType },
                             { "@srDiscount", item.SrDiscount },
                             { "@feedsDiscount", item.FeedsDiscount },
+                            { "@kanegoDiscount", item.KanegoDiscount },
                             { "@vat", item.Vat },
                             { "@vatExemptSales", item.VatExemptSales },
+                            { "@vatAmount", item.VatAmount },
+                            { "@lrReference", item.LrReference },
+                            { "@grossTotal", item.GrossTotal },
                             { "@systemDate", item.SystemDate },
                             { "@segmentCode", Global.MainSegment },
                             { "@businessSegment", Global.BusinessSegment },
-                            { "@branchCode", Global.BranchCode }
+                            { "@branchCode", Global.BranchCode },
+                            { "@warehouseCode", Global.WarehouseCode },
+
+                            { "@series", " " }, // for check
+                            { "@lastpaymentdate", null }, // for check
+                            { "@allowNoEffectInventory", false }, // for check
+                            { "@printed", "0" }, // for check
+                            { "@TerminalNo", "TerminalNo" }, // for check
+                            { "@AccountNo", null } // for check
+
                         };
 
-                        conn.ArgSQLCommand = PurchasingQuery.InsertPR(PR.PRHeader);
+                        conn.ArgSQLCommand = SalesQuery.InsertSalesQuery(SalesEnum.SalesHeader);
                         conn.ArgSQLParam = param;
 
                         //Execute insert header
@@ -210,6 +235,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
                         foreach (var detail in details)
                         {
+                            currentReferenceDetail = detail.Reference;
                             var detailParam = new Dictionary<string, object>()
                                 {
                                     {"@barcode", detail.Barcode },
@@ -250,12 +276,11 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
                         transNum++;
                         series = Convert.ToInt32(item.Reference.Replace(transType, "")) + 1;
+
+                        conn.ArgSQLCommand = Query.UpdateReferenceCount();
+                        conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", transType } };
+                        conn.ExecuteMySQL();
                     }
-
-                    conn.ArgSQLCommand = Query.UpdateReferenceCount();
-                    conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", transType } };
-                    conn.ExecuteMySQL();
-
 
                     conn.CommitTransaction();
                 }
@@ -263,7 +288,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
             }
             catch
             {
-
+                var x = currentReference + currentReferenceDetail;
                 throw;
             }
         }
