@@ -87,7 +87,62 @@ namespace SOFOS2_Migration_Tool.Service
 
                 case SalesEnum.SalesDetail:
 
-                    sQuery.Append(@"");
+                    sQuery.Append(@"SELECT
+                                    i.reference AS 'Reference',
+                                    p.barcode AS 'Barcode',
+                                    i.idstock AS 'ItemCode',
+                                    s.name AS 'ItemDescription',
+                                    i.unit AS 'UomCode',
+                                    i.unit AS 'UomDescription',
+                                    SUM(i.quantity) AS 'Quantity',
+                                    0 AS 'Cost',
+                                    i.selling AS 'SellingPrice',
+                                    SUM(i.discount) AS 'Feedsdiscount',
+                                    SUM(i.amount) AS 'Total',
+                                    i.unitQuantity AS 'Conversion',
+                                    DATE_FORMAT(i.timeStamp, '%Y-%m-%d %H:%i:%s') AS 'SystemDate',
+                                    i.idUser AS 'IdUser',
+                                    0 AS 'Srdiscount',
+                                    SUM(i.quantity) AS 'RunningQuantity',
+                                    0 AS 'KanegoDiscount',
+                                    0 AS 'AverageCost',
+                                    0 AS 'RunningValue',
+                                    0 AS 'RunningQty',
+                                    SUM(i.amount) AS 'Linetotal',
+                                    0 AS 'DedDiscount',
+                                    SUM(IF(s.taxable = '1' and LEFT(i.idfile, 2) IN ('NM'), (i.selling * i.quantity/(1+(12/100)))*12/100,0)) AS 'Vat',
+
+                                    /* start of Vatable*/
+                                    (
+                                        CASE
+                                            WHEN LEFT(i.idfile, 2) IN ('NM') THEN SUM(IF(s.taxable = 1, i.selling * i.quantity,0))
+                                            ELSE 0
+                                        END
+                                    ) AS 'Vatable',
+                                    /* end of Vatable*/
+
+                                    /* start of VatExemptSales*/
+                                    (
+                                        CASE
+                                            WHEN LEFT(i.idfile, 2) IN ('NM') THEN SUM(IF(s.taxable = 0, i.selling * i.quantity,0))
+                                            ELSE SUM(i.selling * i.quantity)
+                                        END
+                                    ) AS 'Vatexempt',
+                                    /* end of VatExemptSales*/
+
+                                    0 AS 'CancelledQty'
+                                    FROM invoice i
+                                    INNER JOIN ledger l ON i.reference = l.reference
+                                    INNER JOIN stocks s ON i.idstock = s.idstock
+                                    INNER JOIN pcosting p ON i.idstock = p.idstock AND i.unit = p.unit
+                                    WHERE
+                                    /*left(i.reference, 2) = @transType AND date(l.date) = @date*/
+                                    LEFT(i.reference, 2) IN ('SI','CI','CO','AP','CT')
+                                    /* AND date(l.date) = '2022-01-17' */
+                                    AND year(i.date) = '2022'
+                                    GROUP BY i.reference, i.idstock, i.unit
+                                    ORDER BY l.reference ASC;
+                                    ");
 
                     break;
                 default:
