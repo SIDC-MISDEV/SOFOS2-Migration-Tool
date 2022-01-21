@@ -68,6 +68,7 @@ namespace SOFOS2_Migration_Tool.Sales.Model
     public class SalesItem
     {
         public int DetailNum { get; set; }
+        public string Reference { get; set; }
         public int TransNum { get; set; }
         public string Barcode { get; set; }
         public string ItemCode { get; set; }
