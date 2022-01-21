@@ -36,34 +36,58 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as series,
                                     'CI' as refTransType
                                     FROM ledger l INNER JOIN files f ON l.idfile = f.idfile
-                                    WHERE LEFT(reference,2)='OR' AND idaccount='112010000000001' AND date(date)='2021-10-15'");
-
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount=@accountcode AND date(date)=@transdate");
                     break;
 
                 case payment.CRDetail:
 
-                    sQuery.Append(@"SELECT
-	                        i.reference,
-	                        p.barcode,
-	                        i.idstock 'ItemCode',
-                            s.name 'Description',
-	                        i.unit 'UOM',
-	                        i.unit 'UOMDescription',
-	                        SUM(i.quantity) 'Quantity',
-	                        i.quantity + i.variance 'Remaining',
-	                        i.cost 'Price',
-	                        SUM(i.cost * i.quantity) 'Total',
-	                        i.unitQuantity 'Conversion',
-	                        '' as 'AccountCode'
-                        FROM invoice i
-                        INNER JOIN ledger l ON i.reference = l.reference
-                        INNER JOIN stocks s ON i.idstock = s.idstock
-                        INNER JOIN pcosting p ON i.idstock = p.idstock AND i.unit = p.unit
-                        WHERE 
-                        left(i.reference, 2) = @transType AND date(l.date) = @date
-                        GROUP BY i.reference, i.idstock, i.unit
-                        ORDER BY l.reference ASC;");
+                    sQuery.Append(@"SELECT 
+                                    '' as detailNum, 
+                                    '' transNum, 
+                                    '' crossReference, 
+                                    credit as amount, 
+                                    idUser, 
+                                    '' balance,
+                                    idaccount as accountCode, 
+                                    if(idaccount='112010000000001','P','I') as pType, 
+                                    '' as accountName,
+                                    if(idaccount='441200000000000','CI','') as refTransType 
+                                    FROM ledger
+                                    WHERE LEFT(reference,2)='OR' and idaccount in('112010000000001','441200000000000') and date(date)='2021-10-15'");
+                    break;
 
+                case payment.Invoice:
+
+                    sQuery.Append(@"SELECT 
+                                    '' as detailNum, 
+                                    '' transNum, 
+                                    '' crossReference, 
+                                    credit as amount, 
+                                    idUser, 
+                                    '' balance,
+                                    idaccount as accountCode, 
+                                    if(idaccount='112010000000001','P','I') as pType, 
+                                    '' as accountName,
+                                    if(idaccount='441200000000000','CI','') as refTransType 
+                                    FROM ledger
+                                    WHERE LEFT(reference,2)='OR' and idaccount in('112010000000001','441200000000000') and date(date)='2021-10-15'");
+                    break;
+
+                case payment.CreditLimit:
+
+                    sQuery.Append(@"SELECT 
+                                    '' as detailNum, 
+                                    '' transNum, 
+                                    '' crossReference, 
+                                    credit as amount, 
+                                    idUser, 
+                                    '' balance,
+                                    idaccount as accountCode, 
+                                    if(idaccount='112010000000001','P','I') as pType, 
+                                    '' as accountName,
+                                    if(idaccount='441200000000000','CI','') as refTransType 
+                                    FROM ledger
+                                    WHERE LEFT(reference,2)='OR' and idaccount in('112010000000001','441200000000000') and date(date)='2021-10-15'");
                     break;
                 default:
                     break;
@@ -102,7 +126,7 @@ namespace SOFOS2_Migration_Tool.Service
 
     public enum payment
     {
-        CRHeader, CRDetail, ORHeader, ORDetail
+        CRHeader, CRDetail, ORHeader, ORDetail, Invoice, CreditLimit
     }
 
 }

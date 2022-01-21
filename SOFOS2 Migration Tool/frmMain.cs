@@ -1,4 +1,5 @@
-﻿using SOFOS2_Migration_Tool.Purchasing.Controller;
+﻿using SOFOS2_Migration_Tool.Payment.Controller;
+using SOFOS2_Migration_Tool.Purchasing.Controller;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -40,6 +41,16 @@ namespace SOFOS2_Migration_Tool
                 MessageBox.Show(this, er.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.BeginInvoke(new MethodInvoker(Close));
             }
+        }
+
+        private void btnPayment_Click(object sender, EventArgs e)
+        {
+            CollectionReceiptController crc = new CollectionReceiptController();
+
+            var data = crc.GetCollectionReceiptHeader("2022-01-17", "112010000000001", "OR");
+            //var detail = test.GetPRItem("2022-01-17");
+
+            //test.InsertPR(data, detail);
         }
     }
 }
