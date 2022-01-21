@@ -10,7 +10,7 @@ namespace SOFOS2_Migration_Tool.Sales.Model
     public class Sales
     {
         public int TransNum { get; set; }
-        public DateTime TransDate { get; set; }
+        public string TransDate { get; set; }
         public string TransType { get; set; }
         public string Reference { get; set; }
         public string Crossreference { get; set; }
@@ -31,14 +31,14 @@ namespace SOFOS2_Migration_Tool.Sales.Model
         public decimal InterestBalance { get; set; }
         public bool Cancelled { get; set; }
         public string Status { get; set; }
-        public bool Extracted { get; set; }
+        public string Extracted { get; set; }
         public string ColaReference { get; set; }
         public string SegmentCode { get; set; }
         public string BusinessSegment { get; set; }
         public string BranchCode { get; set; }
         public string Signatory { get; set; }
         public string Remarks { get; set; }
-        public DateTime SystemDate { get; set; }
+        public string SystemDate { get; set; }
         public string IdUser { get; set; }
         public string LrBatch { get; set; }
         public string LrType { get; set; }
@@ -81,7 +81,7 @@ namespace SOFOS2_Migration_Tool.Sales.Model
         public decimal Feedsdiscount { get; set; }
         public decimal Total { get; set; }
         public decimal Conversion { get; set; }
-        public DateTime SystemDate { get; set; }
+        public string SystemDate { get; set; }
         public string IdUser { get; set; }
         public decimal Srdiscount { get; set; }
         public decimal RunningQuantity { get; set; }

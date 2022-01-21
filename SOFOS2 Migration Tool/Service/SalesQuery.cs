@@ -77,8 +77,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     LEFT JOIN files f ON l.idfile = f.idfile
                                     LEFT JOIN coa c ON l.idaccount = c.idaccount
                                     where LEFT(l.reference, 2) IN ('SI','CI','CO','AP','CT')
-                                    /* AND date(l.date) = '2022-01-17' */
-                                    AND year(l.date) = '2022'
+                                    AND date(l.date) = @date
                                     GROUP BY l.reference
                                     ORDER BY l.date ASC;
                             ");
@@ -97,7 +96,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     SUM(i.quantity) AS 'Quantity',
                                     0 AS 'Cost',
                                     i.selling AS 'SellingPrice',
-                                    SUM(i.discount) AS 'Feedsdiscount',
+                                    SUM(ifnull(i.discount,0)) AS 'Feedsdiscount',
                                     SUM(i.amount) AS 'Total',
                                     i.unitQuantity AS 'Conversion',
                                     DATE_FORMAT(i.timeStamp, '%Y-%m-%d %H:%i:%s') AS 'SystemDate',
@@ -138,11 +137,35 @@ namespace SOFOS2_Migration_Tool.Service
                                     WHERE
                                     /*left(i.reference, 2) = @transType AND date(l.date) = @date*/
                                     LEFT(i.reference, 2) IN ('SI','CI','CO','AP','CT')
-                                    /* AND date(l.date) = '2022-01-17' */
-                                    AND year(i.date) = '2022'
+                                    AND date(l.date) = @date
                                     GROUP BY i.reference, i.idstock, i.unit
                                     ORDER BY l.reference ASC;
                                     ");
+
+                    break;
+                default:
+                    break;
+            }
+
+            return sQuery;
+        }
+
+        public static StringBuilder InsertSalesQuery(SalesEnum process)
+        {
+            var sQuery = new StringBuilder();
+
+            switch (process)
+            {
+                case SalesEnum.SalesHeader:
+
+                    sQuery.Append(@"INSERT INTO SAPT0 (transNum, transDate, transType, reference, crossreference, NoEffectOnInventory, customerType, memberId, memberName, employeeID, employeeName, youngCoopID, youngCoopName, accountCode, accountName, paidToDate, Total, amountTendered, interestPaid, interestBalance, cancelled, status, extracted, colaReference, segmentCode, businessSegment, branchCode, signatory, remarks, systemDate, idUser, lrBatch, lrType, srDiscount, feedsDiscount, vat, vatExemptSales, vatAmount, warehouseCode, lrReference, kanegoDiscount, grossTotal, sow, parity, intComputed, dedDiscount, series, lastpaymentdate, allowNoEffectInventory, printed, TerminalNo, AccountNo) 
+                            VALUES (@transNum, @transDate, @transType, @reference, @crossreference, @NoEffectOnInventory, @customerType, @memberId, @memberName, @employeeID, @employeeName, @youngCoopID, @youngCoopName, @accountCode, @accountName, @paidToDate, @Total, @amountTendered, @interestPaid, @interestBalance, @cancelled, @status, @extracted, @colaReference, @segmentCode, @businessSegment, @branchCode, @signatory, @remarks, @systemDate, @idUser, @lrBatch, @lrType, @srDiscount, @feedsDiscount, @vat, @vatExemptSales, @vatAmount, @warehouseCode, @lrReference, @kanegoDiscount, @grossTotal, @sow, @parity, @intComputed, @dedDiscount, @series, @lastpaymentdate, @allowNoEffectInventory, @printed, @TerminalNo, @AccountNo)");
+
+                    break;
+                case SalesEnum.SalesDetail:
+
+                    sQuery.Append(@"INSERT INTO SAPT1 (transNum, barcode, itemCode, itemDescription, uomCode, uomDescription, quantity, cost, sellingPrice, feedsdiscount, Total, conversion, systemDate, idUser, srdiscount, runningQuantity, kanegoDiscount, averageCost, runningValue, runningQty, linetotal, dedDiscount, vat, vatable, vatexempt, cancelledQty) 
+                            VALUES (@transNum, @barcode, @itemCode, @itemDescription, @uomCode, @uomDescription, @quantity, @cost, @sellingPrice, @feedsdiscount, @Total, @conversion, @systemDate, @idUser, @srdiscount, @runningQuantity, @kanegoDiscount, @averageCost, @runningValue, @runningQty, @linetotal, @dedDiscount, @vat, @vatable, @vatexempt, @cancelledQty)");
 
                     break;
                 default:

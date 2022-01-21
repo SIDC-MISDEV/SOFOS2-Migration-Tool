@@ -63,6 +63,7 @@
     <Compile Include="Purchasing\Controller\PurchaseRequestController.cs" />
     <Compile Include="Purchasing\Model\PurchaseRequest.cs" />
     <Compile Include="Purchasing\Model\ReceiveFromVendor.cs" />
+    <Compile Include="Sales\Controller\SalesController.cs" />
     <Compile Include="Sales\Model\Sales.cs" />
     <Compile Include="Service\MySQLHelper.cs" />
     <Compile Include="Service\PurchasingQuery.cs" />
@@ -99,7 +100,6 @@
     <Folder Include="Inventory\Controller\" />
     <Folder Include="Inventory\Model\" />
     <Folder Include="Payment\Controller\" />
-    <Folder Include="Sales\Controller\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
