@@ -61,8 +61,6 @@ namespace SOFOS2_Migration_Tool.Sales.Model
         public bool Printed { get; set; }
         public string TerminalNo { get; set; }
         public string AccountNo { get; set; }
-        public ICollection<SalesItem> SalesItems { get; set; }
-        public ICollection<TransactionPayment> TransactionPayments { get; set; }
     }
 
     public class SalesItem
