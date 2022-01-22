@@ -56,6 +56,40 @@ namespace SOFOS2_Migration_Tool.Service
                                     WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate");
                     break;
 
+                case payment.JVHeader:
+
+                    sQuery.Append(@"SELECT
+                                    '' as transNum,
+                                    reference, 
+                                    sum(credit) as total, 
+                                    date as transDate,
+                                    idUser,
+                                    'CLOSED' as status,
+                                    cancelled,
+                                    'Migration Tool' remarks 
+                                    FROM ledger 
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate GROUP BY memberid");
+                    break;
+
+                case payment.JVDetail:
+
+                    sQuery.Append(@"SELECT 
+                                    idaccount as acaccountCode,
+                                    '' as crossReference,
+                                    idUser,
+                                    debit,
+                                    credit, 
+                                    idfile as memberId,
+                                    '' as memberName,
+                                    '' as accountName,
+                                    '' as refTransType,
+                                    '' as intComputed,
+                                    '' as paidToDate,
+                                    '' as lastpaymentdate,
+                                    '' as AccountNo FROM ledger 
+                                    LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate");
+                    break;
+
                 case payment.Invoice:
 
                     sQuery.Append(@"SELECT 
