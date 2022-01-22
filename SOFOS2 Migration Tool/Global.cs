@@ -56,6 +56,102 @@ namespace SOFOS2_Migration_Tool
             }
         }
 
+        public string GetMemberName(string memberId)
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+
+                query = $@"SELECT CONCAT(lastName, ', ', firstName,' ', if(middlename!='',CONCAT(SUBSTR(middleName,1,1),'.'),'')) FROM cci00 WHERE memberId= '{memberId}' LIMIT 1;";
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    var data = conn.GetMySQLScalar();
+
+                    result = data == null ? "" : data.ToString();
+                }
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public string GetAccountName(string accountCode)
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+
+                query = $@"SELECT accountname FROM aca00 WHERE accountcode='{accountCode}' LIMIT 1;";
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    var data = conn.GetMySQLScalar();
+
+                    result = data == null ? "" : data.ToString();
+                }
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public string GetAccountNumber(string memberId, string transprefix)
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+
+                query = $@"SELECT accountNumber FROM acl00 WHERE memberId='{memberId}' and transType='{transprefix}' LIMIT 1;";
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    var data = conn.GetMySQLScalar();
+
+                    result = data == null ? "" : data.ToString();
+                }
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public string GetCreditBalance()
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+
+                query = $@"SELECT accountname FROM aca00 WHERE accountcode=@accountcode LIMIT 1;";
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    using (var dr = conn.MySQLReader())
+                    {
+                        while (dr.Read())
+                        {
+                            result = dr["accountname"].ToString();
+                        }
+                    }
+                }
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         public void InitializeBranch()
         {
             try

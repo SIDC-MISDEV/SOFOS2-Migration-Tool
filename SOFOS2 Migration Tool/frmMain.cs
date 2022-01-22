@@ -47,8 +47,9 @@ namespace SOFOS2_Migration_Tool
         {
             CollectionReceiptController crc = new CollectionReceiptController();
 
-            var data = crc.GetCollectionReceiptHeader("2022-01-17", "112010000000001", "OR");
-            //var detail = test.GetPRItem("2022-01-17");
+            var header = crc.GetCollectionReceiptHeader("2021-05-31", "OR");
+            var detail = crc.GetCollectionReceiptDetail("2021-05-31", "OR");
+
 
             //test.InsertPR(data, detail);
         }

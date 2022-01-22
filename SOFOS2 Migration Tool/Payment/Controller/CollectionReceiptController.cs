@@ -10,19 +10,29 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 {
     public class CollectionReceiptController
     {
-        public List<CollectionReceipt> GetCollectionReceiptHeader(string date, string accountcode, string transprefix)
+
+        Global g = null;
+
+        public List<CollectionReceipt> GetCollectionReceiptHeader(string date, string transprefix)
         {
             try
             {
+               
                 var result = new List<CollectionReceipt>();
-                
-                var prm = new Dictionary<string, object>()
+                string principalaccount = "112010000000001";
+                string oldinterestaccount = "441200000000000";
+                string newinterestaccount = "430400000000000";
+
+                var filter = new Dictionary<string, object>()
                 {
                     { "@transdate", date },
-                    { "@accountcode", accountcode },
+                    { "@principalaccount", principalaccount },
+                    { "@oldinterestaccount", oldinterestaccount },
+                    { "@newinterestaccount", newinterestaccount },
                     { "@transprefix", transprefix }
                 };
-                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetCRQuery(payment.CRHeader), prm))
+
+                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetCRQuery(payment.CRHeader), filter))
                 {
                     using (var dr = conn.MySQLReader())
                     {
@@ -35,6 +45,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                 TransDate = dr["transDate"].ToString(),
                                 IdUser = dr["idUser"].ToString(),
                                 MemberId = dr["memberId"].ToString(),
+                                MemberName = dr["memberName"].ToString(),
                                 Status = dr["status"].ToString(),
                                 Remarks = dr["remarks"].ToString(),
                                 Cancelled = Convert.ToBoolean(dr["cancelled"]),
@@ -46,6 +57,10 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                 TransType = dr["transType"].ToString(),
                                 RefTransType = dr["refTransType"].ToString()
                             });
+
+                            g = new Global();
+                            result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.MemberName = g.GetMemberName(dr["memberId"].ToString()); return c; }).ToList();
+                            result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.AccountNumber = g.GetAccountNumber(dr["memberId"].ToString(), dr["refTransType"].ToString()); return c; }).ToList();
                         }
                     }
                 }
@@ -57,7 +72,64 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                 throw;
             }
-            
+        }
+
+        public List<CollectionReceipt> GetCollectionReceiptDetail (string date, string transprefix)
+        {
+            try
+            {
+                var result = new List<CollectionReceipt>();
+
+                string principalaccount = "112010000000001";
+                string oldinterestaccount = "441200000000000";
+                string newinterestaccount = "430400000000000";
+
+                var filter = new Dictionary<string, object>()
+                {
+                    { "@transdate", date },
+                    { "@principalaccount", principalaccount },
+                    { "@oldinterestaccount", oldinterestaccount },
+                    { "@newinterestaccount", newinterestaccount },
+                    { "@transprefix", transprefix }
+                };
+
+                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetCRQuery(payment.CRDetail), filter))
+                {
+                    using (var dr = conn.MySQLReader())
+                    {
+                        while (dr.Read())
+                        {
+                            result.Add(new CollectionReceipt
+                            {
+                                Amount = Convert.ToDecimal(dr["amount"]),
+                                IdUser = dr["idUser"].ToString(),
+                                AccountCode = dr["accountCode"].ToString(),
+                                pType = dr["pType"].ToString(),
+                            });
+                            g = new Global();
+                            if (dr["accountCode"].ToString() == principalaccount)
+                            {
+                                result.Where(c => c.AccountCode == principalaccount).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
+                            }
+                            else if (dr["accountCode"].ToString() == newinterestaccount)
+                            {
+                                result.Where(c => c.AccountCode == newinterestaccount).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
+                            }
+                            else
+                            {
+                                result.Where(c => c.AccountCode == oldinterestaccount).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
+                            }
+
+                        }
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

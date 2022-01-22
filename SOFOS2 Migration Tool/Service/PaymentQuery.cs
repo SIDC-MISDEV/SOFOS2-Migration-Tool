@@ -19,7 +19,7 @@ namespace SOFOS2_Migration_Tool.Service
                     sQuery.Append(@"SELECT 
                                     '' as transNum,
                                     reference, 
-                                    credit as total,
+                                    sum(credit) as total,
                                     date as transDate,
                                     l.idUser,
                                     l.idfile as memberId,
@@ -28,7 +28,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     cancelled,
                                     'Migration Tool' as remarks, 
                                     1 as type,
-                                    idaccount as accountCode, 
+                                    @principalaccount as accountCode, 
                                     signatory as paidBy,
                                     '' as branchCode,
                                     extracted,
@@ -36,7 +36,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as series,
                                     'CI' as refTransType
                                     FROM ledger l INNER JOIN files f ON l.idfile = f.idfile
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount=@accountcode AND date(date)=@transdate");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount in (@principalaccount,@oldinterestaccount,@newinterestaccount) AND date(date)=@transdate GROUP BY memberid");
                     break;
 
                 case payment.CRDetail:
@@ -51,9 +51,9 @@ namespace SOFOS2_Migration_Tool.Service
                                     idaccount as accountCode, 
                                     if(idaccount='112010000000001','P','I') as pType, 
                                     '' as accountName,
-                                    if(idaccount='441200000000000','CI','') as refTransType 
+                                    if(idaccount='441200000000000' or idaccount='430400000000000','CI','') as refTransType 
                                     FROM ledger
-                                    WHERE LEFT(reference,2)='OR' and idaccount in('112010000000001','441200000000000') and date(date)='2021-10-15'");
+                                    WHERE LEFT(reference,2)=@transprefix and idaccount in (@principalaccount,@oldinterestaccount,@newinterestaccount) and date(date)=@transdate");
                     break;
 
                 case payment.Invoice:

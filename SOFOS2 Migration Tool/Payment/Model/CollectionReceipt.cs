@@ -8,6 +8,7 @@ namespace SOFOS2_Migration_Tool.Payment.Model
 {
     public class CollectionReceipt
     {
+        //Header
         public int TransNum { get; set; }
         public string Reference { get; set; }
         public decimal Total { get; set; }
@@ -26,6 +27,14 @@ namespace SOFOS2_Migration_Tool.Payment.Model
         public string TransType { get; set; }
         public string Series { get; set; }
         public string RefTransType { get; set; }
+        public string AccountNumber { get; set; }
 
+        //Details
+        public string CrossReference { get; set; }
+        public decimal Amount { get; set; }
+        public decimal Balance { get; set; }
+        public string pType { get; set; }
+        public string AccountName { get; set; }
+        public string DetRefTransType { get; set; }
     }
 }
