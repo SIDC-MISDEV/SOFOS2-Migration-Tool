@@ -34,7 +34,9 @@ namespace SOFOS2_Migration_Tool
 
             var data = salesController.GetSalesHeader("2022-01-17");
             var detail = salesController.GetSalesItems("2022-01-17");
-            salesController.InsertSales(data, detail);
+            var payment = salesController.GetSalesPayment("2022-01-17");
+
+            salesController.InsertSales(data, detail, payment);
         }
 
         private void frmMain_Load(object sender, EventArgs e)

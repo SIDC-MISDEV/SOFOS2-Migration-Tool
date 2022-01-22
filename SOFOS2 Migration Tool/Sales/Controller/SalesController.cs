@@ -1,4 +1,5 @@
-﻿using SOFOS2_Migration_Tool.Sales.Model;
+﻿using SOFOS2_Migration_Tool.Payment.Model;
+using SOFOS2_Migration_Tool.Sales.Model;
 using SOFOS2_Migration_Tool.Service;
 using System;
 using System.Collections.Generic;
@@ -153,10 +154,57 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
             }
         }
 
+        public List<TransactionPayment> GetSalesPayment(string date)
+        {
+            try
+            {
+                var result = new List<TransactionPayment>();
+
+                var prm = new Dictionary<string, object>()
+                {
+                    { "@date", date },
+                    { "@transType", transType }
+                };
+
+                using (var conn = new MySQLHelper(Global.SourceDatabase, SalesQuery.GetSalesQuery(SalesEnum.SalesPayment), prm))
+                {
+                    using (var dr = conn.MySQLReader())
+                    {
+                        while (dr.Read())
+                        {
+                            result.Add(new TransactionPayment
+                            {
+                                Reference = dr["Reference"].ToString(),
+                                PaymentCode = dr["PaymentCode"].ToString(),
+                                Amount = Convert.ToDecimal(dr["Amount"]),
+                                CheckNumber = dr["CheckNumber"].ToString(),
+                                BankCode = dr["BankCode"].ToString(),
+                                CheckDate = dr["CheckDate"].ToString(),
+                                SystemDate = dr["SystemDate"].ToString(),
+                                IdUser = dr["IdUser"].ToString(),
+                                TransType = dr["TransType"].ToString(),
+                                AccountCode = dr["AccountCode"].ToString(),
+                                AccountName = dr["AccountName"].ToString(),
+                                ChangeAmount = Convert.ToDecimal(dr["ChangeAmount"]),
+                                Extracted = dr["Extracted"].ToString(),
+                                OrDetailNum = Convert.ToInt16(dr["OrDetailNum"])
+                            });
+                        }
+                    }
+                }
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
         #endregion GET
         #region INSERT
 
-        public void InsertSales(List<Sales.Model.Sales> _header, List<SalesItem> _detail)
+        public void InsertSales(List<Sales.Model.Sales> _header, List<SalesItem> _detail, List<TransactionPayment> _payments)
         {
             string currentReference = "";
             transType = "";
@@ -183,6 +231,9 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
                         var details = _detail.Where(n => n.Reference == item.Reference).ToList();
                         CreateSalesDetailDocument(conn, details, transNum);
+                        var payments = _payments.Where(n => n.Reference == item.Reference).ToList();
+                        CreateSalesPayment(conn, payments, transNum);
+
 
                         #endregion Creation of Document
 
@@ -223,6 +274,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                 throw;
             }
         }
+
         
         #endregion INSERT
 
@@ -268,6 +320,34 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                 conn.ArgSQLParam = detailParam;
 
                 //execute insert detail
+                var cmdDetail = conn.ExecuteMySQL();
+            }
+        }
+
+        private void CreateSalesPayment(MySQLHelper conn, List<TransactionPayment> payments, int transNum)
+        {
+            foreach (var detail in payments)
+            {
+                var detailParam = new Dictionary<string, object>()
+                                {
+                                    {"@transNum", transNum },
+                                    {"@paymentCode", detail.PaymentCode },
+                                    {"@amount", detail.Amount },
+                                    {"@checkNumber", detail.CheckNumber },
+                                    {"@bankCode", detail.BankCode },
+                                    {"@checkDate", string.IsNullOrWhiteSpace(detail.CheckDate) ? null : detail.CheckDate },
+                                    {"@systemDate", detail.SystemDate },
+                                    {"@idUser", detail.IdUser },
+                                    {"@transType", detail.TransType },
+                                    {"@accountCode", detail.AccountCode },
+                                    {"@accountName", detail.AccountName },
+                                    {"@changeAmount", detail.ChangeAmount },
+                                    {"@extracted", detail.Extracted },
+                                    {"@orDetailNum", detail.OrDetailNum }
+                                };
+
+                conn.ArgSQLCommand = SalesQuery.InsertSalesQuery(SalesEnum.SalesPayment);
+                conn.ArgSQLParam = detailParam;
                 var cmdDetail = conn.ExecuteMySQL();
             }
         }
@@ -351,14 +431,6 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
             conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", transType } };
             conn.ExecuteMySQL();
         }
-
-        //private void UpdateBIRSeries(MySQLHelper conn, string transType)
-        //{
-        //    conn.ArgSQLCommand = Query.UpdateBIRSeries();
-        //    conn.ArgSQLParam = new Dictionary<string, object>() { { "@transtype", transType } };
-        //    conn.ExecuteMySQL();
-        //}
-
         #endregion Private Methods
     }
 }

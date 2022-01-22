@@ -94,7 +94,6 @@ namespace SOFOS2_Migration_Tool.Service
                                     GROUP BY l.reference
                                     ORDER BY l.date ASC;
                             ");
-
                     break;
 
                 case SalesEnum.SalesDetail:
@@ -154,7 +153,27 @@ namespace SOFOS2_Migration_Tool.Service
                                     GROUP BY i.reference, i.idstock, i.unit
                                     ORDER BY l.reference ASC;
                                     ");
+                    break;
 
+                case SalesEnum.SalesPayment:
+                    sQuery.Append(@"SELECT
+                                    reference AS 'Reference',
+                                    idPaymentMethod AS 'PaymentCode',
+                                    amount AS 'Amount',
+                                    checkNo as 'CheckNumber',
+                                    bank AS 'BankCode',
+                                    DATE_FORMAT(checkDate, '%Y-%m-%d %H:%i:%s') AS 'CheckDate',
+                                    DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') AS 'SystemDate',
+                                    idUser AS 'idUser',
+                                    left(reference, 2) AS 'TransType',
+                                    '' AS 'AccountCode',
+                                    '' AS 'AccountName',
+                                    0 as 'ChangeAmount',
+                                    extracted AS 'Extracted',
+                                    0 AS 'OrDetailNum'
+                                     FROM mahabang_parang.transactionpayments
+                                    WHERE LEFT(reference, 2) IN('SI', 'CI', 'CO', 'AP', 'CT') AND date(date) = @date;
+                                     ");
                     break;
                 default:
                     break;
@@ -170,15 +189,19 @@ namespace SOFOS2_Migration_Tool.Service
             switch (process)
             {
                 case SalesEnum.SalesHeader:
-
                     sQuery.Append(@"INSERT INTO SAPT0 (transNum, transDate, transType, reference, crossreference, NoEffectOnInventory, customerType, memberId, memberName, employeeID, employeeName, youngCoopID, youngCoopName, accountCode, accountName, paidToDate, Total, amountTendered, interestPaid, interestBalance, cancelled, status, extracted, colaReference, segmentCode, businessSegment, branchCode, signatory, remarks, systemDate, idUser, lrBatch, lrType, srDiscount, feedsDiscount, vat, vatExemptSales, vatAmount, warehouseCode, lrReference, kanegoDiscount, grossTotal, series, lastpaymentdate, allowNoEffectInventory, printed, TerminalNo, AccountNo) 
                             VALUES (@transNum, @transDate, @transType, @reference, @crossreference, @NoEffectOnInventory, @customerType, @memberId, @memberName, @employeeID, @employeeName, @youngCoopID, @youngCoopName, @accountCode, @accountName, @paidToDate, @Total, @amountTendered, @interestPaid, @interestBalance, @cancelled, @status, @extracted, @colaReference, @segmentCode, @businessSegment, @branchCode, @signatory, @remarks, @systemDate, @idUser, @lrBatch, @lrType, @srDiscount, @feedsDiscount, @vat, @vatExemptSales, @vatAmount, @warehouseCode, @lrReference, @kanegoDiscount, @grossTotal, @series, @lastpaymentdate, @allowNoEffectInventory, @printed, @TerminalNo, @AccountNo)");
 
                     break;
                 case SalesEnum.SalesDetail:
-
                     sQuery.Append(@"INSERT INTO SAPT1 (transNum, barcode, itemCode, itemDescription, uomCode, uomDescription, quantity, cost, sellingPrice, feedsdiscount, Total, conversion, systemDate, idUser, srdiscount, runningQuantity, kanegoDiscount, averageCost, runningValue, runningQty, linetotal, dedDiscount, vat, vatable, vatexempt, cancelledQty) 
                             VALUES (@transNum, @barcode, @itemCode, @itemDescription, @uomCode, @uomDescription, @quantity, @cost, @sellingPrice, @feedsdiscount, @Total, @conversion, @systemDate, @idUser, @srdiscount, @runningQuantity, @kanegoDiscount, @averageCost, @runningValue, @runningQty, @linetotal, @dedDiscount, @vat, @vatable, @vatexempt, @cancelledQty)");
+
+                    break;
+
+                case SalesEnum.SalesPayment:
+                    sQuery.Append(@"INSERT INTO FTP00 (transNum, paymentCode, amount, checkNumber, bankCode, checkDate, systemDate, idUser, transType, accountCode, accountName, changeAmount, extracted, orDetailNum) 
+                            VALUES (@transNum, @paymentCode, @amount, @checkNumber, @bankCode, @checkDate, @systemDate, @idUser, @transType, @accountCode, @accountName, @changeAmount, @extracted, @orDetailNum)");
 
                     break;
                 default:
