@@ -8,7 +8,7 @@ namespace SOFOS2_Migration_Tool.Service
 {
     class PaymentQuery
     {
-        public static StringBuilder GetCRQuery(payment process)
+        public static StringBuilder GetPaymentQuery(payment process)
         {
             var sQuery = new StringBuilder();
 
@@ -21,8 +21,8 @@ namespace SOFOS2_Migration_Tool.Service
                                     reference, 
                                     sum(credit) as total,
                                     date as transDate,
-                                    l.idUser,
-                                    l.idfile as memberId,
+                                    idUser,
+                                    idfile as memberId,
                                     '' as memberName,
                                     'CLOSED' as status,
                                     cancelled,
@@ -35,8 +35,8 @@ namespace SOFOS2_Migration_Tool.Service
                                     'Collection Receipt' as transType,
                                     '' as series,
                                     'CI' as refTransType
-                                    FROM ledger l INNER JOIN files f ON l.idfile = f.idfile
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount in (@principalaccount,@oldinterestaccount,@newinterestaccount) AND date(date)=@transdate GROUP BY memberid");
+                                    FROM ledger 
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate GROUP BY memberid");
                     break;
 
                 case payment.CRDetail:
@@ -49,11 +49,11 @@ namespace SOFOS2_Migration_Tool.Service
                                     idUser, 
                                     '' balance,
                                     idaccount as accountCode, 
-                                    if(idaccount='112010000000001','P','I') as pType, 
+                                    if(idaccount=@principalaccount,'P','I') as pType, 
                                     '' as accountName,
-                                    if(idaccount='441200000000000' or idaccount='430400000000000','CI','') as refTransType 
+                                    if(idaccount=@oldinterestaccount or idaccount=@newinterestaccount,'CI','') as refTransType 
                                     FROM ledger
-                                    WHERE LEFT(reference,2)=@transprefix and idaccount in (@principalaccount,@oldinterestaccount,@newinterestaccount) and date(date)=@transdate");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate");
                     break;
 
                 case payment.Invoice:
@@ -126,7 +126,7 @@ namespace SOFOS2_Migration_Tool.Service
 
     public enum payment
     {
-        CRHeader, CRDetail, ORHeader, ORDetail, Invoice, CreditLimit
+        CRHeader, CRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, CreditLimit
     }
 
 }
