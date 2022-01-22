@@ -309,7 +309,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             { "@extracted", item.Extracted },
                             { "@colaReference", item.ColaReference },
                             { "@signatory", item.Signatory },
-                            { "@remarks", item.Remarks },
+                            { "@remarks", String.Format("{0}; Migrated from Sofos1 - {1};",item.Remarks, DateTime.Now) },
                             { "@idUser", item.IdUser },
                             { "@lrBatch", item.LrBatch },
                             { "@lrType", item.LrType },
