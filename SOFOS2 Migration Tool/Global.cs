@@ -56,21 +56,32 @@ namespace SOFOS2_Migration_Tool
                 throw;
             }
         }
-        public string GetLatestTransactionReference(string module, string transactionType)
+        public string GetLatestTransactionReference(MySQLHelper conn, string module, string transactionType)
         {
             try
             {
                 string result = "";
-                string query = string.Empty;
+                //string query = string.Empty;
 
-                query = $@"SELECT CONCAT(transtype,LPAD(series+1, 10, '0')) as reference FROM SST00 WHERE transtype = '{transactionType}' AND module = '{module}' LIMIT 1;";
+                //query = $@"SELECT CONCAT(transtype,LPAD(series+1, 10, '0')) as reference FROM SST00 WHERE transtype = '{transactionType}' AND module = '{module}' LIMIT 1;";
 
 
-                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                //using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                //{
+                //    var data = conn.GetMySQLScalar();
+
+                //    result = data == null ? "" : Convert.ToString(data);
+                //}
+
+                conn.ArgSQLCommand = Query.GetLatestTransactionReference();
+                conn.ArgSQLParam = new Dictionary<string, object>() { { "@transactionType", transactionType }, { "@module", module } };
+
+                using (var dr = conn.MySQLExecuteReaderBeginTransaction())
                 {
-                    var data = conn.GetMySQLScalar();
-
-                    result = data == null ? "" : Convert.ToString(data);
+                    while (dr.Read())
+                    {
+                        result =  dr["reference"].ToString();
+                    }
                 }
 
                 return result;

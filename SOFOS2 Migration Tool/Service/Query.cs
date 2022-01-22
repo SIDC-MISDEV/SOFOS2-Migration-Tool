@@ -24,5 +24,11 @@ namespace SOFOS2_Migration_Tool.Service
         {
             return new StringBuilder(@"SELECT prefix, series FROM ssbir WHERE TransType = @transtype LIMIT 1;");
         }
+
+        public static StringBuilder GetLatestTransactionReference()
+        {
+            return new StringBuilder(@"SELECT CONCAT(transtype,LPAD(series+1, 10, '0')) as reference FROM SST00 WHERE transtype = @transactionType AND module = @module LIMIT 1;");
+        }
+        
     }
 }

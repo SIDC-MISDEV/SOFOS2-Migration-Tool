@@ -194,7 +194,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
                             Sales.Model.Sales cancelledDocument = (Sales.Model.Sales)item.Clone();
                             cancelledDocument.Crossreference = item.Reference;
-                            cancelledDocument.Reference = global.GetLatestTransactionReference("POS", "CD");
+                            cancelledDocument.Reference = global.GetLatestTransactionReference(conn,"POS", "CD");
                             cancelledDocument.TransType = "CD"; 
 
                             CreateSalesHeaderDocument(conn, cancelledDocument, transNum, global);
