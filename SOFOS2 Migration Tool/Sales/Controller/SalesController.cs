@@ -14,6 +14,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
         #region Public Methods
 
+        #region GET
+
         public List<Sales.Model.Sales> GetSalesHeader(string date)
         {
             try
@@ -151,10 +153,12 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
             }
         }
 
+        #endregion GET
+        #region INSERT
+
         public void InsertSales(List<Sales.Model.Sales> _header, List<SalesItem> _detail)
         {
             string currentReference = "";
-            string currentReferenceDetail = "";
             transType = "";
             try
             {
@@ -172,10 +176,10 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                     {
                         currentReference = item.Reference;
                         transType = item.TransType;
-                        
+
                         #region Creation of Document
 
-                        CreateSalesHeaderDocument(conn, item, transNum);
+                        CreateSalesHeaderDocument(conn, item, transNum, global);
 
                         var details = _detail.Where(n => n.Reference == item.Reference).ToList();
                         CreateSalesDetailDocument(conn, details, transNum);
@@ -193,7 +197,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             cancelledDocument.Reference = global.GetLatestTransactionReference("POS", "CD");
                             cancelledDocument.TransType = "CD"; 
 
-                            CreateSalesHeaderDocument(conn, cancelledDocument, transNum);
+                            CreateSalesHeaderDocument(conn, cancelledDocument, transNum, global);
                             CreateSalesDetailDocument(conn, details, transNum);
 
                             var cancelledDocumentseries = Convert.ToInt32(cancelledDocument.Reference.Replace(cancelledDocument.TransType, "")) + 1;
@@ -220,6 +224,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
             }
         }
         
+        #endregion INSERT
+
         #endregion Public Methods
 
         #region Private Methods
@@ -266,8 +272,16 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
             }
         }
 
-        private void CreateSalesHeaderDocument(MySQLHelper conn, Model.Sales item, int transNum)
+        private void CreateSalesHeaderDocument(MySQLHelper conn, Model.Sales item, int transNum, Global global)
         {
+
+            if (!item.NoEffectOnInventory)
+            {
+                item.Series = global.GetBIRSeries(conn, "Sales Invoice");
+                global.UpdateBIRSeries(conn, "Sales Invoice");
+                //UpdateBIRSeries(conn, "Sales Invoice");
+            }
+
             var param = new Dictionary<string, object>()
                         {
                             { "@transDate", item.TransDate },
@@ -313,7 +327,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             { "@branchCode", Global.BranchCode },
                             { "@warehouseCode", Global.WarehouseCode },
 
-                            { "@series", " " }, // for check
+                            { "@series", item.Series },
                             { "@lastpaymentdate", null }, // for check
                             { "@allowNoEffectInventory", false }, // for check
                             { "@printed", "0" }, // for check
@@ -327,6 +341,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
             //Execute insert header
             conn.ExecuteMySQL();
+
+
         }
 
         private void UpdateLastReference(MySQLHelper conn, long series, string transType)
@@ -335,7 +351,14 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
             conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", transType } };
             conn.ExecuteMySQL();
         }
-        
-        # endregion Private Methods
+
+        //private void UpdateBIRSeries(MySQLHelper conn, string transType)
+        //{
+        //    conn.ArgSQLCommand = Query.UpdateBIRSeries();
+        //    conn.ArgSQLParam = new Dictionary<string, object>() { { "@transtype", transType } };
+        //    conn.ExecuteMySQL();
+        //}
+
+        #endregion Private Methods
     }
 }

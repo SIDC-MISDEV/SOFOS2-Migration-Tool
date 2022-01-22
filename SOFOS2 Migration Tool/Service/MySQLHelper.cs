@@ -150,6 +150,15 @@ namespace SOFOS2_Migration_Tool.Service
             cnn.Open();
             return cmd.ExecuteReader();
         }
+        public MySqlDataReader MySQLExecuteReaderBeginTransaction()
+        {
+            if (cnn.State == ConnectionState.Closed)
+            {
+                cnn.Open();
+                mysqlTrans = cnn.BeginTransaction(IsolationLevel.ReadCommitted);
+            }
+            return cmd.ExecuteReader();
+        }
 
         #region Disposing Interface
         /// <summary>

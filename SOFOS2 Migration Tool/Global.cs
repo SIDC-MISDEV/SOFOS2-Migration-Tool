@@ -1,4 +1,5 @@
-﻿using SOFOS2_Migration_Tool.Service;
+﻿using MySql.Data.MySqlClient;
+using SOFOS2_Migration_Tool.Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,6 +74,71 @@ namespace SOFOS2_Migration_Tool
                 }
 
                 return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        public string GetBIRSeries(MySQLHelper conn, string docuType)
+        {
+            try
+            {
+                string val = string.Empty,
+                    prefix = string.Empty,
+                    series = string.Empty;
+
+                int prefixVal = 0;
+                ulong seriesVal = 0;
+
+                string query = string.Empty;
+
+                conn.ArgSQLCommand = Query.GetBIRSeries();
+                conn.ArgSQLParam = new Dictionary<string, object>() { { "@transtype", docuType } };
+                //conn.ExecuteMySQL();
+
+                using (var dr = conn.MySQLExecuteReaderBeginTransaction())
+                {
+                    while (dr.Read())
+                    {
+                        prefix = dr["prefix"] == DBNull.Value ? "001" : dr["prefix"].ToString();
+                        series = dr["series"] == DBNull.Value ? "0000000001" : dr["series"].ToString();
+                    }
+
+                    if (series == "9999999999")
+                    {
+                        prefixVal = Convert.ToInt32(prefix) + 1;
+                        seriesVal = 1;
+                    }
+                    else
+                    {
+                        prefixVal = Convert.ToInt32(prefix);
+                        seriesVal = Convert.ToUInt64(series) + 1;
+                    }
+
+                    val = $"{prefixVal.ToString().PadLeft(3, '0')}-{seriesVal.ToString().PadLeft(10, '0')}";
+                }
+
+                return val;
+
+            }
+            catch
+            {
+
+                throw;
+            }
+
+        }
+
+        public void UpdateBIRSeries(MySQLHelper conn, string transtype)
+        {
+            try
+            {
+                conn.ArgSQLCommand = Query.UpdateBIRSeries();
+                conn.ArgSQLParam = new Dictionary<string, object>() { { "@transtype", transtype } };
+                conn.ExecuteMySQL();
             }
             catch
             {
