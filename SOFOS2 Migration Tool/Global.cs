@@ -61,21 +61,8 @@ namespace SOFOS2_Migration_Tool
             try
             {
                 string result = "";
-                //string query = string.Empty;
-
-                //query = $@"SELECT CONCAT(transtype,LPAD(series+1, 10, '0')) as reference FROM SST00 WHERE transtype = '{transactionType}' AND module = '{module}' LIMIT 1;";
-
-
-                //using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
-                //{
-                //    var data = conn.GetMySQLScalar();
-
-                //    result = data == null ? "" : Convert.ToString(data);
-                //}
-
                 conn.ArgSQLCommand = Query.GetLatestTransactionReference();
                 conn.ArgSQLParam = new Dictionary<string, object>() { { "@transactionType", transactionType }, { "@module", module } };
-
                 using (var dr = conn.MySQLExecuteReaderBeginTransaction())
                 {
                     while (dr.Read())
@@ -83,7 +70,6 @@ namespace SOFOS2_Migration_Tool
                         result =  dr["reference"].ToString();
                     }
                 }
-
                 return result;
             }
             catch
@@ -108,8 +94,6 @@ namespace SOFOS2_Migration_Tool
 
                 conn.ArgSQLCommand = Query.GetBIRSeries();
                 conn.ArgSQLParam = new Dictionary<string, object>() { { "@transtype", docuType } };
-                //conn.ExecuteMySQL();
-
                 using (var dr = conn.MySQLExecuteReaderBeginTransaction())
                 {
                     while (dr.Read())
