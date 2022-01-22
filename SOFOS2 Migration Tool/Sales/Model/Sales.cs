@@ -61,6 +61,15 @@ namespace SOFOS2_Migration_Tool.Sales.Model
         public bool Printed { get; set; }
         public string TerminalNo { get; set; }
         public string AccountNo { get; set; }
+
+        #region ICloneable Members
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+        #endregion
     }
 
     public class SalesItem

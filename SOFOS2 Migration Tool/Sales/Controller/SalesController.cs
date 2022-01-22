@@ -12,6 +12,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
     {
         string transType = "PR";
 
+        #region Public Methods
+
         public List<Sales.Model.Sales> GetSalesHeader(string date)
         {
             try
@@ -156,7 +158,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
             transType = "";
             try
             {
-                Global g = new Global();
+                Global global = new Global();
                 int transNum = 0;
                 long series = 0;
                 
@@ -164,13 +166,109 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                 {
 
 
-                    transNum = g.GetLatestTransNum("sapt0", "transNum") + 1;
+                    transNum = global.GetLatestTransNum("sapt0", "transNum") + 1;
 
                     foreach (var item in _header)
                     {
                         currentReference = item.Reference;
                         transType = item.TransType;
-                        var param = new Dictionary<string, object>()
+                        
+                        #region Creation of Document
+
+                        CreateSalesHeaderDocument(conn, item, transNum);
+
+                        var details = _detail.Where(n => n.Reference == item.Reference).ToList();
+                        CreateSalesDetailDocument(conn, details, transNum);
+
+                        #endregion Creation of Document
+
+                        #region Creation of Cancellation document for cancelled document
+
+                        if (item.Cancelled)
+                        {
+                            transNum++;
+
+                            Sales.Model.Sales cancelledDocument = (Sales.Model.Sales)item.Clone();
+                            cancelledDocument.Crossreference = item.Reference;
+                            cancelledDocument.Reference = global.GetLatestTransactionReference("POS", "CD");
+                            cancelledDocument.TransType = "CD"; 
+
+                            CreateSalesHeaderDocument(conn, cancelledDocument, transNum);
+                            CreateSalesDetailDocument(conn, details, transNum);
+
+                            var cancelledDocumentseries = Convert.ToInt32(cancelledDocument.Reference.Replace(cancelledDocument.TransType, "")) + 1;
+                            UpdateLastReference(conn, cancelledDocumentseries, cancelledDocument.TransType);
+                        }
+
+                        #endregion Creation of Cancellation document for cancelled document
+
+                        transNum++;
+
+                        series = Convert.ToInt32(item.Reference.Replace(transType, "")) + 1;
+
+                        UpdateLastReference(conn, series, transType);
+                        
+                    }
+
+                    conn.CommitTransaction();
+                }
+
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        
+        #endregion Public Methods
+
+        #region Private Methods
+
+        private void CreateSalesDetailDocument(MySQLHelper conn, List<SalesItem> details, int transNum)
+        {
+            foreach (var detail in details)
+            {
+                var detailParam = new Dictionary<string, object>()
+                                {
+                                    {"@barcode", detail.Barcode },
+                                    {"@transNum", transNum },
+                                    {"@itemCode", detail.ItemCode },
+                                    {"@itemDescription", detail.ItemDescription },
+                                    {"@uomCode", detail.UomCode },
+                                    {"@uomDescription", detail.UomDescription },
+                                    {"@quantity", detail.Quantity },
+                                    {"@cost", detail.Cost },
+                                    {"@sellingPrice", detail.SellingPrice },
+                                    {"@feedsdiscount", detail.Feedsdiscount },
+                                    {"@total", detail.Total },
+                                    {"@conversion", detail.Conversion },
+                                    {"@systemDate", detail.SystemDate },
+                                    {"@idUser", detail.IdUser },
+                                    {"@srdiscount", detail.Srdiscount },
+                                    {"@runningQuantity", detail.RunningQuantity },
+                                    {"@kanegoDiscount", detail.KanegoDiscount },
+                                    {"@averageCost", detail.AverageCost },
+                                    {"@runningValue", detail.RunningValue },
+                                    {"@runningQty", detail.RunningQty },
+                                    {"@linetotal", detail.Linetotal },
+                                    {"@dedDiscount", detail.DedDiscount },
+                                    {"@vat", detail.Vat },
+                                    {"@vatable", detail.Vatable },
+                                    {"@vatexempt", detail.Vatexempt },
+                                    {"@cancelledQty", detail.CancelledQty }
+                                };
+
+                conn.ArgSQLCommand = SalesQuery.InsertSalesQuery(SalesEnum.SalesDetail);
+                conn.ArgSQLParam = detailParam;
+
+                //execute insert detail
+                var cmdDetail = conn.ExecuteMySQL();
+            }
+        }
+
+        private void CreateSalesHeaderDocument(MySQLHelper conn, Model.Sales item, int transNum)
+        {
+            var param = new Dictionary<string, object>()
                         {
                             { "@transDate", item.TransDate },
                             { "@transType", item.TransType },
@@ -224,73 +322,20 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
                         };
 
-                        conn.ArgSQLCommand = SalesQuery.InsertSalesQuery(SalesEnum.SalesHeader);
-                        conn.ArgSQLParam = param;
+            conn.ArgSQLCommand = SalesQuery.InsertSalesQuery(SalesEnum.SalesHeader);
+            conn.ArgSQLParam = param;
 
-                        //Execute insert header
-                        conn.ExecuteMySQL();
-
-                        #region Insert Details
-                        var details = _detail.Where(n => n.Reference == item.Reference).ToList();
-
-                        foreach (var detail in details)
-                        {
-                            currentReferenceDetail = detail.Reference;
-                            var detailParam = new Dictionary<string, object>()
-                                {
-                                    {"@barcode", detail.Barcode },
-                                    {"@transNum", transNum },
-                                    {"@itemCode", detail.ItemCode },
-                                    {"@itemDescription", detail.ItemDescription },
-                                    {"@uomCode", detail.UomCode },
-                                    {"@uomDescription", detail.UomDescription },
-                                    {"@quantity", detail.Quantity },
-                                    {"@cost", detail.Cost },
-                                    {"@sellingPrice", detail.SellingPrice },
-                                    {"@feedsdiscount", detail.Feedsdiscount },
-                                    {"@total", detail.Total },
-                                    {"@conversion", detail.Conversion },
-                                    {"@systemDate", detail.SystemDate },
-                                    {"@idUser", detail.IdUser },
-                                    {"@srdiscount", detail.Srdiscount },
-                                    {"@runningQuantity", detail.RunningQuantity },
-                                    {"@kanegoDiscount", detail.KanegoDiscount },
-                                    {"@averageCost", detail.AverageCost },
-                                    {"@runningValue", detail.RunningValue },
-                                    {"@runningQty", detail.RunningQty },
-                                    {"@linetotal", detail.Linetotal },
-                                    {"@dedDiscount", detail.DedDiscount },
-                                    {"@vat", detail.Vat },
-                                    {"@vatable", detail.Vatable },
-                                    {"@vatexempt", detail.Vatexempt },
-                                    {"@cancelledQty", detail.CancelledQty }
-                                };
-
-                            conn.ArgSQLCommand = SalesQuery.InsertSalesQuery(SalesEnum.SalesDetail);
-                            conn.ArgSQLParam = detailParam;
-
-                            //execute insert detail
-                            var cmdDetail = conn.ExecuteMySQL();
-                        }
-                        #endregion
-
-                        transNum++;
-                        series = Convert.ToInt32(item.Reference.Replace(transType, "")) + 1;
-
-                        conn.ArgSQLCommand = Query.UpdateReferenceCount();
-                        conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", transType } };
-                        conn.ExecuteMySQL();
-                    }
-
-                    conn.CommitTransaction();
-                }
-
-            }
-            catch
-            {
-                var x = currentReference + currentReferenceDetail;
-                throw;
-            }
+            //Execute insert header
+            conn.ExecuteMySQL();
         }
+
+        private void UpdateLastReference(MySQLHelper conn, long series, string transType)
+        {
+            conn.ArgSQLCommand = Query.UpdateReferenceCount();
+            conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", transType } };
+            conn.ExecuteMySQL();
+        }
+        
+        # endregion Private Methods
     }
 }
