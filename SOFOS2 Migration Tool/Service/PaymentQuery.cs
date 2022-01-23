@@ -20,7 +20,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as transNum,
                                     reference, 
                                     sum(credit) as total,
-                                    date as transDate,
+                                    DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') as transDate,
                                     idUser,
                                     idfile as memberId,
                                     '' as memberName,
@@ -41,9 +41,9 @@ namespace SOFOS2_Migration_Tool.Service
 
                 case payment.CRDetail:
 
-                    sQuery.Append(@"SELECT 
-                                    '' as detailNum, 
-                                    '' transNum, 
+                    sQuery.Append(@"SELECT  
+                                    '' transNum,
+                                    reference, 
                                     '' crossReference, 
                                     credit as amount, 
                                     idUser, 
@@ -63,7 +63,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as transNum,
                                     reference, 
                                     sum(credit) as total, 
-                                    date as transDate,
+                                    DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') as transDate,
                                     idUser,
                                     'CLOSED' as status,
                                     cancelled,
@@ -76,7 +76,8 @@ namespace SOFOS2_Migration_Tool.Service
 
                     sQuery.Append(@"SELECT
                                     '' as detailNum, 
-                                    '' transNum,  
+                                    '' transNum,
+                                    reference, 
                                     idaccount as accountCode,
                                     '' as crossReference,
                                     idUser,
@@ -143,14 +144,14 @@ namespace SOFOS2_Migration_Tool.Service
             {
                 case payment.CRHeader:
 
-                    sQuery.Append(@"INSERT INTO PPR00 (vendorCode,vendorName,transNum,reference,crossreference,Total,transType,toWarehouse,fromWarehouse,segmentCode,businessSegment,branchCode,remarks,cancelled,transDate,idUser,printed, extracted) 
-                            VALUES (@vendorCode,@vendorName,@transNum,@reference,@crossreference,@Total,@transType,@toWarehouse,@fromWarehouse,@segmentCode,@businessSegment,@branchCode,@remarks,@cancelled,@transDate,@idUser,@printed, @extracted)");
+                    sQuery.Append(@"INSERT INTO FP000 (transNum,reference,Total,transDate,idUser,memberId,memberName,status,cancelled,remarks,type,accountCode,paidBy,branchCode,extracted,transType,refTransType,AccountNo) 
+                            VALUES (@transNum,@reference,@Total,@transDate,@idUser,@memberId,@memberName,@status,@cancelled,@remarks,@type,@accountCode,@paidBy,@branchCode,@extracted,@transType,@refTransType,@AccountNo)");
 
                     break;
                 case payment.CRDetail:
 
-                    sQuery.Append(@"INSERT INTO PPR10 (barcode,transNum,itemCode,itemDescription,uomCode,uomDescription,quantity,remaining,price,Total,conversion,accountCode,transDate,idUser) 
-                            VALUES (@barcode,@transNum,@itemCode,@itemDescription,@uomCode,@uomDescription,@quantity,@remaining,@price,@Total,@conversion,@accountCode,@transDate,@idUser)");
+                    sQuery.Append(@"INSERT INTO FP100 (transNum,crossReference,amount,idUser,balance,accountCode,pType,accountName,refTransType) 
+                            VALUES (@transNum,@crossReference,@amount,@idUser,@balance,@accountCode,@pType,@accountName,@refTransType)");
 
                     break;
                 default:

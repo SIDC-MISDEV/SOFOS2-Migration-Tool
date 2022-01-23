@@ -48,11 +48,12 @@ namespace SOFOS2_Migration_Tool
             CollectionReceiptController crc = new CollectionReceiptController();
             var crheader = crc.GetCollectionReceiptHeader("2021-05-31", "OR");
             var crdetail = crc.GetCollectionReceiptDetail("2021-05-31", "OR");
+            crc.InsertCR(crheader, crdetail);
 
             JournalVoucherController jvc = new JournalVoucherController();
             var jvheader = jvc.GetJournalVoucherHeader("2021-03-31","JV");
             var jvdetail = jvc.GetJournalVoucherDetail("2021-03-31", "JV");
-            //test.InsertPR(data, detail);
+            
         }
     }
 }

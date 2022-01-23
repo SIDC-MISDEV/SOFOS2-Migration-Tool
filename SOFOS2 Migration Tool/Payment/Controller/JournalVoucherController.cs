@@ -84,6 +84,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                         {
                             result.Add(new JournalVoucher
                             {
+                                Reference = dr["reference"].ToString(),
                                 AccountCode = dr["accountCode"].ToString(),
                                 CrossReference = dr["crossReference"].ToString(),
                                 IdUser = dr["idUser"].ToString(),
