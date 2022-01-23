@@ -10,9 +10,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 {
     public class CollectionReceiptController
     {
-
         Global g = null;
-
         public List<CollectionReceipt> GetCollectionReceiptHeader(string date, string transprefix)
         {
             try
@@ -119,7 +117,6 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             {
                                 result.Where(c => c.AccountCode == oldinterestaccount).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
                             }
-
                         }
                     }
                 }

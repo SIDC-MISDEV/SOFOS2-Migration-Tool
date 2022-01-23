@@ -14,27 +14,22 @@ namespace SOFOS2_Migration_Tool.Payment.Model
         public decimal Total { get; set; }
         public string TransDate { get; set; }
         public string IdUser { get; set; }
-        public string MemberId { get; set; }
-        public string MemberName { get; set; }
         public string Status { get; set; }
         public bool Cancelled { get; set; }
         public string Remarks { get; set; }
-        public string sType { get; set; }
-        public string AccountCode { get; set; }
-        public string PaidBy { get; set; }
-        public string BranchCode { get; set; }
-        public string Extracted { get; set; }
-        public string TransType { get; set; }
-        public string Series { get; set; }
-        public string RefTransType { get; set; }
-        public string AccountNumber { get; set; }
 
         //Details
+        public string AccountCode { get; set; }
         public string CrossReference { get; set; }
-        public decimal Amount { get; set; }
-        public decimal Balance { get; set; }
-        public string pType { get; set; }
+        public decimal Debit { get; set; }
+        public decimal Credit { get; set; }
+        public string MemberId { get; set; }
+        public string MemberName { get; set; }
         public string AccountName { get; set; }
         public string DetRefTransType { get; set; }
+        public string IntComputed { get; set; }
+        public string PaidToDate { get; set; }
+        public string LastPaymentDate { get; set; }
+        public string AccountNumber { get; set; }
     }
 }
