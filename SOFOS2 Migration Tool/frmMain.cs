@@ -30,13 +30,20 @@ namespace SOFOS2_Migration_Tool
             test.InsertPR(data, detail);
             */
 
-            SalesController salesController = new SalesController();
+            //SalesController salesController = new SalesController();
 
-            var data = salesController.GetSalesHeader("2022-01-17");
-            var detail = salesController.GetSalesItems("2022-01-17");
-            var payment = salesController.GetSalesPayment("2022-01-17");
+            //var data = salesController.GetSalesHeader("2022-01-17");
+            //var detail = salesController.GetSalesItems("2022-01-17");
+            //var payment = salesController.GetSalesPayment("2022-01-17");
 
-            salesController.InsertSales(data, detail, payment);
+            //salesController.InsertSales(data, detail, payment);
+
+            ReturnFromCustomerController returnFromCustomerController = new ReturnFromCustomerController();
+
+            var data = returnFromCustomerController.GetReturnFromCustomerHeader("2022-01-17");
+            var detail = returnFromCustomerController.GetReturnFromCustomerItems("2022-01-17");
+
+            returnFromCustomerController.InsertReturnFromCustomer(data, detail);
         }
 
         private void frmMain_Load(object sender, EventArgs e)

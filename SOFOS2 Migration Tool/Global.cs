@@ -45,7 +45,7 @@ namespace SOFOS2_Migration_Tool
                 {
                     var data = conn.GetMySQLScalar();
 
-                    result = data == null ? 1 : Convert.ToInt32(data);
+                    result = data == null ? 0 : Convert.ToInt32(data);
                 }
 
                 return result;
