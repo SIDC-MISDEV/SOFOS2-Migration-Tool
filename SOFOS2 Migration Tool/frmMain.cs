@@ -1,4 +1,5 @@
-﻿using SOFOS2_Migration_Tool.Purchasing.Controller;
+﻿using SOFOS2_Migration_Tool.Inventory.Controller;
+using SOFOS2_Migration_Tool.Purchasing.Controller;
 using SOFOS2_Migration_Tool.Sales.Controller;
 using System;
 using System.Collections.Generic;
@@ -21,46 +22,58 @@ namespace SOFOS2_Migration_Tool
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            ReceiveFromVendorController test = new ReceiveFromVendorController();
-            PurchaseRequestController test2 = new PurchaseRequestController();
-            ReturnGoodsController test3 = new ReturnGoodsController();
             string date = string.Empty;
 
-            date = "2022-01-17";
+            date = "2022-01-19";
+            #region PR-SALES
 
-            test.InsertPR(data, detail);
-            
-            var data2 = test2.GetPRHeader(date);
-            var detail2 = test2.GetPRItem(date);
+            ReceiveFromVendorController rv = new ReceiveFromVendorController();
+            //PurchaseRequestController test2 = new PurchaseRequestController();
+            ReturnGoodsController rg = new ReturnGoodsController();
 
-            test2.InsertPR(data2, detail2);
 
-            var data = test.GetRVHeader(date);
-            var detail = test.GetRVItem(date);
+            //test.InsertPR(data, detail);
 
-            test.InsertRV(data, detail);
+            //var data2 = test2.GetPRHeader(date);
+            //var detail2 = test2.GetPRItem(date);
 
-            var data3 = test3.GetRGHeader(date);
-            var detail3 = test3.GetRGItem(date);
+            //test2.InsertPR(data2, detail2);
 
-            test3.InsertReturnGoods(data3, detail3);
-            
-            
+            var dataRV = rv.GetRVHeader(date);
+            var detailRV = rv.GetRVItem(date);
+
+            rv.InsertRV(dataRV, detailRV);
+
+            var dataRG = rg.GetRGHeader(date);
+            var detailRG = rg.GetRGItem(date);
+
+            rg.InsertReturnGoods(dataRG, detailRG);
+
+
             #region Sales Module
-            
+
             SalesController salesController = new SalesController();
-            var data = salesController.GetSalesHeader("2022-01-17");
-            var detail = salesController.GetSalesItems("2022-01-17");
-            var payment = salesController.GetSalesPayment("2022-01-17");
+            var data = salesController.GetSalesHeader(date);
+            var detail = salesController.GetSalesItems(date);
+            var payment = salesController.GetSalesPayment(date);
             salesController.InsertSales(data, detail, payment);
 
             ReturnFromCustomerController returnFromCustomerController = new ReturnFromCustomerController();
-            var data = returnFromCustomerController.GetReturnFromCustomerHeader("2022-01-17");
-            var detail = returnFromCustomerController.GetReturnFromCustomerItems("2022-01-17");
-            returnFromCustomerController.InsertReturnFromCustomer(data, detail);
-            
+            var data2 = returnFromCustomerController.GetReturnFromCustomerHeader(date);
+            var detail2 = returnFromCustomerController.GetReturnFromCustomerItems(date);
+            returnFromCustomerController.InsertReturnFromCustomer(data2, detail2);
+
             #endregion Sales Module
 
+            #endregion
+
+            #region Recompute Value and Quantity
+            RecomputeController recompute = new RecomputeController();
+
+            var trans = recompute.GetTransactions(date);
+
+            recompute.UpdateRunningQuantityValueCost(trans);
+            #endregion
         }
 
         private void frmMain_Load(object sender, EventArgs e)
