@@ -57,6 +57,7 @@
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
+    <Compile Include="Inventory\Model\GoodsReceipt.cs" />
     <Compile Include="Payment\Model\TransactionPayment.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Sales\Model\ReturnFromCustomer.cs" />
     <Compile Include="Sales\Model\Sales.cs" />
     <Compile Include="Purchasing\Model\ReturnGoods.cs" />
+    <Compile Include="Service\GoodsReceiptQuery.cs" />
     <Compile Include="Service\MySQLHelper.cs" />
     <Compile Include="Service\PurchasingQuery.cs" />
     <Compile Include="Service\Query.cs" />
@@ -104,7 +106,6 @@
     <Folder Include="Accounting\Controller\" />
     <Folder Include="Accounting\Model\" />
     <Folder Include="Inventory\Controller\" />
-    <Folder Include="Inventory\Model\" />
     <Folder Include="Payment\Controller\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
