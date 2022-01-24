@@ -110,14 +110,63 @@ namespace SOFOS2_Migration_Tool.Service
 
                     break;
                 case Process.Adjustment:
+
+                    sQuery.Append(@"UPDATE iia00 h 
+                            INNER JOIN iia10 d ON h.transNum = d.transNum
+                            SET
+                                d.runningQuantity = @runningQuantity,
+                                d.runningValue = @runningValue
+                            WHERE h.reference = @reference
+                            AND d.itemcode = @itemCode AND uomCode = @uomCode; ");
+
                     break;
                 case Process.Issuance:
+
+                    sQuery.Append(@"UPDATE iii00 h 
+                            INNER JOIN iii10 d ON h.transNum = d.transNum
+                            SET
+                                d.runningQty = @runningQuantity,
+                                d.runningValue = @runningValue,
+                                d.averageCost = @cost
+                            WHERE h.reference = @reference
+                            AND d.itemcode = @itemCode AND uomCode = @uomCode; ");
+
                     break;
                 case Process.ReturnGoods:
+
+                    sQuery.Append(@"UPDATE prg00 h 
+                            INNER JOIN prg10 d ON h.transNum = d.transNum
+                            SET
+                                d.runningQty = @runningQuantity,
+                                d.runningValue = @runningValue,
+                                d.averageCost = @cost
+                            WHERE h.reference = @reference
+                            AND d.itemcode = @itemCode AND uomCode = @uomCode; ");
+
                     break;
                 case Process.Receiving:
+
+                    sQuery.Append(@"UPDATE iir00 h 
+                            INNER JOIN iir10 d ON h.transNum = d.transNum
+                            SET
+                                d.runningQty = @runningQuantity,
+                                d.runningValue = @runningValue,
+                                d.averageCost = @cost
+                            WHERE h.reference = @reference
+                            AND d.itemcode = @itemCode AND uomCode = @uomCode; ");
+
                     break;
                 case Process.ReceiveFromVendor:
+
+                    sQuery.Append(@"UPDATE prv00 h 
+                            INNER JOIN prv10 d ON h.transNum = d.transNum
+                            SET
+                                d.runningQty = @runningQuantity,
+                                d.runningValue = @runningValue,
+                                d.averageCost = @cost
+                            WHERE h.reference = @reference
+                            AND d.itemcode = @itemCode AND uomCode = @uomCode; ");
+
                     break;
                 default:
                     break;
@@ -135,7 +184,6 @@ namespace SOFOS2_Migration_Tool.Service
         {
             return new StringBuilder(@"UPDATE iiuom SET cost = @cost * conversion WHERE itemCode = @itemCode;");
         }
-
 
     }
 
