@@ -9,7 +9,7 @@
       <Value Profile="(Default)">mahabang_parang</Value>
     </Setting>
     <Setting Name="DESTINATION_DB" Type="System.String" Scope="User">
-      <Value Profile="(Default)">sofos2_1_13</Value>
+      <Value Profile="(Default)">sofos2_mp</Value>
     </Setting>
     <Setting Name="USERNAME" Type="System.String" Scope="User">
       <Value Profile="(Default)">root</Value>

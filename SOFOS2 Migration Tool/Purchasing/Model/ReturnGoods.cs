@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SOFOS2_Migration_Tool.Purchasing.Model
 {
-    public class ReceiveFromVendor
+    public class ReturnGoods
     {
         public string Reference { get; set; }
         public string CrossReference { get; set; }
@@ -29,9 +29,9 @@ namespace SOFOS2_Migration_Tool.Purchasing.Model
         public string Extracted { get; set; }
     }
 
-    public class ReceiveFromVendorItem
+    public class ReturnGoodsItem
     {
-        public int PRId { get; set; }
+        public int RgId { get; set; }
         public string Reference { get; set; }
         public string Barcode { get; set; }
         public string ItemCode { get; set; }

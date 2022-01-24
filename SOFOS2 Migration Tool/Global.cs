@@ -60,7 +60,6 @@ namespace SOFOS2_Migration_Tool
         {
             try
             {
-                int result = 0;
                 string query = string.Empty;
 
                 query = $@"SELECT main_segment, business_segment, branchCode, branchName, whse FROM business_segments;";

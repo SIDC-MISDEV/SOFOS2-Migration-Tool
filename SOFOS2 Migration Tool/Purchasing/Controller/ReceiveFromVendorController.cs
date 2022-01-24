@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace SOFOS2_Migration_Tool.Purchasing.Controller
 {
-    public class PurchaseRequestController
+    public class ReceiveFromVendorController
     {
-        string transType = "PR";
+        string transType = "RV";
 
-        public List<PurchaseRequest> GetPRHeader(string date)
+        public List<ReceiveFromVendor> GetRVHeader(string date)
         {
             try
             {
-                var result = new List<PurchaseRequest>();
+                var result = new List<ReceiveFromVendor>();
 
                 var prm = new Dictionary<string, object>()
                 {
@@ -24,28 +24,30 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                     { "@transtype", transType }
                 };
 
-                using (var conn = new MySQLHelper(Global.SourceDatabase, PurchasingQuery.GetQuery(PR.PRHeader), prm))
+                using (var conn = new MySQLHelper(Global.SourceDatabase, PurchasingQuery.GetQuery(PR.RVHeader), prm))
                 {
                     using (var dr = conn.MySQLReader())
                     {
                         while (dr.Read())
                         {
-                            result.Add(new PurchaseRequest
+                            result.Add(new ReceiveFromVendor
                             {
-                                TransactionDate = dr["date"].ToString(),
-                                Reference = dr["reference"].ToString(),
-                                Total = Convert.ToDecimal(dr["total"]),
-                                Remarks = dr["remarks"].ToString(),
-                                VendorCode = dr["Vendor"].ToString(),
-                                VendorName = dr["vendorname"].ToString(),
-                                VendorAddress = dr["vendoraddress"].ToString(),
-                                TransType = dr["transtype"].ToString(),
-                                Cancelled = Convert.ToBoolean(dr["cancelled"]),
-                                SegmentCode = Global.MainSegment,
-                                BusinessCode = Global.BusinessSegment,
                                 BranchCode = Global.BranchCode,
-                                Extracted = dr["extracted"].ToString(),
-                                Iduser = dr["idUser"].ToString()
+                                BussinessSegment = Global.BusinessSegment,
+                                SegmentCode = Global.MainSegment,
+                                Cancelled = Convert.ToBoolean(dr["cancelled"]),
+                                CrossReference = dr["crossReference"].ToString(),
+                                ToWarehouse = Global.WarehouseCode,
+                                Reference = dr["reference"].ToString(),
+                                VendorCode = dr["VendorCode"].ToString(),
+                                VendorName = dr["VendorName"].ToString(),
+                                VendorAddress = dr["VendorAddress"].ToString(),
+                                Total = Convert.ToDecimal(dr["total"]),
+                                TransType = dr["transType"].ToString(),
+                                Status = "CLOSED",
+                                TransDate = dr["date"].ToString(),
+                                IdUser = dr["idUser"].ToString(),
+                                Extracted = dr["extracted"].ToString()
                             });
                         }
                     }
@@ -60,11 +62,11 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
             }
         }
 
-        public List<PurchaseRequestItem> GetPRItem(string date)
+        public List<ReceiveFromVendorItem> GetRVItem(string date)
         {
             try
             {
-                var result = new List<PurchaseRequestItem>();
+                var result = new List<ReceiveFromVendorItem>();
 
                 var prm = new Dictionary<string, object>()
                 {
@@ -72,25 +74,24 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                     { "@transType", transType }
                 };
 
-                using (var conn = new MySQLHelper(Global.SourceDatabase, PurchasingQuery.GetQuery(PR.PRDetail), prm))
+                using (var conn = new MySQLHelper(Global.SourceDatabase, PurchasingQuery.GetQuery(PR.RVDetail), prm))
                 {
                     using (var dr = conn.MySQLReader())
                     {
                         while (dr.Read())
                         {
-                            result.Add(new PurchaseRequestItem
+                            result.Add(new ReceiveFromVendorItem
                             {
+                                Barcode = dr["Barcode"].ToString(),
                                 Reference = dr["reference"].ToString(),
-                                Barcode = dr["barcode"].ToString(),
-                                ItemCode = dr["ItemCode"].ToString(),
-                                ItemDescription = dr["Description"].ToString(),
-                                UOMCode = dr["UOM"].ToString(),
-                                UOMDescription = dr["UOMDescription"].ToString(),
+                                ItemCode = dr["itemCode"].ToString(),
+                                ItemDescription = dr["name"].ToString(),
+                                UOMCode = dr["uomcode"].ToString(),
+                                UOMDescription = dr["UOMCode"].ToString(),
                                 Quantity = Convert.ToDecimal(dr["Quantity"]),
-                                RemainingQuantity = Convert.ToDecimal(dr["Remaining"]),
-                                Price = Convert.ToDecimal(dr["Price"]),
-                                Total = Convert.ToDecimal(dr["Total"]),
-                                Conversion = Convert.ToDecimal(dr["Conversion"])
+                                Price = Convert.ToDecimal(dr["cost"]),
+                                Total = Convert.ToDecimal(dr["total"]),
+                                Conversion = Convert.ToDecimal(dr["conversion"])
                             });
                         }
                     }
@@ -105,8 +106,7 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
             }
         }
 
-
-        public void InsertPR(List<PurchaseRequest> _header, List<PurchaseRequestItem> _detail)
+        public void InsertRV(List<ReceiveFromVendor> _header, List<ReceiveFromVendorItem> _detail)
         {
             try
             {
@@ -122,6 +122,10 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
 
                     foreach (var item in _header)
                     {
+                        /*
+                         @vendorCode,@vendorName,@transNum,@reference,@crossreference,@inventoryRequest,
+                         @Total,@transType,@toWarehouse,@fromWarehouse,@segmentCode,@businessSegment,
+                         @branchCode,@remarks,@cancelled,@transDate,@idUser,@status, @extracted*/
                         var param = new Dictionary<string, object>()
                         {
                             { "@vendorCode", item.VendorCode },
@@ -129,25 +133,25 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                             { "@transNum", transNum },
                             { "@reference", item.Reference },
                             { "@crossreference", item.CrossReference },
+                            { "@inventoryRequest", item.PRReference },
                             { "@Total", item.Total },
                             { "@transType", item.TransType },
                             { "@toWarehouse", Global.WarehouseCode },
                             { "@fromWarehouse", item.FromWarehouse },
                             { "@segmentCode", item.SegmentCode },
-                            { "@businessSegment", item.BusinessCode },
+                            { "@businessSegment", item.BussinessSegment },
                              { "@branchCode", item.BranchCode },
                             { "@remarks", "Inserted by Migration Tool" },
                             { "@cancelled", item.Cancelled },
-                            { "@transDate", item.TransactionDate },
-                            { "@idUser", item.Iduser },
-                            { "@printed", "1" },
+                            { "@transDate", item.TransDate },
+                            { "@idUser", item.IdUser },
+                            { "@status", item.Status },
                             {"@extracted", item.Extracted }
                         };
 
-                        conn.ArgSQLCommand = PurchasingQuery.InsertTransaction(PR.PRHeader);
+                        //Saving transaction header
+                        conn.ArgSQLCommand = PurchasingQuery.InsertTransaction(PR.RVHeader);
                         conn.ArgSQLParam = param;
-
-                        //Execute insert header
                         conn.ExecuteMySQL();
 
                         #region Insert Details
@@ -168,21 +172,33 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                                     {"@price", detail.Price },
                                     {"@total", detail.Total },
                                     {"@conversion", detail.Conversion },
-                                    {"@transDate", item.TransactionDate },
-                                    {"@iduser", item.Iduser },
+                                    {"@transDate", item.TransDate },
+                                    {"@iduser", item.IdUser },
                                     {"@accountCode", detail.AccountCode }
                                 };
 
-                            conn.ArgSQLCommand = PurchasingQuery.InsertTransaction(PR.PRDetail);
-                            conn.ArgSQLParam = detailParam;
+                            var lppParam = new Dictionary<string, object>()
+                            {
+                                { "@itemCode", detail.ItemCode },
+                                { "@uomCode", detail.UOMCode },
+                                { "@cost", detail.Price }
+                            };
 
-                            //execute insert detail
-                            var cmdDetail = conn.ExecuteMySQL();
+                            //Saving transaction details
+                            conn.ArgSQLCommand = PurchasingQuery.InsertTransaction(PR.RVDetail);
+                            conn.ArgSQLParam = detailParam;
+                            conn.ExecuteMySQL();
+
+                            //Updating last purchase price
+                            conn.ArgSQLCommand = PurchasingQuery.UpdateLastPurchasePrice();
+                            conn.ArgSQLParam = lppParam;
+                            conn.ExecuteMySQL();
+
                         }
                         #endregion
 
                         transNum++;
-                        series = Convert.ToInt32(item.Reference.Replace(transType,"")) + 1;
+                        series = Convert.ToInt32(item.Reference.Replace(transType, "")) + 1;
                     }
 
                     conn.ArgSQLCommand = Query.UpdateReferenceCount();
@@ -192,7 +208,6 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
 
                     conn.CommitTransaction();
                 }
-
             }
             catch
             {
@@ -200,6 +215,5 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                 throw;
             }
         }
-
     }
 }
