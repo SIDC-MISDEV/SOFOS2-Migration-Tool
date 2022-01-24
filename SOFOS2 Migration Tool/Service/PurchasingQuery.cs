@@ -8,7 +8,7 @@ namespace SOFOS2_Migration_Tool.Service
 {
     public class PurchasingQuery
     {
-        public static StringBuilder GetPRQuery(PR process)
+        public static StringBuilder GetQuery(PR process)
         {
             var sQuery = new StringBuilder();
 
@@ -27,7 +27,8 @@ namespace SOFOS2_Migration_Tool.Service
                               f.address as 'VendorAddress',
                               left(l.reference, 2) 'TransType',
                               l.cancelled,
-                              l.extracted
+                              l.extracted,
+                              l.idUser
                             FROM ledger l
                             INNER JOIN invoice i ON l.reference = i.reference
                             INNER JOIN files f ON l.idfile = f.idfile
@@ -63,6 +64,70 @@ namespace SOFOS2_Migration_Tool.Service
                         ORDER BY l.reference ASC;");
 
                     break;
+
+                case PR.RVHeader:
+
+                    sQuery.Append(@"SELECT
+	                        DATE_FORMAT(l.date, '%Y-%m-%d %H:%i:%s') as date,
+	                        l.reference,
+	                        l.crossReference,
+	                        l.idFile 'VendorCode',
+	                        f.name 'VendorName',
+                            f.address as 'VendorAddress',
+	                        l.credit 'Total',
+	                        left(l.reference, 2) 'TransType',
+	                        l.cancelled,
+	                        l.extracted,
+                            l.idUser
+                        FROM ledger l
+                        INNER JOIN files f ON l.idfile = f.idfile
+                        where left(reference, 2) = @transType AND date(l.date) = @date;");
+
+                    break;
+
+                case PR.RGHeader:
+
+                    sQuery.Append(@"SELECT
+	                        DATE_FORMAT(l.date, '%Y-%m-%d %H:%i:%s') as date,
+	                        l.reference,
+	                        l.crossReference,
+	                        l.idFile 'VendorCode',
+	                        f.name 'VendorName',
+                            f.address as 'VendorAddress',
+	                        l.debit 'Total',
+	                        left(l.reference, 2) 'TransType',
+	                        l.cancelled,
+	                        l.extracted,
+                            l.idUser
+                        FROM ledger l
+                        INNER JOIN files f ON l.idfile = f.idfile
+                        where left(reference, 2) = @transType AND date(l.date) = @date;");
+
+                    break;
+
+                case PR.RVDetail:
+                case PR.RGDetail:
+
+                    sQuery.Append(@"SELECT
+                            i.reference,
+	                        p.barcode,
+	                        i.idstock 'ItemCode',
+	                        s.name,
+	                        i.unit 'UOMCode',
+	                        i.unit 'UOMDescription',
+	                        i.quantity,
+	                        i.quantity + i.variance 'Remaining',
+	                        i.cost,
+	                        i.quantity * i.cost 'Total',
+	                        i.unitQuantity 'Conversion'
+                        FROM invoice i
+                        INNER JOIN stocks s ON i.idstock = s.idstock
+                        INNER JOIN ledger l ON i.reference = l.reference
+                        INNER JOIN pcosting p ON s.idstock = p.idstock AND i.unit = p.unit
+                        WHERE left(i.reference ,2 ) = @transType AND date(l.date) = @date;");
+
+                    break;
+
                 default:
                     break;
             }
@@ -70,7 +135,7 @@ namespace SOFOS2_Migration_Tool.Service
             return sQuery;
         }
 
-        public static StringBuilder InsertPR(PR process)
+        public static StringBuilder InsertTransaction(PR process)
         {
             var sQuery = new StringBuilder();
 
@@ -88,6 +153,34 @@ namespace SOFOS2_Migration_Tool.Service
                             VALUES (@barcode,@transNum,@itemCode,@itemDescription,@uomCode,@uomDescription,@quantity,@remaining,@price,@Total,@conversion,@accountCode,@transDate,@idUser)");
 
                     break;
+
+                case PR.RVHeader:
+
+                    sQuery.Append(@"INSERT INTO PRV00 (vendorCode,vendorName,transNum,reference,crossreference,prReference,Total,transType,toWarehouse,fromWarehouse,segmentCode,businessSegment,branchCode,remarks,cancelled,transDate,idUser,status, extracted) 
+                            VALUES (@vendorCode,@vendorName,@transNum,@reference,@crossreference,@inventoryRequest,@Total,@transType,@toWarehouse,@fromWarehouse,@segmentCode,@businessSegment,@branchCode,@remarks,@cancelled,@transDate,@idUser,@status, @extracted)");
+
+                    break;
+                case PR.RVDetail:
+
+                    sQuery.Append(@"INSERT INTO PRV10 (barcode,transNum,itemCode,itemDescription,uomCode,uomDescription,quantity,remaining,price,Total,conversion,accountCode,transDate,idUser)
+                            VALUES (@barcode,@transNum,@itemCode,@itemDescription,@uomCode,@uomDescription,@quantity,@remaining,@price,@Total,@conversion,@accountCode,@transDate,@idUser)");
+
+                    break;
+
+                case PR.RGHeader:
+
+                    sQuery.Append(@"INSERT INTO PRG00 (vendorCode,vendorName,transNum,reference,crossreference,Total,transType,toWarehouse,fromWarehouse,segmentCode,businessSegment,branchCode,remarks,cancelled,transDate,idUser,status,extracted) 
+                        VALUES (@vendorCode,@vendorName,@transNum,@reference,@crossreference,@Total,@transType,@toWarehouse,@fromWarehouse,@segmentCode,@businessSegment,@branchCode,@remarks,@cancelled,@transDate,@idUser, @status, @extracted)");
+
+                    break;
+
+                case PR.RGDetail:
+
+                    sQuery.Append(@"INSERT INTO PRG10 (barcode,transNum,itemCode,itemDescription,uomCode,uomDescription,quantity,price,Total,conversion,accountCode,transDate,idUser)
+                        VALUES (@barcode,@transNum,@itemCode,@itemDescription,@uomCode,@uomDescription,@quantity,@price,@Total,@conversion,@accountCode,@transDate,@idUser)");
+
+                    break;
+                
                 default:
                     break;
             }
@@ -95,16 +188,16 @@ namespace SOFOS2_Migration_Tool.Service
             return sQuery;
         }
 
-        
-    }
+        public static StringBuilder UpdateLastPurchasePrice()
+        {
+            return new StringBuilder(@"UPDATE iiuom set lastPurchasePrice = @cost where itemCode=@itemCode and uomcode=@uomCode;");
+        }
 
-    public enum ItemMasterData
-    {
-        Item, ItemUOM, UOM, Category, SubCategory, SubSubCategory
+        
     }
 
     public enum PR
     {
-        PRHeader, PRDetail
+        PRHeader, PRDetail, RVHeader, RVDetail, RGHeader, RGDetail
     }
 }
