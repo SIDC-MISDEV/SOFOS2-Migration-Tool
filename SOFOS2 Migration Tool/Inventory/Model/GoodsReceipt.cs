@@ -20,7 +20,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Model
         public string BusinessSegment { get; set; }
         public string BranchCode { get; set; }
         public string Remarks { get; set; }
-        public string Cancelled { get; set; }
+        public bool Cancelled { get; set; }
         public string Status { get; set; }
         public string TransDate { get; set; }
         public string SystemDate { get; set; }
@@ -45,7 +45,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Model
         #endregion
     }
 
-    public class GoodsReceiptItem
+    public class GoodsReceiptItems
     {
         public int DetailNum { get; set; }
         public string Reference { get; set; }
@@ -66,7 +66,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Model
         public string WarehouseCode { get; set; }
         public string TransDate { get; set; }
         public decimal RunningQty { get; set; }
-        public string AverageCost { get; set; }
-        public string RunningValue { get; set; }
+        public decimal AverageCost { get; set; }
+        public decimal RunningValue { get; set; }
     }
 }

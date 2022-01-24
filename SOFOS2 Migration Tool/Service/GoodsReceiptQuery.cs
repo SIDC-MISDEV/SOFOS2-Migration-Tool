@@ -52,6 +52,7 @@ namespace SOFOS2_Migration_Tool.Service
                 case GoodsReceiptEnum.GoodsReceiptDetail:
 
                     sQuery.Append(@"SELECT
+                                    DATE_FORMAT(l.date, '%Y-%m-%d %H:%i:%s') AS 'TransDate',
                                     i.reference AS 'Reference',
                                     p.barcode AS 'Barcode',
                                     i.idstock AS 'ItemCode',
@@ -79,7 +80,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     LEFT(i.reference, 2) IN ('RR','TR')
                                     AND date(l.date) = @date
                                     GROUP BY i.reference, i.idstock, i.unit,i.Cost
-                                    ORDER BY l.reference ASC;;
+                                    ORDER BY l.reference ASC;
                                     ");
                     break;
 
@@ -90,19 +91,19 @@ namespace SOFOS2_Migration_Tool.Service
             return sQuery;
         }
 
-        public static StringBuilder InsertSalesQuery(GoodsReceiptEnum process)
+        public static StringBuilder InsertGoodsReceiptQuery(GoodsReceiptEnum process)
         {
             var sQuery = new StringBuilder();
 
             switch (process)
             {
                 case GoodsReceiptEnum.GoodsReceiptHeader:
-                    sQuery.Append(@"INSERT INTO SAPT0 (transNum, reference, crossreference, invRequestRefence, Total, transType, toWarehouse, fromWarehouse, segmentCode, businessSegment, branchCode, remarks, cancelled, status, transDate, systemDate, idUser, extracted, vendorCode, fromBranchCode, accountCode, accountName, IsDummy, IsManual, AccountNo, TerminalNo) 
+                    sQuery.Append(@"INSERT INTO IIR00 (transNum, reference, crossreference, invRequestRefence, Total, transType, toWarehouse, fromWarehouse, segmentCode, businessSegment, branchCode, remarks, cancelled, status, transDate, systemDate, idUser, extracted, vendorCode, fromBranchCode, accountCode, accountName, IsDummy, IsManual, AccountNo, TerminalNo) 
                             VALUES (@transNum, @reference, @crossreference, @invRequestRefence, @Total, @transType, @toWarehouse, @fromWarehouse, @segmentCode, @businessSegment, @branchCode, @remarks, @cancelled, @status, @transDate, @systemDate, @idUser, @extracted, @vendorCode, @fromBranchCode, @accountCode, @accountName, @IsDummy, @IsManual, @AccountNo, @TerminalNo)");
 
                     break;
                 case GoodsReceiptEnum.GoodsReceiptDetail:
-                    sQuery.Append(@"INSERT INTO SAPT1 (transNum, barcode, itemCode, itemDescription, uomCode, uomDescription, quantity, remaining, price, Total, conversion, accountCode, warehouseCode, systemDate, transDate, idUser, runningQty, averageCost, runningValue) 
+                    sQuery.Append(@"INSERT INTO IIR10 (transNum, barcode, itemCode, itemDescription, uomCode, uomDescription, quantity, remaining, price, Total, conversion, accountCode, warehouseCode, systemDate, transDate, idUser, runningQty, averageCost, runningValue) 
                             VALUES (@transNum, @barcode, @itemCode, @itemDescription, @uomCode, @uomDescription, @quantity, @remaining, @price, @Total, @conversion, @accountCode, @warehouseCode, @systemDate, @transDate, @idUser, @runningQty, @averageCost, @runningValue)");
 
                     break;

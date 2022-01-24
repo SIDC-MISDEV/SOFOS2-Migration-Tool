@@ -57,6 +57,7 @@
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
+    <Compile Include="Inventory\Controller\GoodsReceiptController.cs" />
     <Compile Include="Inventory\Model\GoodsReceipt.cs" />
     <Compile Include="Payment\Model\TransactionPayment.cs" />
     <Compile Include="Program.cs" />
@@ -105,7 +106,6 @@
   <ItemGroup>
     <Folder Include="Accounting\Controller\" />
     <Folder Include="Accounting\Model\" />
-    <Folder Include="Inventory\Controller\" />
     <Folder Include="Payment\Controller\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
