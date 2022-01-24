@@ -69,10 +69,15 @@ namespace SOFOS2_Migration_Tool
             //var goodsReceiptdetail = goodsReceiptController.GetGoodsReceiptItems(date);
             //goodsReceiptController.InsertGoodsReceipt(goodsReceiptdata, goodsReceiptdetail);
 
-            GoodsIssuanceController goodsIssuanceController = new GoodsIssuanceController();
-            var goodsIssuancedata = goodsIssuanceController.GetGoodsIssuanceHeader(date);
-            var goodsIssuancedetail = goodsIssuanceController.GetGoodsIssuanceItems(date);
-            goodsIssuanceController.InsertGoodsIssuance(goodsIssuancedata, goodsIssuancedetail);
+            //GoodsIssuanceController goodsIssuanceController = new GoodsIssuanceController();
+            //var goodsIssuancedata = goodsIssuanceController.GetGoodsIssuanceHeader(date);
+            //var goodsIssuancedetail = goodsIssuanceController.GetGoodsIssuanceItems(date);
+            //goodsIssuanceController.InsertGoodsIssuance(goodsIssuancedata, goodsIssuancedetail);
+
+            AdjustmentController adjustmentController = new AdjustmentController();
+            var adjustmentData = adjustmentController.GetAdjustmentHeader(date);
+            var adjustmentDetail = adjustmentController.GetAdjustmentItems(date);
+            adjustmentController.InsertAdjustment(adjustmentData, adjustmentDetail);
             #endregion Sales Module
 
         }
