@@ -22,40 +22,23 @@ namespace SOFOS2_Migration_Tool
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-
             string date = string.Empty;
-
             date = "2022-01-19";
-            #region PR-SALES
 
+            #region Purchasing Module
+            //PurchaseRequestController test2 = new PurchaseRequestController();
 
             ReceiveFromVendorController rv = new ReceiveFromVendorController();
-            //PurchaseRequestController test2 = new PurchaseRequestController();
-            ReturnGoodsController rg = new ReturnGoodsController();
-
-            //test.InsertPR(data, detail);
-
-            //var data2 = test2.GetPRHeader(date);
-            //var detail2 = test2.GetPRItem(date);
-
-            //test2.InsertPR(data2, detail2);
-
-
-
-            
-
-           
-
             var dataRV = rv.GetRVHeader(date);
             var detailRV = rv.GetRVItem(date);
-
             rv.InsertRV(dataRV, detailRV);
 
+            ReturnGoodsController rg = new ReturnGoodsController();
             var dataRG = rg.GetRGHeader(date);
             var detailRG = rg.GetRGItem(date);
-
             rg.InsertReturnGoods(dataRG, detailRG);
 
+            #endregion Purchasing Module
 
             #region Sales Module
 
@@ -73,7 +56,6 @@ namespace SOFOS2_Migration_Tool
              
 
             #endregion Sales Module
-
 
             #region Inventory Module
             
