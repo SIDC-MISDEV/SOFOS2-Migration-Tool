@@ -49,7 +49,7 @@ namespace SOFOS2_Migration_Tool.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("sofos2_mp")]
+        [global::System.Configuration.DefaultSettingValueAttribute("sofos2_mp_sales")]
         public string DESTINATION_DB {
             get {
                 return ((string)(this["DESTINATION_DB"]));

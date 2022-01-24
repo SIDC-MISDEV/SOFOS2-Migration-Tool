@@ -116,16 +116,13 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
-
-
                     transNum = g.GetLatestTransNum("prg00", "transNum");
 
                     foreach (var item in _header)
                     {
-                        /*
-                             (@vendorCode,@vendorName,@transNum,@reference,@crossreference,@Total,
-                             @transType,@toWarehouse,@fromWarehouse,@segmentCode,@businessSegment,@branchCode,@remarks,@cancelled,@transDate,@idUser, @status, @xtracted);
-                             */
+                        transNum++;
+                        series = Convert.ToInt32(item.Reference.Replace(transType, "")) + 1;
+
                         var param = new Dictionary<string, object>()
                         {
                             { "@vendorCode", item.VendorCode },
@@ -184,13 +181,11 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                             conn.ExecuteMySQL();
                         }
                         #endregion
-
-                        transNum++;
-                        series = Convert.ToInt32(item.Reference.Replace(transType, "")) + 1;
+                  
                     }
 
                     conn.ArgSQLCommand = Query.UpdateReferenceCount();
-                    conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", transType } };
+                    conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series }, { "@transtype", transType } };
                     conn.ExecuteMySQL();
 
 

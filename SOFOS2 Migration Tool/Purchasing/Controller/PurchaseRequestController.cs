@@ -118,10 +118,13 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                 {
 
 
-                    transNum = g.GetLatestTransNum("ppr00", "transNum");
+                    transNum = g.GetLatestTransNum("ppr00", "transNum") + 1;
 
                     foreach (var item in _header)
                     {
+                        transNum++;
+                        series = Convert.ToInt32(item.Reference.Replace(transType, "")) + 1;
+
                         var param = new Dictionary<string, object>()
                         {
                             { "@vendorCode", item.VendorCode },
@@ -181,12 +184,11 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                         }
                         #endregion
 
-                        transNum++;
-                        series = Convert.ToInt32(item.Reference.Replace(transType,"")) + 1;
+                        
                     }
 
                     conn.ArgSQLCommand = Query.UpdateReferenceCount();
-                    conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", transType } };
+                    conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series }, { "@transtype", transType } };
                     conn.ExecuteMySQL();
 
 
