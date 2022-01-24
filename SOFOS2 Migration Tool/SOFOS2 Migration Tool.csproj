@@ -57,7 +57,9 @@
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
+    <Compile Include="Inventory\Controller\GoodsIssuanceController.cs" />
     <Compile Include="Inventory\Controller\GoodsReceiptController.cs" />
+    <Compile Include="Inventory\Model\GoodsIssuance.cs" />
     <Compile Include="Inventory\Model\GoodsReceipt.cs" />
     <Compile Include="Payment\Model\TransactionPayment.cs" />
     <Compile Include="Program.cs" />
@@ -72,6 +74,7 @@
     <Compile Include="Sales\Model\ReturnFromCustomer.cs" />
     <Compile Include="Sales\Model\Sales.cs" />
     <Compile Include="Purchasing\Model\ReturnGoods.cs" />
+    <Compile Include="Service\GoodsIssuanceQuery.cs" />
     <Compile Include="Service\GoodsReceiptQuery.cs" />
     <Compile Include="Service\MySQLHelper.cs" />
     <Compile Include="Service\PurchasingQuery.cs" />

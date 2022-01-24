@@ -64,12 +64,15 @@ namespace SOFOS2_Migration_Tool
 
             #region Inventory Module
 
-            GoodsReceiptController goodsReceiptController = new GoodsReceiptController();
-            var goodsReceiptdata = goodsReceiptController.GetGoodsReceiptHeader(date);
-            var goodsReceiptdetail = goodsReceiptController.GetGoodsReceiptItems(date);
-            goodsReceiptController.InsertGoodsReceipt(goodsReceiptdata, goodsReceiptdetail);
+            //GoodsReceiptController goodsReceiptController = new GoodsReceiptController();
+            //var goodsReceiptdata = goodsReceiptController.GetGoodsReceiptHeader(date);
+            //var goodsReceiptdetail = goodsReceiptController.GetGoodsReceiptItems(date);
+            //goodsReceiptController.InsertGoodsReceipt(goodsReceiptdata, goodsReceiptdetail);
 
-
+            GoodsIssuanceController goodsIssuanceController = new GoodsIssuanceController();
+            var goodsIssuancedata = goodsIssuanceController.GetGoodsIssuanceHeader(date);
+            var goodsIssuancedetail = goodsIssuanceController.GetGoodsIssuanceItems(date);
+            goodsIssuanceController.InsertGoodsIssuance(goodsIssuancedata, goodsIssuancedetail);
             #endregion Sales Module
 
         }
