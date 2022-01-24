@@ -22,12 +22,16 @@ namespace SOFOS2_Migration_Tool
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            //ReceiveFromVendorController test = new ReceiveFromVendorController();
-            //PurchaseRequestController test2 = new PurchaseRequestController();
-            //ReturnGoodsController test3 = new ReturnGoodsController();
+
             string date = string.Empty;
 
-            date = "2022-01-17";
+            date = "2022-01-19";
+            #region PR-SALES
+
+
+            ReceiveFromVendorController rv = new ReceiveFromVendorController();
+            //PurchaseRequestController test2 = new PurchaseRequestController();
+            ReturnGoodsController rg = new ReturnGoodsController();
 
             //test.InsertPR(data, detail);
 
@@ -36,50 +40,67 @@ namespace SOFOS2_Migration_Tool
 
             //test2.InsertPR(data2, detail2);
 
-            //var data = test.GetRVHeader(date);
-            //var detail = test.GetRVItem(date);
-
-            //test.InsertRV(data, detail);
-
-            //var data3 = test3.GetRGHeader(date);
-            //var detail3 = test3.GetRGItem(date);
-
-            //test3.InsertReturnGoods(data3, detail3);
 
 
-            //#region Sales Module
+            
 
-            //SalesController salesController = new SalesController();
-            //var salesdata = salesController.GetSalesHeader(date);
-            //var salesdetail = salesController.GetSalesItems(date);
-            //var salespayment = salesController.GetSalesPayment(date);
-            //salesController.InsertSales(salesdata, salesdetail, salespayment);
+           
 
-            //ReturnFromCustomerController returnFromCustomerController = new ReturnFromCustomerController();
-            //var returnFromCustomerdata = returnFromCustomerController.GetReturnFromCustomerHeader(date);
-            //var returnFromCustomerdetail = returnFromCustomerController.GetReturnFromCustomerItems(date);
-            //returnFromCustomerController.InsertReturnFromCustomer(returnFromCustomerdata, returnFromCustomerdetail);
+            var dataRV = rv.GetRVHeader(date);
+            var detailRV = rv.GetRVItem(date);
 
-            //#endregion Sales Module
+            rv.InsertRV(dataRV, detailRV);
+
+            var dataRG = rg.GetRGHeader(date);
+            var detailRG = rg.GetRGItem(date);
+
+            rg.InsertReturnGoods(dataRG, detailRG);
+
+
+            #region Sales Module
+
+            SalesController salesController = new SalesController();
+            var data = salesController.GetSalesHeader(date);
+            var detail = salesController.GetSalesItems(date);
+            var payment = salesController.GetSalesPayment(date);
+            salesController.InsertSales(data, detail, payment);
+
+            ReturnFromCustomerController returnFromCustomerController = new ReturnFromCustomerController();
+            var data2 = returnFromCustomerController.GetReturnFromCustomerHeader(date);
+            var detail2 = returnFromCustomerController.GetReturnFromCustomerItems(date);
+            returnFromCustomerController.InsertReturnFromCustomer(data2, detail2);
+            
+             
+
+            #endregion Sales Module
+
 
             #region Inventory Module
+            
+            GoodsReceiptController goodsReceiptController = new GoodsReceiptController();
+            var goodsReceiptdata = goodsReceiptController.GetGoodsReceiptHeader(date);
+            var goodsReceiptdetail = goodsReceiptController.GetGoodsReceiptItems(date);
+            goodsReceiptController.InsertGoodsReceipt(goodsReceiptdata, goodsReceiptdetail);
 
-            //GoodsReceiptController goodsReceiptController = new GoodsReceiptController();
-            //var goodsReceiptdata = goodsReceiptController.GetGoodsReceiptHeader(date);
-            //var goodsReceiptdetail = goodsReceiptController.GetGoodsReceiptItems(date);
-            //goodsReceiptController.InsertGoodsReceipt(goodsReceiptdata, goodsReceiptdetail);
-
-            //GoodsIssuanceController goodsIssuanceController = new GoodsIssuanceController();
-            //var goodsIssuancedata = goodsIssuanceController.GetGoodsIssuanceHeader(date);
-            //var goodsIssuancedetail = goodsIssuanceController.GetGoodsIssuanceItems(date);
-            //goodsIssuanceController.InsertGoodsIssuance(goodsIssuancedata, goodsIssuancedetail);
+            GoodsIssuanceController goodsIssuanceController = new GoodsIssuanceController();
+            var goodsIssuancedata = goodsIssuanceController.GetGoodsIssuanceHeader(date);
+            var goodsIssuancedetail = goodsIssuanceController.GetGoodsIssuanceItems(date);
+            goodsIssuanceController.InsertGoodsIssuance(goodsIssuancedata, goodsIssuancedetail);
 
             AdjustmentController adjustmentController = new AdjustmentController();
             var adjustmentData = adjustmentController.GetAdjustmentHeader(date);
             var adjustmentDetail = adjustmentController.GetAdjustmentItems(date);
             adjustmentController.InsertAdjustment(adjustmentData, adjustmentDetail);
-            #endregion Sales Module
+            
+            #endregion Inventory Module
 
+            #region Recompute Value and Quantity
+            RecomputeController recompute = new RecomputeController();
+
+            var trans = recompute.GetTransactions(date);
+
+            recompute.UpdateRunningQuantityValueCost(trans);
+            #endregion
         }
 
         private void frmMain_Load(object sender, EventArgs e)

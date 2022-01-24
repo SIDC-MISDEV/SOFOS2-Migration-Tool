@@ -63,6 +63,8 @@
     <Compile Include="Inventory\Model\Adjustment.cs" />
     <Compile Include="Inventory\Model\GoodsIssuance.cs" />
     <Compile Include="Inventory\Model\GoodsReceipt.cs" />
+    <Compile Include="Inventory\Controller\RecomputeController.cs" />
+    <Compile Include="Inventory\Model\RecomputeModel.cs" />
     <Compile Include="Payment\Model\TransactionPayment.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -82,6 +84,7 @@
     <Compile Include="Service\MySQLHelper.cs" />
     <Compile Include="Service\PurchasingQuery.cs" />
     <Compile Include="Service\Query.cs" />
+    <Compile Include="Service\RecomputeQuery.cs" />
     <Compile Include="Service\ReturnFromCustomerQuery.cs" />
     <Compile Include="Service\SalesQuery.cs" />
     <EmbeddedResource Include="frmMain.resx">
