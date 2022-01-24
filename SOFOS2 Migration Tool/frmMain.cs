@@ -1,4 +1,5 @@
 ﻿using SOFOS2_Migration_Tool.Purchasing.Controller;
+using SOFOS2_Migration_Tool.Sales.Controller;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,7 +28,8 @@ namespace SOFOS2_Migration_Tool
 
             date = "2022-01-17";
 
-
+            test.InsertPR(data, detail);
+            
             var data2 = test2.GetPRHeader(date);
             var detail2 = test2.GetPRItem(date);
 
@@ -42,6 +44,23 @@ namespace SOFOS2_Migration_Tool
             var detail3 = test3.GetRGItem(date);
 
             test3.InsertReturnGoods(data3, detail3);
+            
+            
+            #region Sales Module
+            
+            SalesController salesController = new SalesController();
+            var data = salesController.GetSalesHeader("2022-01-17");
+            var detail = salesController.GetSalesItems("2022-01-17");
+            var payment = salesController.GetSalesPayment("2022-01-17");
+            salesController.InsertSales(data, detail, payment);
+
+            ReturnFromCustomerController returnFromCustomerController = new ReturnFromCustomerController();
+            var data = returnFromCustomerController.GetReturnFromCustomerHeader("2022-01-17");
+            var detail = returnFromCustomerController.GetReturnFromCustomerItems("2022-01-17");
+            returnFromCustomerController.InsertReturnFromCustomer(data, detail);
+            
+            #endregion Sales Module
+
         }
 
         private void frmMain_Load(object sender, EventArgs e)
