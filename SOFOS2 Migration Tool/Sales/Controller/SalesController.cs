@@ -268,7 +268,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                     conn.CommitTransaction();
                 }
 
-            }
+            }   
             catch
             {
                 throw;
