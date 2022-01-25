@@ -129,8 +129,8 @@ namespace SOFOS2_Migration_Tool
             GoodsReceiptController goodsReceiptController = new GoodsReceiptController();
             var goodsReceiptdata = goodsReceiptController.GetGoodsReceiptHeader(date);
             var goodsReceiptdetail = goodsReceiptController.GetGoodsReceiptItems(date);
-            //if (goodsReceiptdata.Count > 0)
-            //    goodsReceiptController.InsertGoodsReceipt(goodsReceiptdata, goodsReceiptdetail);
+            if (goodsReceiptdata.Count > 0)
+                goodsReceiptController.InsertGoodsReceipt(goodsReceiptdata, goodsReceiptdetail);
 
             GoodsIssuanceController goodsIssuanceController = new GoodsIssuanceController();
             var goodsIssuancedata = goodsIssuanceController.GetGoodsIssuanceHeader(date);
