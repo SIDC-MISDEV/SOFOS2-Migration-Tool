@@ -10,7 +10,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 {
      public class GoodsIssuanceController
     {
-        string transType = "ST";
+        string transType = "'ST', 'AU', 'SO','SP','SF'";
 
         #region Public Methods
 

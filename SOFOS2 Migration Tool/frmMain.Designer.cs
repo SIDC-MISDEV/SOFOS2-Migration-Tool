@@ -42,6 +42,8 @@
             this.pcbPurchasing = new System.Windows.Forms.PictureBox();
             this.pcbRecomputePayment = new System.Windows.Forms.PictureBox();
             this.pcbRecomputeInventory = new System.Windows.Forms.PictureBox();
+            this.dtpDateParam = new System.Windows.Forms.DateTimePicker();
+            this.label1 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pcbPayment)).BeginInit();
@@ -124,7 +126,7 @@
             this.groupBox1.Controls.Add(this.pcbRecomputeInventory);
             this.groupBox1.Controls.Add(this.btnRecomputeInventory);
             this.groupBox1.Controls.Add(this.btnRecomputePayment);
-            this.groupBox1.Location = new System.Drawing.Point(39, 262);
+            this.groupBox1.Location = new System.Drawing.Point(32, 272);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(316, 159);
             this.groupBox1.TabIndex = 7;
@@ -141,7 +143,7 @@
             this.groupBox2.Controls.Add(this.btnPayment);
             this.groupBox2.Controls.Add(this.btnInventory);
             this.groupBox2.Controls.Add(this.btnSales);
-            this.groupBox2.Location = new System.Drawing.Point(39, 31);
+            this.groupBox2.Location = new System.Drawing.Point(32, 41);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(316, 225);
             this.groupBox2.TabIndex = 8;
@@ -214,11 +216,33 @@
             this.pcbRecomputeInventory.TabIndex = 13;
             this.pcbRecomputeInventory.TabStop = false;
             // 
+            // dtpDateParam
+            // 
+            this.dtpDateParam.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.dtpDateParam.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpDateParam.Location = new System.Drawing.Point(231, 22);
+            this.dtpDateParam.Name = "dtpDateParam";
+            this.dtpDateParam.Size = new System.Drawing.Size(117, 22);
+            this.dtpDateParam.TabIndex = 9;
+            this.dtpDateParam.ValueChanged += new System.EventHandler(this.dtpDateParam_ValueChanged);
+            // 
+            // label1
+            // 
+            this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(179, 22);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(46, 17);
+            this.label1.TabIndex = 10;
+            this.label1.Text = "Date :";
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(381, 453);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.dtpDateParam);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.MaximizeBox = false;
@@ -235,6 +259,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputePayment)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputeInventory)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -254,6 +279,8 @@
         private System.Windows.Forms.PictureBox pcbInventory;
         private System.Windows.Forms.PictureBox pcbRecomputePayment;
         private System.Windows.Forms.PictureBox pcbRecomputeInventory;
+        private System.Windows.Forms.DateTimePicker dtpDateParam;
+        private System.Windows.Forms.Label label1;
     }
 }
 

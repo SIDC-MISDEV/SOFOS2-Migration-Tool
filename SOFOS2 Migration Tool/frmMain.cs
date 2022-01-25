@@ -1,5 +1,5 @@
 ﻿using SOFOS2_Migration_Tool.Payment.Controller;
-﻿using SOFOS2_Migration_Tool.Inventory.Controller;
+using SOFOS2_Migration_Tool.Inventory.Controller;
 using SOFOS2_Migration_Tool.Purchasing.Controller;
 using SOFOS2_Migration_Tool.Sales.Controller;
 using System;
@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SOFOS2_Migration_Tool.Enums;
 
 namespace SOFOS2_Migration_Tool
 {
@@ -22,8 +23,8 @@ namespace SOFOS2_Migration_Tool
 
         public frmMain()
         {
-            InitializeComponent(); 
-            date = "2022-01-21";
+            InitializeComponent();
+            date = dtpDateParam.Value.ToString("yyyy-MM-dd");
         }
         private void frmMain_Load(object sender, EventArgs e)
         {
@@ -38,26 +39,13 @@ namespace SOFOS2_Migration_Tool
                 this.BeginInvoke(new MethodInvoker(Close));
             }
         }
-        private void btnStart_Click(object sender, EventArgs e)
-        {
-            if (UserConfirmation())
-                return;
-
-            #region Recompute Value and Quantity
-            RecomputeController recompute = new RecomputeController();
-            var trans = recompute.GetTransactions(date);
-            recompute.UpdateRunningQuantityValueCost(trans);
-            #endregion
-
-            pcbRecomputeInventory.BackgroundImage = checkedImage;
-
-        }
+        
 
 
 
         private void btnPayment_Click(object sender, EventArgs e)
         {
-            if (UserConfirmation())
+            if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Payment))
                 return;
 
             PaymentComputeController pcc = new PaymentComputeController();
@@ -77,7 +65,7 @@ namespace SOFOS2_Migration_Tool
         private void btnPurchasing_Click(object sender, EventArgs e)
         {
 
-            if (UserConfirmation())
+            if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Purchasing))
                 return;
 
             #region Purchasing Module
@@ -105,7 +93,7 @@ namespace SOFOS2_Migration_Tool
 
         private void btnSales_Click(object sender, EventArgs e)
         {
-            if (UserConfirmation())
+            if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Sales))
                 return;
             
             #region Sales Module
@@ -133,7 +121,7 @@ namespace SOFOS2_Migration_Tool
         
         private void btnInventory_Click(object sender, EventArgs e)
         {
-            if (UserConfirmation())
+            if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Inventory))
                 return;
 
             #region Inventory Module
@@ -141,8 +129,8 @@ namespace SOFOS2_Migration_Tool
             GoodsReceiptController goodsReceiptController = new GoodsReceiptController();
             var goodsReceiptdata = goodsReceiptController.GetGoodsReceiptHeader(date);
             var goodsReceiptdetail = goodsReceiptController.GetGoodsReceiptItems(date);
-            if (goodsReceiptdata.Count > 0)
-                goodsReceiptController.InsertGoodsReceipt(goodsReceiptdata, goodsReceiptdetail);
+            //if (goodsReceiptdata.Count > 0)
+            //    goodsReceiptController.InsertGoodsReceipt(goodsReceiptdata, goodsReceiptdetail);
 
             GoodsIssuanceController goodsIssuanceController = new GoodsIssuanceController();
             var goodsIssuancedata = goodsIssuanceController.GetGoodsIssuanceHeader(date);
@@ -166,22 +154,32 @@ namespace SOFOS2_Migration_Tool
         {
             return string.IsNullOrWhiteSpace(salesModule) ? checkedImage : crossImage;
         }
-        private bool UserConfirmation()
+        private bool UserConfirmation(ProcessEnum processEnum, ModuleEnum moduleEnum)
         {
-            DialogResult dialogResult = MessageBox.Show("Confirmation", "Some Title", MessageBoxButtons.YesNo);
+            string message = string.Empty;
+            switch(processEnum){
+                case ProcessEnum.Migrate:
+                    message = string.Format("Migrate Sofos1 {0} transactions dated : {1}.", moduleEnum.ToString(), date);
+                    break;
+                case ProcessEnum.Recompute:
+                    message = string.Format("Re-compute cost, running quantity and running value using transaction dated : {0}.", date);
+                    break;
+            }
+
+            DialogResult dialogResult = MessageBox.Show(message, "Confirmation", MessageBoxButtons.YesNo);
             return dialogResult != DialogResult.Yes;
         }
 
         private void btnRecomputePayment_Click(object sender, EventArgs e)
         {
-            if (UserConfirmation())
+            if (UserConfirmation(ProcessEnum.Recompute, ModuleEnum.Payment))
                 return;
             pcbRecomputePayment.BackgroundImage = checkedImage;
         }
 
         private void btnRecomputeInventory_Click(object sender, EventArgs e)
         {
-            if (UserConfirmation())
+            if (UserConfirmation(ProcessEnum.Recompute, ModuleEnum.Inventory))
                 return;
 
             #region Recompute Value and Quantity
@@ -191,6 +189,11 @@ namespace SOFOS2_Migration_Tool
             #endregion
 
             pcbRecomputeInventory.BackgroundImage = checkedImage;
+        }
+
+        private void dtpDateParam_ValueChanged(object sender, EventArgs e)
+        {
+            date = dtpDateParam.Value.ToString("yyyy-MM-dd");
         }
     }
 }
