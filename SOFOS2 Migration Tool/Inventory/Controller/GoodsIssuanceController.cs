@@ -142,7 +142,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                 {
 
 
-                    transNum = global.GetLatestTransNum("iii00", "transNum") + 1;
+                    transNum = global.GetLatestTransNum("iii00", "transNum");
 
                     foreach (var item in _header)
                     {

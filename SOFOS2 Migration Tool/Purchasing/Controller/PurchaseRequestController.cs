@@ -118,7 +118,7 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                 {
 
 
-                    transNum = g.GetLatestTransNum("ppr00", "transNum") + 1;
+                    transNum = g.GetLatestTransNum("ppr00", "transNum");
 
                     foreach (var item in _header)
                     {
