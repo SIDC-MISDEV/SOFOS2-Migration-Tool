@@ -57,6 +57,7 @@
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
+
     <Compile Include="Payment\Controller\CollectionReceiptController.cs" />
     <Compile Include="Payment\Controller\JournalVoucherController.cs" />
     <Compile Include="Payment\Controller\OfficialReceiptController.cs" />
@@ -64,15 +65,39 @@
     <Compile Include="Payment\Model\Invoice.cs" />
     <Compile Include="Payment\Model\JournalVoucher.cs" />
     <Compile Include="Payment\Model\OfficialReceipt.cs" />
+
+    <Compile Include="Inventory\Controller\AdjustmentController.cs" />
+    <Compile Include="Inventory\Controller\GoodsIssuanceController.cs" />
+    <Compile Include="Inventory\Controller\GoodsReceiptController.cs" />
+    <Compile Include="Inventory\Model\Adjustment.cs" />
+    <Compile Include="Inventory\Model\GoodsIssuance.cs" />
+    <Compile Include="Inventory\Model\GoodsReceipt.cs" />
+    <Compile Include="Inventory\Controller\RecomputeController.cs" />
+    <Compile Include="Inventory\Model\RecomputeModel.cs" />
+    <Compile Include="Payment\Model\TransactionPayment.cs" />
+
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Purchasing\Controller\PurchaseRequestController.cs" />
+    <Compile Include="Purchasing\Controller\ReceiveFromVendorController.cs" />
+    <Compile Include="Purchasing\Controller\ReturnGoodsController.cs" />
     <Compile Include="Purchasing\Model\PurchaseRequest.cs" />
     <Compile Include="Purchasing\Model\ReceiveFromVendor.cs" />
+    <Compile Include="Sales\Controller\ReturnFromCustomerController.cs" />
+    <Compile Include="Sales\Controller\SalesController.cs" />
+    <Compile Include="Sales\Model\ReturnFromCustomer.cs" />
+    <Compile Include="Sales\Model\Sales.cs" />
+    <Compile Include="Purchasing\Model\ReturnGoods.cs" />
+    <Compile Include="Service\AdjustmentQuery.cs" />
+    <Compile Include="Service\GoodsIssuanceQuery.cs" />
+    <Compile Include="Service\GoodsReceiptQuery.cs" />
     <Compile Include="Service\MySQLHelper.cs" />
     <Compile Include="Service\PaymentQuery.cs" />
     <Compile Include="Service\PurchasingQuery.cs" />
     <Compile Include="Service\Query.cs" />
+    <Compile Include="Service\RecomputeQuery.cs" />
+    <Compile Include="Service\ReturnFromCustomerQuery.cs" />
+    <Compile Include="Service\SalesQuery.cs" />
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
@@ -105,6 +130,7 @@
     <Folder Include="Inventory\Model\" />
     <Folder Include="Sales\Controller\" />
     <Folder Include="Sales\Model\" />
+    <Folder Include="Payment\Controller\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
