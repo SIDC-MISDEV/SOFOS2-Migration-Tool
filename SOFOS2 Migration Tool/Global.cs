@@ -45,7 +45,8 @@ namespace SOFOS2_Migration_Tool
                 {
                     var data = conn.GetMySQLScalar();
 
-                    result = data == null ? 0 : Convert.ToInt32(data);
+                    result = data == null ? 1 : Convert.ToInt32(data) + 1;
+
                 }
 
                 return result;
@@ -138,6 +139,142 @@ namespace SOFOS2_Migration_Tool
             catch
             {
 
+                throw;
+            }
+        }
+
+        public string GetCRReference(string tableName, string fieldName)
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+                string zeroText = "";
+                string reference = "";
+
+                query = $@"SELECT {fieldName} FROM {tableName} WHERE transType = 'CR' ORDER BY {fieldName} DESC LIMIT 1;";
+
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    var data = conn.GetMySQLScalar();
+
+                    reference = data == null ? "" : (Convert.ToInt32(data) + 1).ToString();
+
+                    int numZero = 10 - reference.Length;
+
+                    do
+                    {
+                        zeroText = string.Concat(zeroText, "0");
+                        numZero--;
+                    }
+                    while (numZero != 0);
+
+                    result = string.Concat("CR", zeroText, reference);
+
+                }
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        public string GetMemberName(string memberId)
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+
+                query = $@"SELECT CONCAT(lastName, ', ', firstName,' ', if(middlename!='',CONCAT(SUBSTR(middleName,1,1),'.'),'')) FROM cci00 WHERE memberId= '{memberId}' LIMIT 1;";
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    var data = conn.GetMySQLScalar();
+
+                    result = data == null ? "" : data.ToString();
+                }
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public string GetAccountName(string accountCode)
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+
+                query = $@"SELECT accountname FROM aca00 WHERE accountcode='{accountCode}' LIMIT 1;";
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    var data = conn.GetMySQLScalar();
+
+                    result = data == null ? "" : data.ToString();
+                }
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public string GetAccountNumber(string memberId, string transprefix)
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+
+                query = $@"SELECT accountNumber FROM acl00 WHERE memberId='{memberId}' and transType='{transprefix}' LIMIT 1;";
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    var data = conn.GetMySQLScalar();
+
+                    result = data == null ? "" : data.ToString();
+                }
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public string GetCreditBalance()
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+
+                query = $@"SELECT accountname FROM aca00 WHERE accountcode=@accountcode LIMIT 1;";
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    using (var dr = conn.MySQLReader())
+                    {
+                        while (dr.Read())
+                        {
+                            result = dr["accountname"].ToString();
+                        }
+                    }
+                }
+                return result;
+            }
+            catch
+            {
                 throw;
             }
         }

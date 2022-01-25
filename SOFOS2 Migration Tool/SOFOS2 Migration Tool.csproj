@@ -57,6 +57,16 @@
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
+
+    <Compile Include="Payment\Controller\CollectionReceiptController.cs" />
+    <Compile Include="Payment\Controller\JournalVoucherController.cs" />
+    <Compile Include="Payment\Controller\OfficialReceiptController.cs" />
+    <Compile Include="Payment\Controller\PaymentComputeController.cs" />
+    <Compile Include="Payment\Model\CollectionReceipt.cs" />
+    <Compile Include="Payment\Model\Invoice.cs" />
+    <Compile Include="Payment\Model\JournalVoucher.cs" />
+    <Compile Include="Payment\Model\OfficialReceipt.cs" />
+
     <Compile Include="Inventory\Controller\AdjustmentController.cs" />
     <Compile Include="Inventory\Controller\GoodsIssuanceController.cs" />
     <Compile Include="Inventory\Controller\GoodsReceiptController.cs" />
@@ -66,6 +76,7 @@
     <Compile Include="Inventory\Controller\RecomputeController.cs" />
     <Compile Include="Inventory\Model\RecomputeModel.cs" />
     <Compile Include="Payment\Model\TransactionPayment.cs" />
+
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Purchasing\Controller\PurchaseRequestController.cs" />
@@ -82,6 +93,7 @@
     <Compile Include="Service\GoodsIssuanceQuery.cs" />
     <Compile Include="Service\GoodsReceiptQuery.cs" />
     <Compile Include="Service\MySQLHelper.cs" />
+    <Compile Include="Service\PaymentQuery.cs" />
     <Compile Include="Service\PurchasingQuery.cs" />
     <Compile Include="Service\Query.cs" />
     <Compile Include="Service\RecomputeQuery.cs" />
@@ -115,6 +127,10 @@
   <ItemGroup>
     <Folder Include="Accounting\Controller\" />
     <Folder Include="Accounting\Model\" />
+    <Folder Include="Inventory\Controller\" />
+    <Folder Include="Inventory\Model\" />
+    <Folder Include="Sales\Controller\" />
+    <Folder Include="Sales\Model\" />
     <Folder Include="Payment\Controller\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

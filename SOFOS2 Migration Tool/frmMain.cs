@@ -1,3 +1,4 @@
+﻿using SOFOS2_Migration_Tool.Payment.Controller;
 ﻿using SOFOS2_Migration_Tool.Inventory.Controller;
 using SOFOS2_Migration_Tool.Purchasing.Controller;
 using SOFOS2_Migration_Tool.Sales.Controller;
@@ -97,6 +98,21 @@ namespace SOFOS2_Migration_Tool
                 MessageBox.Show(this, er.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.BeginInvoke(new MethodInvoker(Close));
             }
+        }
+
+        private void btnPayment_Click(object sender, EventArgs e)
+        {
+            PaymentComputeController pcc = new PaymentComputeController();
+            var invoicelist = pcc.GetInvoice("CI"); 
+            //CollectionReceiptController crc = new CollectionReceiptController();
+            //var crheader = crc.GetCollectionReceiptHeader("2021-05-31", "OR");
+            //var crdetail = crc.GetCollectionReceiptDetail("2021-05-31", "OR");
+            //crc.InsertCR(crheader, crdetail);
+
+            //JournalVoucherController jvc = new JournalVoucherController();
+            //var jvheader = jvc.GetJournalVoucherHeader("2021-03-31","JV");
+            //var jvdetail = jvc.GetJournalVoucherDetail("2021-03-31", "JV");
+            
         }
     }
 }
