@@ -25,16 +25,6 @@ namespace SOFOS2_Migration_Tool
             InitializeComponent(); 
             date = "2022-01-21";
         }
-
-        private void btnStart_Click(object sender, EventArgs e)
-        {
-            #region Recompute Value and Quantity
-            RecomputeController recompute = new RecomputeController();
-            var trans = recompute.GetTransactions(date);
-            recompute.UpdateRunningQuantityValueCost(trans);
-            #endregion
-        }
-
         private void frmMain_Load(object sender, EventArgs e)
         {
             try
@@ -48,9 +38,28 @@ namespace SOFOS2_Migration_Tool
                 this.BeginInvoke(new MethodInvoker(Close));
             }
         }
+        private void btnStart_Click(object sender, EventArgs e)
+        {
+            if (UserConfirmation())
+                return;
+
+            #region Recompute Value and Quantity
+            RecomputeController recompute = new RecomputeController();
+            var trans = recompute.GetTransactions(date);
+            recompute.UpdateRunningQuantityValueCost(trans);
+            #endregion
+
+            pcbRecomputeInventory.BackgroundImage = checkedImage;
+
+        }
+
+
 
         private void btnPayment_Click(object sender, EventArgs e)
         {
+            if (UserConfirmation())
+                return;
+
             PaymentComputeController pcc = new PaymentComputeController();
             var invoicelist = pcc.GetInvoice("CI"); 
             //CollectionReceiptController crc = new CollectionReceiptController();
@@ -62,11 +71,15 @@ namespace SOFOS2_Migration_Tool
             //var jvheader = jvc.GetJournalVoucherHeader("2021-03-31","JV");
             //var jvdetail = jvc.GetJournalVoucherDetail("2021-03-31", "JV");
 
-            pcbSales.BackgroundImage = checkedImage;
+            pcbPayment.BackgroundImage = checkedImage;
         }
 
         private void btnPurchasing_Click(object sender, EventArgs e)
         {
+
+            if (UserConfirmation())
+                return;
+
             #region Purchasing Module
             //PurchaseRequestController test2 = new PurchaseRequestController();
 
@@ -88,8 +101,13 @@ namespace SOFOS2_Migration_Tool
 
         }
 
+        
+
         private void btnSales_Click(object sender, EventArgs e)
         {
+            if (UserConfirmation())
+                return;
+            
             #region Sales Module
 
             SalesController salesController = new SalesController();
@@ -112,13 +130,12 @@ namespace SOFOS2_Migration_Tool
 
         }
 
-        private Image GetImageByResult(string salesModule)
-        {
-            return string.IsNullOrWhiteSpace(salesModule) ? checkedImage : crossImage;
-        }
-
+        
         private void btnInventory_Click(object sender, EventArgs e)
         {
+            if (UserConfirmation())
+                return;
+
             #region Inventory Module
 
             GoodsReceiptController goodsReceiptController = new GoodsReceiptController();
@@ -143,6 +160,37 @@ namespace SOFOS2_Migration_Tool
 
             pcbInventory.BackgroundImage = checkedImage;
 
+        }
+
+        private Image GetImageByResult(string salesModule)
+        {
+            return string.IsNullOrWhiteSpace(salesModule) ? checkedImage : crossImage;
+        }
+        private bool UserConfirmation()
+        {
+            DialogResult dialogResult = MessageBox.Show("Confirmation", "Some Title", MessageBoxButtons.YesNo);
+            return dialogResult != DialogResult.Yes;
+        }
+
+        private void btnRecomputePayment_Click(object sender, EventArgs e)
+        {
+            if (UserConfirmation())
+                return;
+            pcbRecomputePayment.BackgroundImage = checkedImage;
+        }
+
+        private void btnRecomputeInventory_Click(object sender, EventArgs e)
+        {
+            if (UserConfirmation())
+                return;
+
+            #region Recompute Value and Quantity
+            RecomputeController recompute = new RecomputeController();
+            var trans = recompute.GetTransactions(date);
+            recompute.UpdateRunningQuantityValueCost(trans);
+            #endregion
+
+            pcbRecomputeInventory.BackgroundImage = checkedImage;
         }
     }
 }
