@@ -175,6 +175,7 @@ namespace SOFOS2_Migration_Tool
             if (UserConfirmation(ProcessEnum.Recompute, ModuleEnum.Payment))
                 return;
             pcbRecomputePayment.BackgroundImage = checkedImage;
+
         }
 
         private void btnRecomputeInventory_Click(object sender, EventArgs e)
