@@ -99,18 +99,20 @@ namespace SOFOS2_Migration_Tool.Service
                 case payment.Invoice:
 
                     sQuery.Append(@"SELECT 
-                                    '' as detailNum, 
-                                    '' transNum, 
-                                    '' crossReference, 
-                                    credit as amount, 
-                                    idUser, 
-                                    '' balance,
-                                    idaccount as accountCode, 
-                                    if(idaccount='112010000000001','P','I') as pType, 
-                                    '' as accountName,
-                                    if(idaccount='441200000000000','CI','') as refTransType 
-                                    FROM ledger
-                                    WHERE LEFT(reference,2)='OR' and idaccount in('112010000000001','441200000000000') and date(date)='2021-10-15'");
+                                    DATE_FORMAT(transDate, '%Y-%m-%d %H:%i:%s') as transDate, 
+                                    transType,
+                                    reference,
+                                    memberId,
+                                    accountCode,
+                                    paidToDate,
+                                    Total,
+                                    cancelled,
+                                    status,
+                                    intComputed,
+                                    lastpaymentdate,
+                                    AccountNo
+                                    FROM sapt0
+                                    WHERE transtype=@transprefix AND status='OPEN'");
                     break;
 
                 case payment.CreditLimit:
