@@ -23,32 +23,22 @@ namespace SOFOS2_Migration_Tool
         private void btnStart_Click(object sender, EventArgs e)
         {
             string date = string.Empty;
-
             date = "2022-01-19";
-            #region PR-SALES
+
+            #region Purchasing Module
+            //PurchaseRequestController test2 = new PurchaseRequestController();
 
             ReceiveFromVendorController rv = new ReceiveFromVendorController();
-            //PurchaseRequestController test2 = new PurchaseRequestController();
-            ReturnGoodsController rg = new ReturnGoodsController();
-
-
-            //test.InsertPR(data, detail);
-
-            //var data2 = test2.GetPRHeader(date);
-            //var detail2 = test2.GetPRItem(date);
-
-            //test2.InsertPR(data2, detail2);
-
             var dataRV = rv.GetRVHeader(date);
             var detailRV = rv.GetRVItem(date);
-
             rv.InsertRV(dataRV, detailRV);
 
+            ReturnGoodsController rg = new ReturnGoodsController();
             var dataRG = rg.GetRGHeader(date);
             var detailRG = rg.GetRGItem(date);
-
             rg.InsertReturnGoods(dataRG, detailRG);
 
+            #endregion Purchasing Module
 
             #region Sales Module
 
@@ -62,10 +52,29 @@ namespace SOFOS2_Migration_Tool
             var data2 = returnFromCustomerController.GetReturnFromCustomerHeader(date);
             var detail2 = returnFromCustomerController.GetReturnFromCustomerItems(date);
             returnFromCustomerController.InsertReturnFromCustomer(data2, detail2);
+            
+             
 
             #endregion Sales Module
 
-            #endregion
+            #region Inventory Module
+            
+            GoodsReceiptController goodsReceiptController = new GoodsReceiptController();
+            var goodsReceiptdata = goodsReceiptController.GetGoodsReceiptHeader(date);
+            var goodsReceiptdetail = goodsReceiptController.GetGoodsReceiptItems(date);
+            goodsReceiptController.InsertGoodsReceipt(goodsReceiptdata, goodsReceiptdetail);
+
+            GoodsIssuanceController goodsIssuanceController = new GoodsIssuanceController();
+            var goodsIssuancedata = goodsIssuanceController.GetGoodsIssuanceHeader(date);
+            var goodsIssuancedetail = goodsIssuanceController.GetGoodsIssuanceItems(date);
+            goodsIssuanceController.InsertGoodsIssuance(goodsIssuancedata, goodsIssuancedetail);
+
+            AdjustmentController adjustmentController = new AdjustmentController();
+            var adjustmentData = adjustmentController.GetAdjustmentHeader(date);
+            var adjustmentDetail = adjustmentController.GetAdjustmentItems(date);
+            adjustmentController.InsertAdjustment(adjustmentData, adjustmentDetail);
+            
+            #endregion Inventory Module
 
             #region Recompute Value and Quantity
             RecomputeController recompute = new RecomputeController();

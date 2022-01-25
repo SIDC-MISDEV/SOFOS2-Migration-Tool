@@ -90,7 +90,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     LEFT JOIN files f ON l.idfile = f.idfile
                                     LEFT JOIN coa c ON l.idaccount = c.idaccount
                                     where LEFT(l.reference, 2) = 'RC'
-                                    AND /*date(l.date) = @date*/ year(l.date) = 2022
+                                    AND date(l.date) = @date
                                     GROUP BY l.reference
                                     ORDER BY l.date ASC;
                             ");
@@ -149,7 +149,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     WHERE
                                     /*left(i.reference, 2) = @transType AND date(l.date) = @date*/
                                     LEFT(i.reference, 2) = 'RC'
-                                    AND year(l.date) = 2022
+                                    AND date(l.date) = @date
                                     GROUP BY i.reference, i.idstock, i.unit
                                     ORDER BY l.reference ASC;
                                     ");
