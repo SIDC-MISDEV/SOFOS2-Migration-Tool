@@ -81,8 +81,6 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
         public void UpdateRunningQuantityValueCost(List<Transactions> _transactions)
         {
-            var currentItem = new Transactions();
-            var currentItem2 = new Transactions();
             try
             {
                 Dictionary<string, object> param = new Dictionary<string, object>(),
@@ -98,11 +96,6 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                 {
                     foreach (var tran in _transactions)
                     {
-                        currentItem = tran;
-                        if (tran.Reference == "SI0000079547" && tran.ItemCode == "VET000091")
-                            currentItem2 = tran;
-
-
                         item = new Item();
                         sQuery = new StringBuilder();
                         //Get running value and running quantity of an item.
@@ -138,7 +131,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                         { "@runningQuantity", tranRunQty },
                                         { "@runningValue", tranRunVal },
                                         { "@uomCode", tran.UomCode },
-                                        { "@reference", tran.Reference }
+                                        { "@reference", tran.Reference },
+                                        { "@cost", averageCost }
                                     };
 
                                     sQuery = RecomputeQuery.UpdateRunningQuantityValue(process);
@@ -219,7 +213,6 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
             }
             catch
             {
-                var x = currentItem;
                 throw;
             }
         }

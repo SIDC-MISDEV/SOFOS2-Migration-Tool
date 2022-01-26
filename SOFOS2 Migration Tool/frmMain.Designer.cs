@@ -38,23 +38,23 @@
             this.pcbRecomputePayment = new System.Windows.Forms.PictureBox();
             this.pcbRecomputeInventory = new System.Windows.Forms.PictureBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.pcbPayment = new System.Windows.Forms.PictureBox();
             this.pcbInventory = new System.Windows.Forms.PictureBox();
             this.pcbSales = new System.Windows.Forms.PictureBox();
             this.pcbPurchasing = new System.Windows.Forms.PictureBox();
             this.dtpDateParam = new System.Windows.Forms.DateTimePicker();
             this.label1 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputePayment)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputeInventory)).BeginInit();
             this.groupBox2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbPayment)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbInventory)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbSales)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbPurchasing)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnRecomputeInventory
@@ -63,7 +63,7 @@
             this.btnRecomputeInventory.Location = new System.Drawing.Point(78, 25);
             this.btnRecomputeInventory.Name = "btnRecomputeInventory";
             this.btnRecomputeInventory.Size = new System.Drawing.Size(115, 39);
-            this.btnRecomputeInventory.TabIndex = 0;
+            this.btnRecomputeInventory.TabIndex = 7;
             this.btnRecomputeInventory.Text = "Inventory";
             this.btnRecomputeInventory.UseVisualStyleBackColor = true;
             this.btnRecomputeInventory.Click += new System.EventHandler(this.btnRecomputeInventory_Click);
@@ -74,7 +74,7 @@
             this.btnPayment.Location = new System.Drawing.Point(78, 152);
             this.btnPayment.Name = "btnPayment";
             this.btnPayment.Size = new System.Drawing.Size(115, 39);
-            this.btnPayment.TabIndex = 1;
+            this.btnPayment.TabIndex = 5;
             this.btnPayment.Text = "Payment";
             this.btnPayment.UseVisualStyleBackColor = true;
             this.btnPayment.Click += new System.EventHandler(this.btnPayment_Click);
@@ -118,7 +118,7 @@
             this.btnRecomputePayment.Location = new System.Drawing.Point(78, 70);
             this.btnRecomputePayment.Name = "btnRecomputePayment";
             this.btnRecomputePayment.Size = new System.Drawing.Size(115, 39);
-            this.btnRecomputePayment.TabIndex = 5;
+            this.btnRecomputePayment.TabIndex = 8;
             this.btnRecomputePayment.Text = "Payment";
             this.btnRecomputePayment.UseVisualStyleBackColor = true;
             this.btnRecomputePayment.Click += new System.EventHandler(this.btnRecomputePayment_Click);
@@ -177,6 +177,27 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Modules";
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
+            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.pictureBox1.Location = new System.Drawing.Point(199, 198);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(39, 39);
+            this.pictureBox1.TabIndex = 16;
+            this.pictureBox1.TabStop = false;
+            // 
+            // button1
+            // 
+            this.button1.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.button1.Location = new System.Drawing.Point(78, 199);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(115, 39);
+            this.button1.TabIndex = 6;
+            this.button1.Text = "Credit limit";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
             // pcbPayment
             // 
             this.pcbPayment.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -228,7 +249,7 @@
             this.dtpDateParam.Location = new System.Drawing.Point(231, 16);
             this.dtpDateParam.Name = "dtpDateParam";
             this.dtpDateParam.Size = new System.Drawing.Size(117, 22);
-            this.dtpDateParam.TabIndex = 9;
+            this.dtpDateParam.TabIndex = 1;
             this.dtpDateParam.ValueChanged += new System.EventHandler(this.dtpDateParam_ValueChanged);
             // 
             // label1
@@ -240,27 +261,6 @@
             this.label1.Size = new System.Drawing.Size(46, 17);
             this.label1.TabIndex = 10;
             this.label1.Text = "Date :";
-            // 
-            // button1
-            // 
-            this.button1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.button1.Location = new System.Drawing.Point(78, 199);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(115, 39);
-            this.button1.TabIndex = 15;
-            this.button1.Text = "Credit limit";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.pictureBox1.Location = new System.Drawing.Point(199, 198);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(39, 39);
-            this.pictureBox1.TabIndex = 16;
-            this.pictureBox1.TabStop = false;
             // 
             // frmMain
             // 
@@ -280,11 +280,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputePayment)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputeInventory)).EndInit();
             this.groupBox2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbPayment)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbInventory)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbSales)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbPurchasing)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

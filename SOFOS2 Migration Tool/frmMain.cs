@@ -162,7 +162,12 @@ namespace SOFOS2_Migration_Tool
                     message = string.Format("Migrate Sofos1 {0} transactions dated : {1}.", moduleEnum.ToString(), date);
                     break;
                 case ProcessEnum.Recompute:
-                    message = string.Format("Re-compute cost, running quantity and running value using transaction dated : {0}.", date);
+                    if(moduleEnum == ModuleEnum.Inventory)
+                        message = string.Format("Compute cost, running quantity and running value using transaction dated : {0}.", date);
+                    else if (moduleEnum == ModuleEnum.Payment)
+                        message = string.Format("Compute credit limit, payment and generate interest payment : {0}.", date);
+                    else
+                        message = string.Format("Compute for {0} module is not available.", moduleEnum.ToString());
                     break;
             }
 
