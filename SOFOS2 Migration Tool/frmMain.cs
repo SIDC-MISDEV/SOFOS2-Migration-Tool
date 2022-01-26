@@ -162,12 +162,21 @@ namespace SOFOS2_Migration_Tool
                     message = string.Format("Migrate Sofos1 {0} transactions dated : {1}.", moduleEnum.ToString(), date);
                     break;
                 case ProcessEnum.Recompute:
-                    if(moduleEnum == ModuleEnum.Inventory)
-                        message = string.Format("Compute cost, running quantity and running value using transaction dated : {0}.", date);
-                    else if (moduleEnum == ModuleEnum.Payment)
-                        message = string.Format("Compute credit limit, payment and generate interest payment : {0}.", date);
-                    else
-                        message = string.Format("Compute for {0} module is not available.", moduleEnum.ToString());
+                    switch (moduleEnum)
+                    {
+                        case ModuleEnum.Inventory:
+                            message = string.Format("Compute and update cost, running quantity and running value using transaction dated : {0}.", date);
+                            break;
+                        case ModuleEnum.Payment:
+                            message = string.Format("Compute payment and generate interest payment : {0}.", date);
+                            break;
+                        case ModuleEnum.SalesCreditLimit:
+                            message = string.Format("Compute sales (CI,CT,APL) and update credit limit dated : {0}.", date);
+                            break;
+                        default:
+                                message = string.Format("Compute for {0} module is not available.", moduleEnum.ToString());
+                            break;
+                    }
                     break;
             }
 
@@ -200,6 +209,14 @@ namespace SOFOS2_Migration_Tool
         private void dtpDateParam_ValueChanged(object sender, EventArgs e)
         {
             date = dtpDateParam.Value.ToString("yyyy-MM-dd");
+        }
+
+        private void btnRecomputeSalesCreditLimit_Click(object sender, EventArgs e)
+        {
+            if (UserConfirmation(ProcessEnum.Recompute, ModuleEnum.SalesCreditLimit))
+                return;
+
+            pcbRecomputeSalesCreditLimit.BackgroundImage = checkedImage;
         }
     }
 }

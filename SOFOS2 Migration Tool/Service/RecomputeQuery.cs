@@ -186,6 +186,10 @@ namespace SOFOS2_Migration_Tool.Service
         {
             return new StringBuilder(@"UPDATE iiuom SET cost = @cost * conversion WHERE itemCode = @itemCode;");
         }
+        public static StringBuilder UpdateAccountCreditLimit()
+        {
+            return new StringBuilder(@"UPDATE acl00 SET chargeAmount += @cost  WHERE memberId = @memberId AND transType=@transType;");
+        }
 
     }
 
