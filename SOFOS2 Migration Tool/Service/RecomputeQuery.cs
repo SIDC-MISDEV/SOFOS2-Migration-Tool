@@ -89,7 +89,7 @@ namespace SOFOS2_Migration_Tool.Service
             return new StringBuilder(@"SELECT i.itemCode, d.uomCode, d.Conversion, d.cost, i.runningQuantity, i.runningValue 
                                         FROM ii000 i 
                                         INNER JOIN iiuom d ON i.itemcode = d.itemcode 
-                                        WHERE i.itemCode = @itemCode AND d.conversion = 1;");
+                                        WHERE i.itemCode = @itemCode AND d.conversion = 1 AND d.isbaseuom=1;");
         }
 
         public static StringBuilder UpdateRunningQuantityValue(Process process)
