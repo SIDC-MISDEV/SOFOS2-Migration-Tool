@@ -216,6 +216,12 @@ namespace SOFOS2_Migration_Tool
             if (UserConfirmation(ProcessEnum.Recompute, ModuleEnum.SalesCreditLimit))
                 return;
 
+            #region Recompute creditlimit amount
+            ReComputeSalesCreditController reComputeSalesCreditController = new ReComputeSalesCreditController();
+            var reComputeSalesCredit = reComputeSalesCreditController.GetSalesAndReturnFromCustomerTransactions(date);
+            reComputeSalesCreditController.UpdateChargeAmount(reComputeSalesCredit);
+            #endregion
+
             pcbRecomputeSalesCreditLimit.BackgroundImage = checkedImage;
         }
     }

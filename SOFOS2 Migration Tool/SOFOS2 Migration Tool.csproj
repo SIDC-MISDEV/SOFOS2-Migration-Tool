@@ -82,8 +82,10 @@
     <Compile Include="Purchasing\Controller\ReturnGoodsController.cs" />
     <Compile Include="Purchasing\Model\PurchaseRequest.cs" />
     <Compile Include="Purchasing\Model\ReceiveFromVendor.cs" />
+    <Compile Include="Sales\Controller\ReComputeSalesCreditController.cs" />
     <Compile Include="Sales\Controller\ReturnFromCustomerController.cs" />
     <Compile Include="Sales\Controller\SalesController.cs" />
+    <Compile Include="Sales\Model\ReComputeSalesCreditModel.cs" />
     <Compile Include="Sales\Model\ReturnFromCustomer.cs" />
     <Compile Include="Sales\Model\Sales.cs" />
     <Compile Include="Purchasing\Model\ReturnGoods.cs" />
@@ -95,6 +97,7 @@
     <Compile Include="Service\PurchasingQuery.cs" />
     <Compile Include="Service\Query.cs" />
     <Compile Include="Service\RecomputeQuery.cs" />
+    <Compile Include="Service\ReComputeSalesCreditQuery.cs" />
     <Compile Include="Service\ReturnFromCustomerQuery.cs" />
     <Compile Include="Service\SalesQuery.cs" />
     <EmbeddedResource Include="frmMain.resx">
