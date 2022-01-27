@@ -220,7 +220,8 @@ namespace SOFOS2_Migration_Tool
             #region Recompute creditlimit amount
             ReComputeSalesCreditController reComputeSalesCreditController = new ReComputeSalesCreditController();
             var reComputeSalesCredit = reComputeSalesCreditController.GetSalesAndReturnFromCustomerTransactions(date);
-            reComputeSalesCreditController.UpdateChargeAmount(reComputeSalesCredit);
+            if (reComputeSalesCredit.Count > 0)
+                reComputeSalesCreditController.UpdateChargeAmount(reComputeSalesCredit);
             #endregion
 
             pcbRecomputeSalesCreditLimit.BackgroundImage = checkedImage;
