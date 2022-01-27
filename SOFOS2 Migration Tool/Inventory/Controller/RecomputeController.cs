@@ -98,7 +98,6 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                     {
                         item = new Item();
                         sQuery = new StringBuilder();
-
                         //Get running value and running quantity of an item.
                         item = GetItem(tran.ItemCode);
 
@@ -118,7 +117,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                             tranRunQty = Math.Round(tran.Quantity + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
                             tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
-                            averageCost = Math.Round(tranRunVal / tranRunQty, 2, MidpointRounding.AwayFromZero);
+                            //fore review ni lito
+                            averageCost = Math.Round(tranRunVal / (tranRunQty <= 0 ? 1 : tranRunQty), 2, MidpointRounding.AwayFromZero);
 
                             switch (process)
                             {
@@ -131,7 +131,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                         { "@runningQuantity", tranRunQty },
                                         { "@runningValue", tranRunVal },
                                         { "@uomCode", tran.UomCode },
-                                        { "@reference", tran.Reference }
+                                        { "@reference", tran.Reference },
+                                        { "@cost", averageCost }
                                     };
 
                                     sQuery = RecomputeQuery.UpdateRunningQuantityValue(process);
@@ -212,7 +213,6 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
             }
             catch
             {
-
                 throw;
             }
         }

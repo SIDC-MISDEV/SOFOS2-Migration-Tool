@@ -1,5 +1,5 @@
 ﻿using SOFOS2_Migration_Tool.Payment.Controller;
-﻿using SOFOS2_Migration_Tool.Inventory.Controller;
+using SOFOS2_Migration_Tool.Inventory.Controller;
 using SOFOS2_Migration_Tool.Purchasing.Controller;
 using SOFOS2_Migration_Tool.Sales.Controller;
 using System;
@@ -11,81 +11,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SOFOS2_Migration_Tool.Enums;
 
 namespace SOFOS2_Migration_Tool
 {
     public partial class frmMain : Form
     {
+        string date = string.Empty;
+        Image checkedImage = global::SOFOS2_Migration_Tool.Properties.Resources.check_icon;
+        Image crossImage = global::SOFOS2_Migration_Tool.Properties.Resources.cross_icon;
+
         public frmMain()
         {
             InitializeComponent();
+            date = dtpDateParam.Value.ToString("yyyy-MM-dd");
         }
-
-        private void btnStart_Click(object sender, EventArgs e)
-        {
-            string date = string.Empty;
-            date = "2022-01-19";
-
-            #region Purchasing Module
-            //PurchaseRequestController test2 = new PurchaseRequestController();
-
-            ReceiveFromVendorController rv = new ReceiveFromVendorController();
-            var dataRV = rv.GetRVHeader(date);
-            var detailRV = rv.GetRVItem(date);
-            rv.InsertRV(dataRV, detailRV);
-
-            ReturnGoodsController rg = new ReturnGoodsController();
-            var dataRG = rg.GetRGHeader(date);
-            var detailRG = rg.GetRGItem(date);
-            rg.InsertReturnGoods(dataRG, detailRG);
-
-            #endregion Purchasing Module
-
-            #region Sales Module
-
-            SalesController salesController = new SalesController();
-            var data = salesController.GetSalesHeader(date);
-            var detail = salesController.GetSalesItems(date);
-            var payment = salesController.GetSalesPayment(date);
-            salesController.InsertSales(data, detail, payment);
-
-            ReturnFromCustomerController returnFromCustomerController = new ReturnFromCustomerController();
-            var data2 = returnFromCustomerController.GetReturnFromCustomerHeader(date);
-            var detail2 = returnFromCustomerController.GetReturnFromCustomerItems(date);
-            returnFromCustomerController.InsertReturnFromCustomer(data2, detail2);
-            
-             
-
-            #endregion Sales Module
-
-            #region Inventory Module
-            
-            GoodsReceiptController goodsReceiptController = new GoodsReceiptController();
-            var goodsReceiptdata = goodsReceiptController.GetGoodsReceiptHeader(date);
-            var goodsReceiptdetail = goodsReceiptController.GetGoodsReceiptItems(date);
-            goodsReceiptController.InsertGoodsReceipt(goodsReceiptdata, goodsReceiptdetail);
-
-            GoodsIssuanceController goodsIssuanceController = new GoodsIssuanceController();
-            var goodsIssuancedata = goodsIssuanceController.GetGoodsIssuanceHeader(date);
-            var goodsIssuancedetail = goodsIssuanceController.GetGoodsIssuanceItems(date);
-            goodsIssuanceController.InsertGoodsIssuance(goodsIssuancedata, goodsIssuancedetail);
-
-            AdjustmentController adjustmentController = new AdjustmentController();
-            var adjustmentData = adjustmentController.GetAdjustmentHeader(date);
-            var adjustmentDetail = adjustmentController.GetAdjustmentItems(date);
-            adjustmentController.InsertAdjustment(adjustmentData, adjustmentDetail);
-            
-            #endregion Inventory Module
-
-            #region Recompute Value and Quantity
-            RecomputeController recompute = new RecomputeController();
-
-            var trans = recompute.GetTransactions(date);
-
-            recompute.UpdateRunningQuantityValueCost(trans);
-            #endregion
-        }
-
         private void frmMain_Load(object sender, EventArgs e)
         {
             try
@@ -99,9 +39,15 @@ namespace SOFOS2_Migration_Tool
                 this.BeginInvoke(new MethodInvoker(Close));
             }
         }
+        
+
+
 
         private void btnPayment_Click(object sender, EventArgs e)
         {
+            if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Payment))
+                return;
+
             PaymentComputeController pcc = new PaymentComputeController();
             var invoicelist = pcc.GetInvoice("CI"); 
             //CollectionReceiptController crc = new CollectionReceiptController();
@@ -112,7 +58,171 @@ namespace SOFOS2_Migration_Tool
             //JournalVoucherController jvc = new JournalVoucherController();
             //var jvheader = jvc.GetJournalVoucherHeader("2021-03-31","JV");
             //var jvdetail = jvc.GetJournalVoucherDetail("2021-03-31", "JV");
+
+            pcbPayment.BackgroundImage = checkedImage;
+        }
+
+        private void btnPurchasing_Click(object sender, EventArgs e)
+        {
+
+            if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Purchasing))
+                return;
+
+            #region Purchasing Module
+            //PurchaseRequestController test2 = new PurchaseRequestController();
+
+            ReceiveFromVendorController receiveFromVendorController = new ReceiveFromVendorController();
+            var receiveFromVendorHeader = receiveFromVendorController.GetRVHeader(date);
+            var receiveFromVendorDetails = receiveFromVendorController.GetRVItem(date);
+            if (receiveFromVendorHeader.Count > 0)
+                receiveFromVendorController.InsertRV(receiveFromVendorHeader, receiveFromVendorDetails);
+
+            ReturnGoodsController returnGoodsController = new ReturnGoodsController();
+            var returnGoodsHeader = returnGoodsController.GetRGHeader(date);
+            var returnGoodsDetails = returnGoodsController.GetRGItem(date);
+            if (returnGoodsHeader.Count > 0)
+                returnGoodsController.InsertReturnGoods(returnGoodsHeader, returnGoodsDetails);
+
+            #endregion Purchasing Module
+
+            pcbPurchasing.BackgroundImage = checkedImage;
+
+        }
+
+        
+
+        private void btnSales_Click(object sender, EventArgs e)
+        {
+            if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Sales))
+                return;
             
+            #region Sales Module
+
+            SalesController salesController = new SalesController();
+            var salesHeader = salesController.GetSalesHeader(date);
+            var salesDetails = salesController.GetSalesItems(date);
+            var salesPayment = salesController.GetSalesPayment(date);
+            if (salesHeader.Count > 0)
+                salesController.InsertSales(salesHeader, salesDetails, salesPayment);
+
+
+            ReturnFromCustomerController returnFromCustomerController = new ReturnFromCustomerController();
+            var returnFromCustomerHeader = returnFromCustomerController.GetReturnFromCustomerHeader(date);
+            var returnFromCustomerDetails = returnFromCustomerController.GetReturnFromCustomerItems(date);
+            if (returnFromCustomerHeader.Count > 0)
+                returnFromCustomerController.InsertReturnFromCustomer(returnFromCustomerHeader, returnFromCustomerDetails);
+            
+            #endregion Sales Module
+
+            pcbSales.BackgroundImage = checkedImage;
+
+        }
+
+        
+        private void btnInventory_Click(object sender, EventArgs e)
+        {
+            if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Inventory))
+                return;
+
+            #region Inventory Module
+
+            GoodsReceiptController goodsReceiptController = new GoodsReceiptController();
+            var goodsReceiptdata = goodsReceiptController.GetGoodsReceiptHeader(date);
+            var goodsReceiptdetail = goodsReceiptController.GetGoodsReceiptItems(date);
+            if (goodsReceiptdata.Count > 0)
+                goodsReceiptController.InsertGoodsReceipt(goodsReceiptdata, goodsReceiptdetail);
+
+            GoodsIssuanceController goodsIssuanceController = new GoodsIssuanceController();
+            var goodsIssuancedata = goodsIssuanceController.GetGoodsIssuanceHeader(date);
+            var goodsIssuancedetail = goodsIssuanceController.GetGoodsIssuanceItems(date);
+            if (goodsIssuancedata.Count > 0)
+                goodsIssuanceController.InsertGoodsIssuance(goodsIssuancedata, goodsIssuancedetail);
+
+            AdjustmentController adjustmentController = new AdjustmentController();
+            var adjustmentData = adjustmentController.GetAdjustmentHeader(date);
+            var adjustmentDetail = adjustmentController.GetAdjustmentItems(date);
+            if (adjustmentData.Count > 0)
+                adjustmentController.InsertAdjustment(adjustmentData, adjustmentDetail);
+
+            #endregion Inventory Module
+
+            pcbInventory.BackgroundImage = checkedImage;
+
+        }
+
+        private Image GetImageByResult(string salesModule)
+        {
+            return string.IsNullOrWhiteSpace(salesModule) ? checkedImage : crossImage;
+        }
+        private bool UserConfirmation(ProcessEnum processEnum, ModuleEnum moduleEnum)
+        {
+            string message = string.Empty;
+            switch(processEnum){
+                case ProcessEnum.Migrate:
+                    message = string.Format("Migrate Sofos1 {0} transactions dated : {1}.", moduleEnum.ToString(), date);
+                    break;
+                case ProcessEnum.Recompute:
+                    switch (moduleEnum)
+                    {
+                        case ModuleEnum.Inventory:
+                            message = string.Format("Compute and update cost, running quantity and running value using transaction dated : {0}.", date);
+                            break;
+                        case ModuleEnum.Payment:
+                            message = string.Format("Compute payment and generate interest payment : {0}.", date);
+                            break;
+                        case ModuleEnum.SalesCreditLimit:
+                            message = string.Format("Compute sales (CI,CT,APL) and update credit limit dated : {0}.", date);
+                            break;
+                        default:
+                                message = string.Format("Compute for {0} module is not available.", moduleEnum.ToString());
+                            break;
+                    }
+                    break;
+            }
+
+            DialogResult dialogResult = MessageBox.Show(message, "Confirmation", MessageBoxButtons.YesNo);
+            return dialogResult != DialogResult.Yes;
+        }
+
+        private void btnRecomputePayment_Click(object sender, EventArgs e)
+        {
+            if (UserConfirmation(ProcessEnum.Recompute, ModuleEnum.Payment))
+                return;
+            pcbRecomputePayment.BackgroundImage = checkedImage;
+
+        }
+
+        private void btnRecomputeInventory_Click(object sender, EventArgs e)
+        {
+            if (UserConfirmation(ProcessEnum.Recompute, ModuleEnum.Inventory))
+                return;
+
+            #region Recompute Value and Quantity
+            RecomputeController recompute = new RecomputeController();
+            var trans = recompute.GetTransactions(date);
+            recompute.UpdateRunningQuantityValueCost(trans);
+            #endregion
+
+            pcbRecomputeInventory.BackgroundImage = checkedImage;
+        }
+
+        private void dtpDateParam_ValueChanged(object sender, EventArgs e)
+        {
+            date = dtpDateParam.Value.ToString("yyyy-MM-dd");
+        }
+
+        private void btnRecomputeSalesCreditLimit_Click(object sender, EventArgs e)
+        {
+            if (UserConfirmation(ProcessEnum.Recompute, ModuleEnum.SalesCreditLimit))
+                return;
+
+            #region Recompute creditlimit amount
+            ReComputeSalesCreditController reComputeSalesCreditController = new ReComputeSalesCreditController();
+            var reComputeSalesCredit = reComputeSalesCreditController.GetSalesAndReturnFromCustomerTransactions(date);
+            reComputeSalesCreditController.UpdateChargeAmount(reComputeSalesCredit);
+            #endregion
+
+            pcbRecomputeSalesCreditLimit.BackgroundImage = checkedImage;
         }
     }
 }

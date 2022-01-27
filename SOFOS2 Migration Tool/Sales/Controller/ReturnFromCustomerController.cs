@@ -157,7 +157,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                 {
 
 
-                    transNum = global.GetLatestTransNum("sapr0", "transNum") + 1;
+                    transNum = global.GetLatestTransNum("sapr0", "transNum");
 
                     foreach (var item in _header)
                     {
