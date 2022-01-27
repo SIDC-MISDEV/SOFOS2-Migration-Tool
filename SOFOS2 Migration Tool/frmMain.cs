@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SOFOS2_Migration_Tool.Enums;
+using SOFOS2_Migration_Tool.Accounting.Controller;
 
 namespace SOFOS2_Migration_Tool
 {
@@ -219,10 +220,28 @@ namespace SOFOS2_Migration_Tool
             #region Recompute creditlimit amount
             ReComputeSalesCreditController reComputeSalesCreditController = new ReComputeSalesCreditController();
             var reComputeSalesCredit = reComputeSalesCreditController.GetSalesAndReturnFromCustomerTransactions(date);
-            reComputeSalesCreditController.UpdateChargeAmount(reComputeSalesCredit);
+            if (reComputeSalesCredit.Count > 0)
+                reComputeSalesCreditController.UpdateChargeAmount(reComputeSalesCredit);
             #endregion
 
             pcbRecomputeSalesCreditLimit.BackgroundImage = checkedImage;
+        }
+
+        private void btnCreditLimit_Click(object sender, EventArgs e)
+        {
+            if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.SalesCreditLimit))
+                return;
+
+            #region Credit Limit
+
+            AccountCreditLimitController accountCreditLimitController = new AccountCreditLimitController();
+            var accountCreditLimitData = accountCreditLimitController.GetAccountCreditLimits(date);
+            if (accountCreditLimitData.Count > 0)
+                accountCreditLimitController.InsertAccountCreditLimits(accountCreditLimitData);
+
+            #endregion Credit Limit
+
+            pcbCreditLimit.BackgroundImage = checkedImage;
         }
     }
 }

@@ -35,29 +35,29 @@
             this.btnSales = new System.Windows.Forms.Button();
             this.btnRecomputePayment = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.pcbRecomputeSalesCreditLimit = new System.Windows.Forms.PictureBox();
+            this.btnRecomputeSalesCreditLimit = new System.Windows.Forms.Button();
             this.pcbRecomputePayment = new System.Windows.Forms.PictureBox();
             this.pcbRecomputeInventory = new System.Windows.Forms.PictureBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.pcbCreditLimit = new System.Windows.Forms.PictureBox();
+            this.btnCreditLimit = new System.Windows.Forms.Button();
             this.pcbPayment = new System.Windows.Forms.PictureBox();
             this.pcbInventory = new System.Windows.Forms.PictureBox();
             this.pcbSales = new System.Windows.Forms.PictureBox();
             this.pcbPurchasing = new System.Windows.Forms.PictureBox();
             this.dtpDateParam = new System.Windows.Forms.DateTimePicker();
             this.label1 = new System.Windows.Forms.Label();
-            this.pcbRecomputeSalesCreditLimit = new System.Windows.Forms.PictureBox();
-            this.btnRecomputeSalesCreditLimit = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputeSalesCreditLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputePayment)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputeInventory)).BeginInit();
             this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pcbCreditLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbPayment)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbInventory)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbSales)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbPurchasing)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputeSalesCreditLimit)).BeginInit();
             this.SuspendLayout();
             // 
             // btnRecomputeInventory
@@ -149,6 +149,29 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Re-compute";
             // 
+            // pcbRecomputeSalesCreditLimit
+            // 
+            this.pcbRecomputeSalesCreditLimit.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.pcbRecomputeSalesCreditLimit.BackColor = System.Drawing.Color.Transparent;
+            this.pcbRecomputeSalesCreditLimit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.pcbRecomputeSalesCreditLimit.Location = new System.Drawing.Point(215, 72);
+            this.pcbRecomputeSalesCreditLimit.Name = "pcbRecomputeSalesCreditLimit";
+            this.pcbRecomputeSalesCreditLimit.Size = new System.Drawing.Size(39, 39);
+            this.pcbRecomputeSalesCreditLimit.TabIndex = 16;
+            this.pcbRecomputeSalesCreditLimit.TabStop = false;
+            // 
+            // btnRecomputeSalesCreditLimit
+            // 
+            this.btnRecomputeSalesCreditLimit.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnRecomputeSalesCreditLimit.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRecomputeSalesCreditLimit.Location = new System.Drawing.Point(62, 72);
+            this.btnRecomputeSalesCreditLimit.Name = "btnRecomputeSalesCreditLimit";
+            this.btnRecomputeSalesCreditLimit.Size = new System.Drawing.Size(147, 39);
+            this.btnRecomputeSalesCreditLimit.TabIndex = 8;
+            this.btnRecomputeSalesCreditLimit.Text = "Sales Credit Limit";
+            this.btnRecomputeSalesCreditLimit.UseVisualStyleBackColor = true;
+            this.btnRecomputeSalesCreditLimit.Click += new System.EventHandler(this.btnRecomputeSalesCreditLimit_Click);
+            // 
             // pcbRecomputePayment
             // 
             this.pcbRecomputePayment.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -174,8 +197,8 @@
             // groupBox2
             // 
             this.groupBox2.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.groupBox2.Controls.Add(this.pictureBox1);
-            this.groupBox2.Controls.Add(this.button1);
+            this.groupBox2.Controls.Add(this.pcbCreditLimit);
+            this.groupBox2.Controls.Add(this.btnCreditLimit);
             this.groupBox2.Controls.Add(this.pcbPayment);
             this.groupBox2.Controls.Add(this.pcbInventory);
             this.groupBox2.Controls.Add(this.pcbSales);
@@ -192,27 +215,28 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Modules";
             // 
-            // pictureBox1
+            // pcbCreditLimit
             // 
-            this.pictureBox1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.pictureBox1.Location = new System.Drawing.Point(215, 198);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(39, 39);
-            this.pictureBox1.TabIndex = 16;
-            this.pictureBox1.TabStop = false;
+            this.pcbCreditLimit.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.pcbCreditLimit.BackColor = System.Drawing.Color.Transparent;
+            this.pcbCreditLimit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.pcbCreditLimit.Location = new System.Drawing.Point(215, 198);
+            this.pcbCreditLimit.Name = "pcbCreditLimit";
+            this.pcbCreditLimit.Size = new System.Drawing.Size(39, 39);
+            this.pcbCreditLimit.TabIndex = 16;
+            this.pcbCreditLimit.TabStop = false;
             // 
-            // button1
+            // btnCreditLimit
             // 
-            this.button1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.button1.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(62, 199);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(147, 39);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "Credit limit";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnCreditLimit.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnCreditLimit.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnCreditLimit.Location = new System.Drawing.Point(62, 199);
+            this.btnCreditLimit.Name = "btnCreditLimit";
+            this.btnCreditLimit.Size = new System.Drawing.Size(147, 39);
+            this.btnCreditLimit.TabIndex = 6;
+            this.btnCreditLimit.Text = "Credit limit - CI";
+            this.btnCreditLimit.UseVisualStyleBackColor = true;
+            this.btnCreditLimit.Click += new System.EventHandler(this.btnCreditLimit_Click);
             // 
             // pcbPayment
             // 
@@ -280,29 +304,6 @@
             this.label1.TabIndex = 10;
             this.label1.Text = "Date :";
             // 
-            // pcbRecomputeSalesCreditLimit
-            // 
-            this.pcbRecomputeSalesCreditLimit.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.pcbRecomputeSalesCreditLimit.BackColor = System.Drawing.Color.Transparent;
-            this.pcbRecomputeSalesCreditLimit.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.pcbRecomputeSalesCreditLimit.Location = new System.Drawing.Point(215, 72);
-            this.pcbRecomputeSalesCreditLimit.Name = "pcbRecomputeSalesCreditLimit";
-            this.pcbRecomputeSalesCreditLimit.Size = new System.Drawing.Size(39, 39);
-            this.pcbRecomputeSalesCreditLimit.TabIndex = 16;
-            this.pcbRecomputeSalesCreditLimit.TabStop = false;
-            // 
-            // btnRecomputeSalesCreditLimit
-            // 
-            this.btnRecomputeSalesCreditLimit.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnRecomputeSalesCreditLimit.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnRecomputeSalesCreditLimit.Location = new System.Drawing.Point(62, 72);
-            this.btnRecomputeSalesCreditLimit.Name = "btnRecomputeSalesCreditLimit";
-            this.btnRecomputeSalesCreditLimit.Size = new System.Drawing.Size(147, 39);
-            this.btnRecomputeSalesCreditLimit.TabIndex = 8;
-            this.btnRecomputeSalesCreditLimit.Text = "Sales Credit Limit";
-            this.btnRecomputeSalesCreditLimit.UseVisualStyleBackColor = true;
-            this.btnRecomputeSalesCreditLimit.Click += new System.EventHandler(this.btnRecomputeSalesCreditLimit_Click);
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -318,15 +319,15 @@
             this.Text = "Migration Tool v.0.0.1";
             this.Load += new System.EventHandler(this.frmMain_Load);
             this.groupBox1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputeSalesCreditLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputePayment)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputeInventory)).EndInit();
             this.groupBox2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pcbCreditLimit)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbPayment)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbInventory)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbSales)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbPurchasing)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputeSalesCreditLimit)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -350,8 +351,8 @@
         private System.Windows.Forms.PictureBox pcbRecomputeInventory;
         private System.Windows.Forms.DateTimePicker dtpDateParam;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.PictureBox pcbCreditLimit;
+        private System.Windows.Forms.Button btnCreditLimit;
         private System.Windows.Forms.PictureBox pcbRecomputeSalesCreditLimit;
         private System.Windows.Forms.Button btnRecomputeSalesCreditLimit;
     }

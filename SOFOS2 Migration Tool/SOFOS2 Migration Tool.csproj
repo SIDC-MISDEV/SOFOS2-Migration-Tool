@@ -50,6 +50,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Accounting\Controller\AccountCreditLimitController.cs" />
+    <Compile Include="Accounting\Model\AccountCreditLimits.cs" />
     <Compile Include="Enums\ProcessEnum.cs" />
     <Compile Include="frmMain.cs">
       <SubType>Form</SubType>
@@ -89,6 +91,7 @@
     <Compile Include="Sales\Model\ReturnFromCustomer.cs" />
     <Compile Include="Sales\Model\Sales.cs" />
     <Compile Include="Purchasing\Model\ReturnGoods.cs" />
+    <Compile Include="Service\AccountCreditLimitQuery.cs" />
     <Compile Include="Service\AdjustmentQuery.cs" />
     <Compile Include="Service\GoodsIssuanceQuery.cs" />
     <Compile Include="Service\GoodsReceiptQuery.cs" />
@@ -126,10 +129,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Accounting\Controller\" />
-    <Folder Include="Accounting\Model\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="Resources\check_icon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
