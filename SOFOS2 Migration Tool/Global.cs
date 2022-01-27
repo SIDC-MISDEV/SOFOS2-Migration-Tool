@@ -68,7 +68,29 @@ namespace SOFOS2_Migration_Tool
                 {
                     while (dr.Read())
                     {
-                        result =  dr["reference"].ToString();
+                        result = dr["reference"].ToString();
+                    }
+                }
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+        public string GetLatestCreditLimitAccountNumber(MySQLHelper conn)
+        {
+            try
+            {
+                string result = "";
+                conn.ArgSQLCommand = Query.GetLatestCreditLimitAccountNumber();
+                //conn.ArgSQLParam = new Dictionary<string, object>() { { "@transactionType", transactionType }, { "@module", module } };
+                using (var dr = conn.MySQLExecuteReaderBeginTransaction())
+                {
+                    while (dr.Read())
+                    {
+                        result = dr["AccountNumber"].ToString();
                     }
                 }
                 return result;
@@ -142,6 +164,7 @@ namespace SOFOS2_Migration_Tool
                 throw;
             }
         }
+        
 
         public string GetCRReference(string tableName, string fieldName)
         {

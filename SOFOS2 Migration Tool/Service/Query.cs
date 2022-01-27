@@ -29,6 +29,10 @@ namespace SOFOS2_Migration_Tool.Service
         {
             return new StringBuilder(@"SELECT CONCAT(transtype,LPAD(series+1, 10, '0')) as reference FROM SST00 WHERE transtype = @transactionType AND module = @module LIMIT 1;");
         }
+        public static StringBuilder GetLatestCreditLimitAccountNumber()
+        {
+            return new StringBuilder(@"SELECT LPAD(IFNULL(MAX(accountNumber *1),0) +1,10,'0') AS 'AccountNumber' FROM sofos2_mp.ACL00 LIMIT 1;");
+        }
         
     }
 }
