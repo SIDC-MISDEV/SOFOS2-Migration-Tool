@@ -206,6 +206,46 @@ namespace SOFOS2_Migration_Tool
             }
         }
 
+        public string GetJVReference(string tableName, string fieldName)
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+                string zeroText = "";
+                string reference = "";
+
+                query = $@"SELECT {fieldName} FROM {tableName} WHERE transType = 'JV' ORDER BY {fieldName} DESC LIMIT 1;";
+
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    var data = conn.GetMySQLScalar();
+
+                    reference = data == null ? "" : (Convert.ToInt32(data) + 1).ToString();
+
+                    int numZero = 10 - reference.Length;
+
+                    do
+                    {
+                        zeroText = string.Concat(zeroText, "0");
+                        numZero--;
+                    }
+                    while (numZero != 0);
+
+                    result = string.Concat("JV", zeroText, reference);
+
+                }
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
         public string GetMemberName(string memberId)
         {
             try

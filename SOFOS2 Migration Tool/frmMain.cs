@@ -60,16 +60,19 @@ namespace SOFOS2_Migration_Tool
                 if (crheader.Count > 0)
                     crc.InsertCR(crheader, crdetail);
 
-                //JournalVoucherController jvc = new JournalVoucherController();
-                //var jvheader = jvc.GetJournalVoucherHeader("2021-03-31","JV");
-                //var jvdetail = jvc.GetJournalVoucherDetail("2021-03-31", "JV");
+                JournalVoucherController jvc = new JournalVoucherController();
+                var jvheader = jvc.GetJournalVoucherHeader(date, "JV");
+                var jvdetail = jvc.GetJournalVoucherDetail(date, "JV");
+                if (jvheader.Count > 0)
+                    jvc.InsertJV(jvheader, jvdetail);
+
+
 
                 string message = string.Format(@"No transactions found in SOFOS1 - Payment module (Collection Receipt) dated : {0}.", date);
                 if (crheader.Count > 0)
                     message = string.Format(@" ({0}) Collection Receipt transactions was transfered successfully.", crheader.Count);
 
                 MessageBox.Show(message);
-
                 pcbPayment.BackgroundImage = checkedImage;
             }
             catch (Exception ex)

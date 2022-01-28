@@ -87,8 +87,8 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as memberName,
                                     '' as accountName,
                                     '' as refTransType,
-                                    '' as intComputed,
-                                    '' as paidToDate,
+                                    0 as intComputed,
+                                    '0.00' as paidToDate,
                                     'CLOSED' as status,
                                     '' as lastpaymentdate,
                                     '' as AccountNo
@@ -154,6 +154,31 @@ namespace SOFOS2_Migration_Tool.Service
 
                     sQuery.Append(@"INSERT INTO FP100 (transNum,crossReference,amount,idUser,balance,accountCode,pType,accountName,refTransType) 
                             VALUES (@transNum,@crossReference,@amount,@idUser,@balance,@accountCode,@pType,@accountName,@refTransType)");
+
+                    break;
+                default:
+                    break;
+            }
+
+            return sQuery;
+        }
+
+        public static StringBuilder InsertJV(payment process)
+        {
+            var sQuery = new StringBuilder();
+
+            switch (process)
+            {
+                case payment.JVHeader:
+
+                    sQuery.Append(@"INSERT INTO FJV00 (transNum, reference, Total, transDate, idUser, status, cancelled, remarks) 
+                            VALUES (@transNum, @reference, @Total, @transDate, @idUser, @status, @cancelled, @remarks)");
+
+                    break;
+                case payment.JVDetail:
+
+                    sQuery.Append(@"INSERT INTO FJV10 ( transNum, accountCode, crossReference, idUser, debit, credit, memberId, memberName, accountName, refTransType, intComputed, paidToDate, status,  AccountNo) 
+                            VALUES ( @transNum, @accountCode, @crossReference, @idUser, @debit, @credit, @memberId, @memberName, @accountName, @refTransType, @intComputed, @paidToDate, @status,  @AccountNo)");
 
                     break;
                 default:
