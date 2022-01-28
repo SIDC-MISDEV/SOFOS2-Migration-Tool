@@ -104,8 +104,7 @@ namespace SOFOS2_Migration_Tool.Service
                             INNER JOIN sapt1 d ON h.transNum = d.transNum
                             SET
                                 d.runningQty = @runningQuantity,
-                                d.cost = @cost * d.conversion,
-                                d.averageCost = @cost,
+                                d.cost = @cost * d.conversion
                                 d.runningValue = @runningValue
                             WHERE h.reference = @reference
                             AND d.itemcode = @itemCode AND uomCode = @uomCode; ");

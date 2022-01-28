@@ -132,7 +132,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                         { "@runningValue", tranRunVal },
                                         { "@uomCode", tran.UomCode },
                                         { "@reference", tran.Reference },
-                                        { "@cost", averageCost }
+                                        { "@cost", item.Cost }
                                     };
 
                                     sQuery = RecomputeQuery.UpdateRunningQuantityValue(process);
