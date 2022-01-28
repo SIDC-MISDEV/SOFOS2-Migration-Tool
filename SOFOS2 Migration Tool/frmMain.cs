@@ -80,7 +80,7 @@ namespace SOFOS2_Migration_Tool
 
         private void btnPurchasing_Click(object sender, EventArgs e)
         {
-
+           
             if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Purchasing))
                 return;
 
@@ -110,6 +110,11 @@ namespace SOFOS2_Migration_Tool
                 MessageBox.Show(message);
 
                 pcbPurchasing.BackgroundImage = checkedImage;
+
+                #region LOGS
+                receiveFromVendorController.InsertRVLogs(receiveFromVendorHeader, date);
+                returnGoodsController.InsertReturnGoodsLogs(returnGoodsHeader, date);
+                #endregion LOGS
             }
             catch (Exception ex)
             {
@@ -152,6 +157,12 @@ namespace SOFOS2_Migration_Tool
                 MessageBox.Show(message);
 
                 pcbSales.BackgroundImage = checkedImage;
+
+                #region LOGS
+                salesController.InsertSalesLogs(salesHeader, date);
+                returnFromCustomerController.InsertReturnFromCustomerLogs(returnFromCustomerHeader, date);
+                #endregion LOGS
+
             }
             catch (Exception ex)
             {
@@ -194,6 +205,14 @@ namespace SOFOS2_Migration_Tool
 
                 MessageBox.Show(message);
                 pcbInventory.BackgroundImage = checkedImage;
+
+                #region LOGS
+                goodsReceiptController.InsertGoodsReceiptLogs(goodsReceiptdata, date);
+                goodsIssuanceController.InsertGoodsIssuanceLogs(goodsIssuancedata, date);
+                adjustmentController.InsertAdjustmentLogs(adjustmentData, date);
+                #endregion LOGS
+
+
             }
             catch (Exception ex)
             {
@@ -263,6 +282,11 @@ namespace SOFOS2_Migration_Tool
                 MessageBox.Show(message);
 
                 pcbRecomputeInventory.BackgroundImage = checkedImage;
+
+                #region LOGS
+                recompute.UpdateRunningQuantityValueCostLogs(trans, date);
+                #endregion LOGS
+
             }
             catch (Exception ex)
             {
@@ -303,6 +327,10 @@ namespace SOFOS2_Migration_Tool
                 MessageBox.Show(message);
 
                 pcbRecomputeSalesCreditLimit.BackgroundImage = checkedImage;
+
+                #region LOGS
+                reComputeSalesCreditController.UpdateChargeAmountLogs(reComputeSalesCredit, date);
+                #endregion LOGS
             }
             catch (Exception ex)
             {
@@ -333,6 +361,10 @@ namespace SOFOS2_Migration_Tool
                 MessageBox.Show(message);
 
                 pcbCreditLimit.BackgroundImage = checkedImage;
+
+                #region LOGS
+                accountCreditLimitController.InsertAccountCreditLimitsLogs(accountCreditLimitData, date);
+                #endregion LOGS
             }
             catch (Exception ex)
             {
