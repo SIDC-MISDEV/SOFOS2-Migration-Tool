@@ -120,10 +120,28 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                             Enum.TryParse(tran.TransactionType, out process);
 
+
                             tranRunQty = Math.Round(tran.Quantity + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
-                            tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+
+                            if(tranRunQty < 1)
+                            {
+                                tranRunVal = 0;
+                                tranRunQty = 0;
+                            }
+                            else
+                            {
+                                if(process == Process.Sales)
+                                    tranRunVal = Math.Round((item.Cost * tran.Quantity) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+                                else
+                                    tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+
+
+                                averageCost = Math.Round(tranRunVal / tranRunQty, 2, MidpointRounding.AwayFromZero);
+                            }
+
+                            
                             //fore review ni lito
-                            averageCost = Math.Round(tranRunVal / (tranRunQty <= 0 ? 1 : tranRunQty), 2, MidpointRounding.AwayFromZero);
+                            
 
                             switch (process)
                             {
