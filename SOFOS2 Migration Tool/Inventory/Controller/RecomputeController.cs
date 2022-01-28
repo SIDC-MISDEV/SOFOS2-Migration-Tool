@@ -52,28 +52,28 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
             }
         }
 
-        private Item GetItem(string itemCode)
+        private Item GetItem(MySQLHelper conn, string itemCode)
         {
             try
             {
                 var result = new Item();
                 var prm = new Dictionary<string, object>() { { "@itemcode", itemCode } };
 
-                using (var conn = new MySQLHelper(Global.DestinationDatabase, RecomputeQuery.GetItemRunningQuantityValue(), prm))
+                conn.ArgSQLCommand = RecomputeQuery.GetItemRunningQuantityValue();
+                conn.ArgSQLParam = prm;
+                using (var dr = conn.MySQLExecuteReaderBeginTransaction())
                 {
-                    using (var dr = conn.MySQLReader())
+                    while (dr.Read())
                     {
-                        while (dr.Read())
-                        {
-                            result.ItemCode = dr["itemcode"].ToString();
-                            result.RunningQuantity = Convert.ToDecimal(dr["runningQuantity"]);
-                            result.RunningValue = Convert.ToDecimal(dr["runningValue"]);
-                            result.Cost = Convert.ToDecimal(dr["cost"]);
-                            result.UomCode = dr["uomCode"].ToString();
-                            result.Conversion = Convert.ToDecimal(dr["Conversion"]);
-                        }
+                        result.ItemCode = dr["itemcode"].ToString();
+                        result.RunningQuantity = Convert.ToDecimal(dr["runningQuantity"]);
+                        result.RunningValue = Convert.ToDecimal(dr["runningValue"]);
+                        result.Cost = Convert.ToDecimal(dr["cost"]);
+                        result.UomCode = dr["uomCode"].ToString();
+                        result.Conversion = Convert.ToDecimal(dr["Conversion"]);
                     }
                 }
+
 
                 return result;
             }
@@ -104,7 +104,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         item = new Item();
                         sQuery = new StringBuilder();
                         //Get running value and running quantity of an item.
-                        item = GetItem(tran.ItemCode);
+                        item = GetItem(conn, tran.ItemCode);
 
                         //Initialize running qty,  running value and average cost
                         averageCost = 0;
@@ -236,5 +236,6 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
             receiveFromVendorObjectToCSV.SaveToCSV(_header, filename);
             return folder;
         }
+
     }
 }
