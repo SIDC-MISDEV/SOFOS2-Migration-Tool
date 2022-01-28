@@ -60,6 +60,8 @@
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
+    <Compile Include="Helper\ObjectToCSV.cs" />
+    <Compile Include="Logs\Controller\LogController.cs" />
     <Compile Include="Payment\Controller\CollectionReceiptController.cs" />
     <Compile Include="Payment\Controller\JournalVoucherController.cs" />
     <Compile Include="Payment\Controller\OfficialReceiptController.cs" />
