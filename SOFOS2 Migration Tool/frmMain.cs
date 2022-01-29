@@ -50,19 +50,16 @@ namespace SOFOS2_Migration_Tool
                 return;
 
             try
-            { 
-                //PaymentComputeController pcc = new PaymentComputeController();
-                //var invoicelist = pcc.GetInvoice("CI"); 
-
+            {
                 CollectionReceiptController crc = new CollectionReceiptController();
                 var crheader = crc.GetCollectionReceiptHeader(date, "OR");
                 var crdetail = crc.GetCollectionReceiptDetail(date, "OR");
                 if (crheader.Count > 0)
                     crc.InsertCR(crheader, crdetail);
 
-                //JournalVoucherController jvc = new JournalVoucherController();
-                //var jvheader = jvc.GetJournalVoucherHeader("2021-03-31","JV");
-                //var jvdetail = jvc.GetJournalVoucherDetail("2021-03-31", "JV");
+                JournalVoucherController jvc = new JournalVoucherController();
+                var jvheader = jvc.GetJournalVoucherHeader(date, "JV");
+                var jvdetail = jvc.GetJournalVoucherDetail(date, "JV");
 
                 string message = string.Format(@"No transactions found in SOFOS1 - Payment module (Collection Receipt) dated : {0}.", date);
                 if (crheader.Count > 0)
@@ -118,8 +115,6 @@ namespace SOFOS2_Migration_Tool
 
         }
 
-        
-
         private void btnSales_Click(object sender, EventArgs e)
         {
             if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Sales))
@@ -158,8 +153,7 @@ namespace SOFOS2_Migration_Tool
                 MessageBox.Show(string.Format("Error : {0}",ex.Message));
             }
         }
-
-        
+ 
         private void btnInventory_Click(object sender, EventArgs e)
         {
             if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Inventory))
@@ -205,6 +199,7 @@ namespace SOFOS2_Migration_Tool
         {
             return string.IsNullOrWhiteSpace(salesModule) ? checkedImage : crossImage;
         }
+
         private bool UserConfirmation(ProcessEnum processEnum, ModuleEnum moduleEnum)
         {
             string message = string.Empty;
@@ -239,8 +234,36 @@ namespace SOFOS2_Migration_Tool
         {
             if (UserConfirmation(ProcessEnum.Recompute, ModuleEnum.Payment))
                 return;
-            pcbRecomputePayment.BackgroundImage = checkedImage;
 
+            try
+            {
+                PaymentComputeController pcc = new PaymentComputeController();
+                var paymentlist = pcc.GetAllTransactionPayments(date);
+                if (paymentlist.Count > 0)
+                    foreach (var pl in paymentlist)
+                    {
+                        if (pl.AccountCode == "112010000000001")
+                        {
+                            var invoicelist = pcc.GetInvoice(pl.MemberId, pl.AccountNumber, pl.Amount, pl.TransDate);
+                            if(invoicelist.Count > 0)
+                                pcc.UpdateInvoice(invoicelist);
+                            foreach (var il in invoicelist)
+                            {
+                                var interestlist = pcc.ComputeInterest(date, il.Reference, il.MemberId, il.AccountNumber);
+                            }
+
+                        }
+                        //invoicelist.Where(c => c.Reference == payment.CrossReference).Select(c => { c.isCheck = true; return c; }).ToList();
+                    }
+                
+
+                pcbRecomputePayment.BackgroundImage = checkedImage;
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Error : {0}", ex.Message));
+            }
         }
 
         private void btnRecomputeInventory_Click(object sender, EventArgs e)

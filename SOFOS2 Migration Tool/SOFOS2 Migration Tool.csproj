@@ -65,6 +65,8 @@
     <Compile Include="Payment\Controller\OfficialReceiptController.cs" />
     <Compile Include="Payment\Controller\PaymentComputeController.cs" />
     <Compile Include="Payment\Model\CollectionReceipt.cs" />
+    <Compile Include="Payment\Model\Interest.cs" />
+    <Compile Include="Payment\Model\Payments.cs" />
     <Compile Include="Payment\Model\Invoice.cs" />
     <Compile Include="Payment\Model\JournalVoucher.cs" />
     <Compile Include="Payment\Model\OfficialReceipt.cs" />

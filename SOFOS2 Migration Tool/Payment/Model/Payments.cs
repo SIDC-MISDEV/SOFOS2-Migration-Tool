@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SOFOS2_Migration_Tool.Payment.Model
 {
-    public class Invoice
+    public class Payments
     {
         public string TransDate { get; set; }
         public string TransType { get; set; }
@@ -14,12 +14,11 @@ namespace SOFOS2_Migration_Tool.Payment.Model
         public string MemberId { get; set; }
         public string AccountCode { get; set; }
         public decimal PaidToDate { get; set; }
-        public decimal Total { get; set; }
+        public decimal Amount { get; set; }
         public bool Cancelled { get; set; }
         public string Status { get; set; }
         public int IntComputed { get; set; }
         public string LastPaymentDate { get; set; }
         public string AccountNumber { get; set; }
-        public bool isSelected { get; set; }
     }
 }
