@@ -92,6 +92,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                     itemParam = new Dictionary<string, object>();
 
                 List<Transactions> trans = new List<Transactions>();
+                List<string> errorItem = new List<string>();
                 Item item = null;
                 StringBuilder sQuery = new StringBuilder();
                 decimal averageCost = 0, tranRunQty = 0, tranRunVal = 0;
@@ -123,10 +124,15 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                             tranRunQty = Math.Round(tran.Quantity + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
 
-                            if(tranRunQty < 1)
+                            if(tranRunQty == 0)
                             {
                                 tranRunVal = 0;
                                 tranRunQty = 0;
+                            }
+                            else if (tranRunQty < 0)
+                            {
+                                errorItem.Add(item.ItemCode);
+                                continue;
                             }
                             else
                             {
@@ -139,8 +145,6 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                 averageCost = Math.Round(tranRunVal / tranRunQty, 2, MidpointRounding.AwayFromZero);
                             }
 
-                            
-                            //fore review ni lito
                             
 
                             switch (process)
@@ -231,7 +235,16 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                     }
 
-                    conn.CommitTransaction();
+                    if(errorItem.Count < 1)
+                        conn.CommitTransaction();
+                    else
+                    {
+                        conn.RollbackTransaction();
+                        NegativeRunningQuantityItemLogs(errorItem);
+
+                        throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
+                    }
+
                 }
             }
             catch
@@ -255,5 +268,17 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
             return folder;
         }
 
+        private void NegativeRunningQuantityItemLogs(List<string> items)
+        {
+            string fileName = string.Format($"Negative Running Quantity Items-{DateTime.Now.ToString("ddMMyyyyHHmmss")}.csv");
+            dropSitePath = Path.Combine(dropSitePath, folder);
+
+            if (!Directory.Exists(dropSitePath))
+                Directory.CreateDirectory(dropSitePath);
+
+            ObjectToCSV<string> receiveFromVendorObjectToCSV = new ObjectToCSV<string>();
+            string filename = Path.Combine(dropSitePath, fileName);
+            receiveFromVendorObjectToCSV.SaveErrorItemLog(items, filename);
+        }
     }
 }

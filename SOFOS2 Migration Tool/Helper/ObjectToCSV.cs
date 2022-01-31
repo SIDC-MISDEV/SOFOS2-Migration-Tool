@@ -20,5 +20,10 @@ namespace SOFOS2_Migration_Tool.Helper
             lines.AddRange(valueLines);
             File.WriteAllLines(path, lines.ToArray());
         }
+
+        public void SaveErrorItemLog(List<string> items, string path)
+        {
+            File.WriteAllLines(path, items.Select(x => string.Join(",", x)));
+        }
     }
 }
