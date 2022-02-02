@@ -96,6 +96,46 @@ namespace SOFOS2_Migration_Tool.Service
                                     WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate");
                     break;
 
+                case payment.ORHeader:
+
+                    sQuery.Append(@"SELECT 
+                                    '' as transNum,
+                                    reference, 
+                                    sum(credit) as total,
+                                    DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') as transDate,
+                                    idUser,
+                                    idfile as memberId,
+                                    '' as memberName,
+                                    'CLOSED' as status,
+                                    cancelled,
+                                    'Migration Tool' as remarks, 
+                                    1 as type, 
+                                    signatory as paidBy,
+                                    '' as branchCode,
+                                    extracted,
+                                    'Official Receipt' as transType,
+                                    '' as series,
+                                    '' as refTransType
+                                    FROM ledger 
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount NOT IN  ('112010000000001', '112020000000003','112050000000003') AND credit > 0 AND date(date)=@transdate GROUP BY idfile ORDER BY reference ASC");
+                    break;
+
+                case payment.ORDetail:
+
+                    sQuery.Append(@"SELECT  
+                                    '' transNum,
+                                    reference, 
+                                    '' crossReference, 
+                                    credit as amount, 
+                                    idUser, 
+                                    '' balance,
+                                    idaccount as accountCode,
+                                    if(idaccount='311010000000000','P','') as pType, 
+                                    '' as accountName
+                                    FROM ledger
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount NOT IN  ('112010000000001', '112020000000003','112050000000003') AND credit > 0 AND date(date)=@transdate GROUP BY idfile ORDER BY reference ASC");
+                    break;
+
                 case payment.Invoice:
 
                     sQuery.Append(@"SELECT 
@@ -163,10 +203,37 @@ namespace SOFOS2_Migration_Tool.Service
             return sQuery;
         }
 
+        public static StringBuilder InsertOR(payment process)
+        {
+            var sQuery = new StringBuilder();
+
+            switch (process)
+            {
+                case payment.ORHeader:
+
+                    sQuery.Append(@"INSERT INTO FP000 (transNum,reference,Total,transDate,idUser,memberId,memberName,status,cancelled,remarks,type,paidBy,branchCode,extracted,transType,refTransType,AccountNo) 
+                            VALUES (@transNum,@reference,@Total,@transDate,@idUser,@memberId,@memberName,@status,@cancelled,@remarks,@type,@paidBy,@branchCode,@extracted,@transType,@refTransType,@AccountNo)");
+
+                    break;
+                case payment.ORDetail:
+
+                    sQuery.Append(@"INSERT INTO FP100 (transNum,crossReference,amount,idUser,balance,accountCode,pType,accountName) 
+                            VALUES (@transNum,@crossReference,@amount,@idUser,@balance,@accountCode,@pType,@accountName)");
+
+                    break;
+                default:
+                    break;
+            }
+
+            return sQuery;
+        }
 
     }
 
-    public enum payment
+
+
+
+public enum payment
     {
         CRHeader, CRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, CreditLimit
     }
