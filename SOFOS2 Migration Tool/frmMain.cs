@@ -314,7 +314,7 @@ namespace SOFOS2_Migration_Tool
         {
             if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.SalesCreditLimit))
                 return;
-
+            int affectedSalesTransaction = 0;
             try
             { 
                 #region Credit Limit
@@ -324,12 +324,12 @@ namespace SOFOS2_Migration_Tool
                 if (accountCreditLimitData.Count > 0)
                     accountCreditLimitController.InsertAccountCreditLimits(accountCreditLimitData);
 
-                accountCreditLimitController.UpdateTransactionAccountNumber();
+                affectedSalesTransaction = accountCreditLimitController.UpdateTransactionAccountNumber();
                 #endregion Credit Limit
 
                 string message = string.Format(@"No data found in SOFOS1 - Accounting module (Credit Limit) dated : {0}.", date);
-                if (accountCreditLimitData.Count > 0)
-                    message = string.Format(@" ({0}) Credit Limit transactions was transfered successfully.", accountCreditLimitData.Count);
+                if (accountCreditLimitData.Count + affectedSalesTransaction > 0)
+                    message = string.Format(@" ({0}) Credit Limit transactions was transfered successfully and {1} sales transactions are updated with their assigned account number in credit limit.", accountCreditLimitData.Count, affectedSalesTransaction);
 
                 MessageBox.Show(message);
 

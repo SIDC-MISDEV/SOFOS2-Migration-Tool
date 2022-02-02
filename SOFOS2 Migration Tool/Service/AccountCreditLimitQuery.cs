@@ -65,7 +65,7 @@ namespace SOFOS2_Migration_Tool.Service
 
             sQuery.Append(@"UPDATE SAPT0 S
                             SET AccountNo =(SELECT a.accountNumber from ACL00 a WHERE a.memberId=s.memberid AND transType=s.transtype LIMIT 1 )
-                            WHERE AccountNo IS NULL AND transType NOT IN ('SI');");
+                            WHERE AccountNo IS NULL AND transType NOT IN ('SI', 'CT','CO');");
             return sQuery;
         }
         public static StringBuilder UpdateSalesInvoiceAccountNumberForEmployeeTransaction()
@@ -74,7 +74,7 @@ namespace SOFOS2_Migration_Tool.Service
 
             sQuery.Append(@"UPDATE SAPT0 S
                             SET AccountNo =(SELECT a.accountNumber from ACL00 a WHERE a.memberId=s.EmployeeId AND transType=s.transtype LIMIT 1 )
-                            WHERE AccountNo IS NULL AND transType NOT IN ('SI');");
+                            WHERE AccountNo IS NULL AND transType NOT IN ('SI','CI','AP');");
             return sQuery;
         }
 

@@ -103,20 +103,24 @@ namespace SOFOS2_Migration_Tool.Accounting.Controller
         #endregion INSERT
 
         #region UPDATE
-        public void UpdateTransactionAccountNumber()
+        public int UpdateTransactionAccountNumber()
         {
+            int rowsAffected = 0;
             try
             {
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
-                    UpdateSalesInvoiceAccountNumber(conn);
+                    rowsAffected = UpdateSalesInvoiceAccountNumber(conn);
                     conn.CommitTransaction();
+
+                    return rowsAffected;
                 }
             }
             catch
             {
                 throw;
             }
+            
         }
         #endregion UPDATE
 
@@ -178,21 +182,23 @@ namespace SOFOS2_Migration_Tool.Accounting.Controller
             conn.ExecuteMySQL();
         }
 
-        private void UpdateSalesInvoiceAccountNumber(MySQLHelper conn)
+        private int UpdateSalesInvoiceAccountNumber(MySQLHelper conn)
         {
-            UpdateSalesInvoiceAccountNumberForMembersTransaction(conn);
-            UpdateSalesInvoiceAccountNumberForEmployeeTransaction(conn);
+            int rowsAffected = 0;
+            rowsAffected = UpdateSalesInvoiceAccountNumberForMembersTransaction(conn);
+            rowsAffected += UpdateSalesInvoiceAccountNumberForEmployeeTransaction(conn);
+            return rowsAffected;
         }
 
-        private void UpdateSalesInvoiceAccountNumberForMembersTransaction(MySQLHelper conn)
+        private int UpdateSalesInvoiceAccountNumberForMembersTransaction(MySQLHelper conn)
         {
             conn.ArgSQLCommand = AccountCreditLimitQuery.UpdateSalesInvoiceAccountNumberForMembersTransaction();
-            conn.ExecuteMySQL();
+            return conn.ExecuteMySQL();
         }
-        private void UpdateSalesInvoiceAccountNumberForEmployeeTransaction(MySQLHelper conn)
+        private int UpdateSalesInvoiceAccountNumberForEmployeeTransaction(MySQLHelper conn)
         {
             conn.ArgSQLCommand = AccountCreditLimitQuery.UpdateSalesInvoiceAccountNumberForEmployeeTransaction();
-            conn.ExecuteMySQL();
+            return conn.ExecuteMySQL();
         }
         #endregion Private Methods
     }
