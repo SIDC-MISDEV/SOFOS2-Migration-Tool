@@ -103,6 +103,23 @@ namespace SOFOS2_Migration_Tool.Service
             }
         }
 
+        public void RollbackTransaction()
+        {
+            try
+            {
+                mysqlTrans.Rollback();
+            }
+            catch
+            {
+
+                throw;
+            }
+            finally
+            {
+                cnn.Close();
+            }
+        }
+
         public void BeginTransaction()
         {
             try

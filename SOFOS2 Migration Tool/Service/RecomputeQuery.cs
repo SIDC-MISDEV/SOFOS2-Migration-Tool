@@ -105,7 +105,6 @@ namespace SOFOS2_Migration_Tool.Service
                             SET
                                 d.runningQty = @runningQuantity,
                                 d.cost = @cost * d.conversion,
-                                d.averageCost = @cost,
                                 d.runningValue = @runningValue
                             WHERE h.reference = @reference
                             AND d.itemcode = @itemCode AND uomCode = @uomCode; ");
