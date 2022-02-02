@@ -102,6 +102,28 @@ namespace SOFOS2_Migration_Tool.Accounting.Controller
 
         #endregion INSERT
 
+        #region UPDATE
+        public int UpdateTransactionAccountNumber()
+        {
+            int rowsAffected = 0;
+            try
+            {
+                using (var conn = new MySQLHelper(Global.DestinationDatabase))
+                {
+                    rowsAffected = UpdateSalesInvoiceAccountNumber(conn);
+                    conn.CommitTransaction();
+
+                    return rowsAffected;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            
+        }
+        #endregion UPDATE
+
         #endregion Public Methods
 
         #region Private Methods
@@ -158,6 +180,25 @@ namespace SOFOS2_Migration_Tool.Accounting.Controller
             conn.ArgSQLCommand = AccountCreditLimitQuery.UpdateMemberShareCapital();
             conn.ArgSQLParam = new Dictionary<string, object>() { { "@memberId", memberId }, { "@shareCapital", shareCapital } };
             conn.ExecuteMySQL();
+        }
+
+        private int UpdateSalesInvoiceAccountNumber(MySQLHelper conn)
+        {
+            int rowsAffected = 0;
+            rowsAffected = UpdateSalesInvoiceAccountNumberForMembersTransaction(conn);
+            rowsAffected += UpdateSalesInvoiceAccountNumberForEmployeeTransaction(conn);
+            return rowsAffected;
+        }
+
+        private int UpdateSalesInvoiceAccountNumberForMembersTransaction(MySQLHelper conn)
+        {
+            conn.ArgSQLCommand = AccountCreditLimitQuery.UpdateSalesInvoiceAccountNumberForMembersTransaction();
+            return conn.ExecuteMySQL();
+        }
+        private int UpdateSalesInvoiceAccountNumberForEmployeeTransaction(MySQLHelper conn)
+        {
+            conn.ArgSQLCommand = AccountCreditLimitQuery.UpdateSalesInvoiceAccountNumberForEmployeeTransaction();
+            return conn.ExecuteMySQL();
         }
         #endregion Private Methods
     }
