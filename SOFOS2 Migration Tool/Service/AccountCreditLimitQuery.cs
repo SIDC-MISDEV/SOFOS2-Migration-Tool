@@ -59,6 +59,25 @@ namespace SOFOS2_Migration_Tool.Service
 
             return sQuery;
         }
+        public static StringBuilder UpdateSalesInvoiceAccountNumberForMembersTransaction()
+        {
+            var sQuery = new StringBuilder();
+
+            sQuery.Append(@"UPDATE SAPT0 S
+                            SET AccountNo =(SELECT a.accountNumber from ACL00 a WHERE a.memberId=s.memberid AND transType=s.transtype LIMIT 1 )
+                            WHERE AccountNo IS NULL AND transType NOT IN ('SI');");
+            return sQuery;
+        }
+        public static StringBuilder UpdateSalesInvoiceAccountNumberForEmployeeTransaction()
+        {
+            var sQuery = new StringBuilder();
+
+            sQuery.Append(@"UPDATE SAPT0 S
+                            SET AccountNo =(SELECT a.accountNumber from ACL00 a WHERE a.memberId=s.EmployeeId AND transType=s.transtype LIMIT 1 )
+                            WHERE AccountNo IS NULL AND transType NOT IN ('SI');");
+            return sQuery;
+        }
 
     }
+    
 }

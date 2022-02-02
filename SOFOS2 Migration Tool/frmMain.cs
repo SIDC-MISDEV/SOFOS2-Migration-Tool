@@ -324,6 +324,7 @@ namespace SOFOS2_Migration_Tool
                 if (accountCreditLimitData.Count > 0)
                     accountCreditLimitController.InsertAccountCreditLimits(accountCreditLimitData);
 
+                accountCreditLimitController.UpdateTransactionAccountNumber();
                 #endregion Credit Limit
 
                 string message = string.Format(@"No data found in SOFOS1 - Accounting module (Credit Limit) dated : {0}.", date);
