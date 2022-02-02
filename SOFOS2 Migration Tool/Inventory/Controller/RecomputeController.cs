@@ -92,7 +92,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                     itemParam = new Dictionary<string, object>();
 
                 List<Transactions> trans = new List<Transactions>();
-                List<string> errorItem = new List<string>();
+                List<ItemProblem> errorItem = new List<ItemProblem>();
                 Item item = null;
                 StringBuilder sQuery = new StringBuilder();
                 decimal averageCost = 0, tranRunQty = 0, tranRunVal = 0;
@@ -111,7 +111,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         averageCost = 0;
                         tranRunQty = 0;
                         tranRunVal = 0;
-                        
+
 
                         if (!string.IsNullOrEmpty(item.ItemCode))
                         {
@@ -131,13 +131,21 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             }
                             else if (tranRunQty < 0)
                             {
-                                errorItem.Add(item.ItemCode);
+                                errorItem.Add(new ItemProblem
+                                {
+                                    ItemCode = item.ItemCode,
+                                    CurrentRunningQuantity = item.RunningQuantity,
+                                    CurrentRunningValue = item.RunningValue,
+                                    TransactionRunningQuantity = tranRunQty,
+                                    TransactionValue = tranRunVal
+                                });
+
                                 continue;
                             }
                             else
                             {
                                 if(process == Process.Sales)
-                                    tranRunVal = Math.Round((item.Cost * tran.Quantity) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+                                    tranRunVal = Math.Round((item.Cost * (tran.Quantity * tran.Conversion)) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
                                 else
                                     tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
 
@@ -235,7 +243,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                     }
 
-                    if(errorItem.Count < 1)
+                    if (errorItem.Count < 1)
                         conn.CommitTransaction();
                     else
                     {
@@ -268,7 +276,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
             return folder;
         }
 
-        private void NegativeRunningQuantityItemLogs(List<string> items)
+        private void NegativeRunningQuantityItemLogs(List<ItemProblem> items)
         {
             string fileName = string.Format($"Negative Running Quantity Items-{DateTime.Now.ToString("ddMMyyyyHHmmss")}.csv");
             dropSitePath = Path.Combine(dropSitePath, folder);
@@ -276,9 +284,9 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
             if (!Directory.Exists(dropSitePath))
                 Directory.CreateDirectory(dropSitePath);
 
-            ObjectToCSV<string> receiveFromVendorObjectToCSV = new ObjectToCSV<string>();
+            ObjectToCSV<ItemProblem> receiveFromVendorObjectToCSV = new ObjectToCSV<ItemProblem>();
             string filename = Path.Combine(dropSitePath, fileName);
-            receiveFromVendorObjectToCSV.SaveErrorItemLog(items, filename);
+            receiveFromVendorObjectToCSV.SaveToCSV(items, filename);
         }
     }
 }
