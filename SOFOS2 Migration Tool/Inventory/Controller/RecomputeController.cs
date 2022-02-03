@@ -146,10 +146,6 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             }
                             else
                             {
-                                if(item.ItemCode == "GRO002962")
-                                {
-
-                                }
 
                                 if(process == Process.Sales)
                                     tranRunVal = Math.Round((item.Cost * (tran.Quantity * tran.Conversion)) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
