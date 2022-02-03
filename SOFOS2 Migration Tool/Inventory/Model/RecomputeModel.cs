@@ -15,6 +15,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Model
         public decimal RunningValue { get; set; }
         public decimal RunningQuantity { get; set; }
         public decimal Conversion { get; set; }
+        public decimal CurrentRunVal { get; set; }
+        public decimal CurrentRunQty { get; set; }
     }
 
     public class Transactions
@@ -30,5 +32,13 @@ namespace SOFOS2_Migration_Tool.Inventory.Model
         public string TransDate { get; set; }
     }
 
+    public class ItemProblem
+    {
+        public string ItemCode { get; set; }
+        public decimal CurrentRunningQuantity { get; set; }
+        public decimal CurrentRunningValue { get; set; }
+        public decimal TransactionRunningQuantity { get; set; }
+        public decimal TransactionValue { get; set; }
+    }
     
 }

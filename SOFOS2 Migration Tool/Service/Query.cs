@@ -31,7 +31,7 @@ namespace SOFOS2_Migration_Tool.Service
         }
         public static StringBuilder GetLatestCreditLimitAccountNumber()
         {
-            return new StringBuilder(@"SELECT LPAD(IFNULL(MAX(accountNumber *1),0) +1,10,'0') AS 'AccountNumber' FROM sofos2_mp.ACL00 LIMIT 1;");
+            return new StringBuilder(@"SELECT LPAD(IFNULL(MAX(accountNumber *1),0) +1,10,'0') AS 'AccountNumber' FROM ACL00 LIMIT 1;");
         }
 
         public static StringBuilder DropPrimaryKey(string table, string field)
