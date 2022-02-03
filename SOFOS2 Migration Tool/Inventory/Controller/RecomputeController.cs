@@ -241,16 +241,15 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                     }
 
-                    conn.CommitTransaction();
-                    //if (errorItem.Count < 1)
-                    //    conn.CommitTransaction();
-                    //else
-                    //{
-                    //    conn.RollbackTransaction();
-                    //    NegativeRunningQuantityItemLogs(errorItem);
+                    if (errorItem.Count < 1)
+                        conn.CommitTransaction();
+                    else
+                    {
+                        conn.RollbackTransaction();
+                        NegativeRunningQuantityItemLogs(errorItem);
 
-                    //    throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
-                    //}
+                        throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
+                    }
 
                 }
             }
