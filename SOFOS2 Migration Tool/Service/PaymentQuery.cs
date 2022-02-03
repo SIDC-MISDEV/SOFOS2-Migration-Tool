@@ -8,7 +8,7 @@ namespace SOFOS2_Migration_Tool.Service
 {
     class PaymentQuery
     {
-        public static StringBuilder GetPaymentQuery(payment process)
+        public static StringBuilder GetQuery(payment process)
         {
             var sQuery = new StringBuilder();
 
@@ -54,6 +54,11 @@ namespace SOFOS2_Migration_Tool.Service
                                     if(idaccount=@oldinterestaccount or idaccount=@newinterestaccount,'CI','') as refTransType 
                                     FROM ledger
                                     WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate");
+                    break;
+
+                case payment.Balance:
+
+                    sQuery.Append(@"SELECT balance-amount as balance FROM fp100 WHERE accountcode=@principalaccount AND crossreference=@crossreference AND transnum < @transnum limit 1;");
                     break;
 
                 case payment.JVHeader:
@@ -103,6 +108,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     DATE_FORMAT(transDate, '%Y-%m-%d %H:%i:%s') as transDate, 
                                     reference,
                                     memberId,
+                                    memberName,
                                     accountCode,
                                     paidToDate,
                                     Total,
@@ -119,6 +125,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     SELECT DATE_FORMAT(transDate, '%Y-%m-%d %H:%i:%s') as transDate, 
                                     reference,
                                     memberId,
+                                    memberName,
                                     accountCode,
                                     paidToDate,
                                     Total,
@@ -130,17 +137,20 @@ namespace SOFOS2_Migration_Tool.Service
                                     ORDER BY x.transDate ASC");
                     break;
 
-                case payment.GetAllTransactionPayments:
+                case payment.TransactionPayments:
 
-                    sQuery.Append(@"SELECT transDate, reference, AccountCode, memberId, AccountNo, amount FROM (
+                    sQuery.Append(@"SELECT transNum, transDate, reference, AccountCode, memberId, AccountNo, amount, balance, idUser FROM (
                                     #CR
                                     SELECT 
+                                    a.transNum,
                                     DATE_FORMAT(transDate, '%Y-%m-%d %H:%i:%s') as transDate,
                                     memberId,
                                     AccountNo,
                                     reference,
                                     amount,
-                                    b.AccountCode
+                                    b.AccountCode,
+                                    balance,
+                                    a.idUser
                                     FROM fp000 a INNER JOIN fp100 b ON a.transNum=b.transNum 
                                     WHERE b.accountCode IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND amount > 0 AND date(transDate)=@transdate
                                     
@@ -148,17 +158,20 @@ namespace SOFOS2_Migration_Tool.Service
                                     
                                     #JV
                                     SELECT 
+                                    a.transNum,
                                     DATE_FORMAT(transDate, '%Y-%m-%d %H:%i:%s') as transDate,
                                     memberId,
                                     AccountNo,
                                     reference,
                                     credit as amount,
-                                    b.AccountCode 
+                                    b.AccountCode,
+                                    0 as balance,
+                                    a.idUser 
                                     from fjv00 a INNER JOIN fjv10 b ON a.transNum=b.transNum
                                     WHERE credit>0 AND b.accountCode IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(transDate)=@transdate) as x order by transdate, reference ASC;");
                     break;
 
-                case payment.GetInterest:
+                case payment.Interest:
 
                     sQuery.Append(@"select sum(round(intamount,2)) 'intAmount', reference from(
                             select CASE
@@ -184,6 +197,7 @@ namespace SOFOS2_Migration_Tool.Service
                             from sapt0 where accountcode = @principalAccount and cancelled=0 
                             and memberId=@memberId and AccountNo=@accountno and reference=@reference group by reference) as x group by reference");
                     break;
+
                 default:
                     break;
             }
@@ -191,7 +205,7 @@ namespace SOFOS2_Migration_Tool.Service
             return sQuery;
         }
 
-        public static StringBuilder InsertCR(payment process)
+        public static StringBuilder InsertQuery(payment process)
         {
             var sQuery = new StringBuilder();
 
@@ -199,17 +213,34 @@ namespace SOFOS2_Migration_Tool.Service
             {
                 case payment.CRHeader:
 
-                    sQuery.Append(@"INSERT INTO FP000 (transNum,reference,Total,transDate,idUser,memberId,memberName,status,cancelled,remarks,type,accountCode,paidBy,branchCode,extracted,transType,refTransType,AccountNo) 
+                    sQuery.Append(@"INSERT INTO fp000 (transNum,reference,Total,transDate,idUser,memberId,memberName,status,cancelled,remarks,type,accountCode,paidBy,branchCode,extracted,transType,refTransType,AccountNo) 
                             VALUES (@transNum,@reference,@Total,@transDate,@idUser,@memberId,@memberName,@status,@cancelled,@remarks,@type,@accountCode,@paidBy,@branchCode,@extracted,@transType,@refTransType,@AccountNo)");
 
                     break;
                 case payment.CRDetail:
 
-                    sQuery.Append(@"INSERT INTO FP100 (transNum,crossReference,amount,idUser,balance,accountCode,pType,accountName,refTransType) 
+                    sQuery.Append(@"INSERT INTO fp100 (transNum,crossReference,amount,idUser,balance,accountCode,pType,accountName,refTransType) 
                             VALUES (@transNum,@crossReference,@amount,@idUser,@balance,@accountCode,@pType,@accountName,@refTransType)");
 
                     break;
-                
+                case payment.ORHeader:
+
+                    sQuery.Append(@"INSERT INTO fp000 (transNum,reference,Total,transDate,idUser,memberId,memberName,status,cancelled,remarks,type,accountCode,paidBy,branchCode,extracted,transType,refTransType,AccountNo) 
+                            VALUES (@transNum,@reference,@Total,@transDate,@idUser,@memberId,@memberName,@status,@cancelled,@remarks,@type,@accountCode,@paidBy,@branchCode,@extracted,@transType,@refTransType,@AccountNo)");
+
+                    break;
+                case payment.ORDetail:
+
+                    sQuery.Append(@"INSERT INTO fp100 (transNum,crossReference,amount,idUser,balance,accountCode,pType,accountName,refTransType) 
+                            VALUES (@transNum,@crossReference,@amount,@idUser,@balance,@accountCode,@pType,@accountName,@refTransType)");
+
+                    break;
+                case payment.Interest:
+
+                    sQuery.Append(@"INSERT INTO fint0 (transNum, transDate, transType, reftransType, reference, amount, memberId, memberName, accountCode, idUser, crossReference, AccountNo)
+                            VALUES (@transnum, @transdate, @transtype, @reftranstype, @reference, @amount, @memberid, @membername, @accountcode, @iduser, @crossreference, @Accountno)");
+
+                    break;
                 default:
                     break;
             }
@@ -217,17 +248,25 @@ namespace SOFOS2_Migration_Tool.Service
             return sQuery;
         }
 
-        public static StringBuilder UpdateInvoice(payment process)
+        public static StringBuilder UpdateQuery(payment process)
         {
             var sQuery = new StringBuilder();
 
             switch (process)
             {
-                case payment.UpInvoice:
+                case payment.Invoice:
 
                     sQuery.Append(@"UPDATE sapt0 SET paidToDate=@paidtodate, intComputed=@intcomputed, status=@status, lastpaymentdate=@lastpaymentdate WHERE reference=@reference");
                     break;
-                
+                case payment.TransactionPayments:
+
+                    sQuery.Append(@"UPDATE fp000 a INNER JOIN fp100 b ON a.transNum=b.transNum SET crossReference=@crossreference, balance=@balance WHERE memberId=@memberid AND AccountNo=@accountno AND reference=@reference");
+                    break;
+                case payment.CreditLimit:
+
+                    sQuery.Append(@"UPDATE acl00 SET chargeAmount=@chargeamount WHERE memberId=@memberid AND accountNumber=@accountno AND transType=@transtype");
+                    break;
+
                 default:
                     break;
             }
@@ -239,7 +278,7 @@ namespace SOFOS2_Migration_Tool.Service
 
     public enum payment
     {
-        CRHeader, CRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, CreditLimit, GetAllTransactionPayments, GetInterest,UpInvoice
+        CRHeader, CRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, CreditLimit, TransactionPayments, Interest, Balance
     }
 
 }

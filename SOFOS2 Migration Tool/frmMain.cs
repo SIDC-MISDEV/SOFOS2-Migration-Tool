@@ -237,26 +237,16 @@ namespace SOFOS2_Migration_Tool
 
             try
             {
+
                 PaymentComputeController pcc = new PaymentComputeController();
+                
+                //pcc.AlterPrimaryKey("fp100", "detailNum");
+                
+                
                 var paymentlist = pcc.GetAllTransactionPayments(date);
                 if (paymentlist.Count > 0)
-                    foreach (var pl in paymentlist)
-                    {
-                        if (pl.AccountCode == "112010000000001")
-                        {
-                            var invoicelist = pcc.GetInvoice(pl.MemberId, pl.AccountNumber, pl.Amount, pl.TransDate);
-                            if(invoicelist.Count > 0)
-                                pcc.UpdateInvoice(invoicelist);
-                            foreach (var il in invoicelist)
-                            {
-                                var interestlist = pcc.ComputeInterest(date, il.Reference, il.MemberId, il.AccountNumber);
-                            }
-
-                        }
-                        //invoicelist.Where(c => c.Reference == payment.CrossReference).Select(c => { c.isCheck = true; return c; }).ToList();
-                    }
-                
-
+                    pcc.ComputePayment(paymentlist,date);
+                    
                 pcbRecomputePayment.BackgroundImage = checkedImage;
 
             }

@@ -29,7 +29,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@transprefix", transprefix }
                 };
 
-                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetPaymentQuery(payment.JVHeader), filter))
+                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetQuery(payment.JVHeader), filter))
                 {
                     using (var dr = conn.MySQLReader())
                     {
@@ -76,7 +76,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@transprefix", transprefix }
                 };
 
-                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetPaymentQuery(payment.JVDetail), filter))
+                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetQuery(payment.JVDetail), filter))
                 {
                     using (var dr = conn.MySQLReader())
                     {
