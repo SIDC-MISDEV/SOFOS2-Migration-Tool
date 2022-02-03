@@ -100,6 +100,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
+                    conn.BeginTransaction();
+
                     foreach (var tran in _transactions)
                     {
                         item = new Item();
@@ -144,6 +146,11 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             }
                             else
                             {
+                                if(item.ItemCode == "GRO002962")
+                                {
+
+                                }
+
                                 if(process == Process.Sales)
                                     tranRunVal = Math.Round((item.Cost * (tran.Quantity * tran.Conversion)) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
                                 else
@@ -238,15 +245,16 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                     }
 
-                    if (errorItem.Count < 1)
-                        conn.CommitTransaction();
-                    else
-                    {
-                        conn.RollbackTransaction();
-                        NegativeRunningQuantityItemLogs(errorItem);
+                    conn.CommitTransaction();
+                    //if (errorItem.Count < 1)
+                    //    conn.CommitTransaction();
+                    //else
+                    //{
+                    //    conn.RollbackTransaction();
+                    //    NegativeRunningQuantityItemLogs(errorItem);
 
-                        throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
-                    }
+                    //    throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
+                    //}
 
                 }
             }
