@@ -33,6 +33,34 @@ namespace SOFOS2_Migration_Tool.Service
         {
             return new StringBuilder(@"SELECT LPAD(IFNULL(MAX(accountNumber *1),0) +1,10,'0') AS 'AccountNumber' FROM ACL00 LIMIT 1;");
         }
-        
+
+        public static StringBuilder DropPrimaryKey(string table, string field)
+        {
+            return new StringBuilder($@"ALTER TABLE `{table}` 
+                                        CHANGE COLUMN `{field}` `{field}` INT(10) UNSIGNED NOT NULL ,
+                                        DROP PRIMARY KEY;");
+        }
+
+        public static StringBuilder AlterPrimaryKey(string table, string field)
+        {
+            return new StringBuilder($@"ALTER TABLE `{table}` 
+                                        CHANGE COLUMN `{field}` `{field}` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
+                                        ADD PRIMARY KEY (`{field}`);");
+        }
+
+        public static StringBuilder CountRecord(string table, string field)
+        {
+            return new StringBuilder($@"SELECT COUNT({field}) as count FROM {table};");
+        }
+
+        public static StringBuilder ArrangeDetailNum(string table, string field)
+        {
+            return new StringBuilder($@"SELECT {field} FROM {table} ORDER BY transNum ASC;");
+        }
+
+        public static StringBuilder UpdateDetailNum(string table, string field)
+        {
+            return new StringBuilder($@"UPDATE {table} SET {field} = @value WHERE transNum=@transNum AND detailNum=@detailNum;");
+        }
     }
 }
