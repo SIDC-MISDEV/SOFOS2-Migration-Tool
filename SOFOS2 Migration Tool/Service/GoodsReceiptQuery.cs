@@ -23,7 +23,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     l.reference AS 'Reference',
                                     l.crossreference AS 'Crossreference',
                                     null AS 'InvRequestRefence',
-                                    l.debit AS 'Total',
+                                    IF(LEFT(l.reference, 2) IN ('RR'), l.debit,l.credit) AS 'Total',
                                     l.idFile AS 'ToWarehouse',
                                     null AS 'Remarks',
                                     l.cancelled AS 'Cancelled',

@@ -171,7 +171,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     0 as 'ChangeAmount',
                                     extracted AS 'Extracted',
                                     0 AS 'OrDetailNum'
-                                     FROM mahabang_parang.transactionpayments
+                                     FROM transactionpayments
                                     WHERE LEFT(reference, 2) IN('SI', 'CI', 'CO', 'AP', 'CT') AND date(date) = @date;
                                      ");
                     break;

@@ -1,7 +1,9 @@
-﻿using SOFOS2_Migration_Tool.Purchasing.Model;
+﻿using SOFOS2_Migration_Tool.Helper;
+using SOFOS2_Migration_Tool.Purchasing.Model;
 using SOFOS2_Migration_Tool.Service;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +13,8 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
     public class ReturnGoodsController
     {
         string transType = "RG";
+        string dropSitePath = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "LOGS");
+        string folder = "Purchasing/";
 
         public List<ReturnGoods> GetRGHeader(string date)
         {
@@ -197,6 +201,21 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
 
                 throw;
             }
+        }
+
+        public string InsertReturnGoodsLogs(List<ReturnGoods> _header, string date)
+        {
+
+            string fileName = string.Format("ReturnGoods-{0}-{1}.csv", date.Replace(" / ", ""), DateTime.Now.ToString("ddMMyyyyHHmmss"));
+            dropSitePath = Path.Combine(dropSitePath, folder);
+
+            if (!Directory.Exists(dropSitePath))
+                Directory.CreateDirectory(dropSitePath);
+
+            ObjectToCSV<ReturnGoods> receiveFromVendorObjectToCSV = new ObjectToCSV<ReturnGoods>();
+            string filename = Path.Combine(dropSitePath, fileName);
+            receiveFromVendorObjectToCSV.SaveToCSV(_header, filename);
+            return folder;
         }
     }
 }

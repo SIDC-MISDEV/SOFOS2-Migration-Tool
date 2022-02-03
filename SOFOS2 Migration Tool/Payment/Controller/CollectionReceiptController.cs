@@ -30,7 +30,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@transprefix", transprefix }
                 };
 
-                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetPaymentQuery(payment.CRHeader), filter))
+                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetQuery(payment.CRHeader), filter))
                 {
                     using (var dr = conn.MySQLReader())
                     {
@@ -91,7 +91,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@transprefix", transprefix }
                 };
 
-                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetPaymentQuery(payment.CRDetail), filter))
+                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetQuery(payment.CRDetail), filter))
                 {
                     using (var dr = conn.MySQLReader())
                     {
@@ -147,7 +147,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                     foreach (var item in _header)
                     {
-                        var reference = g.GetCRReference("sst00", "series");
+                        var reference = g.GetCRReference("sst00", "series","CR");
                         var param = new Dictionary<string, object>()
                         {
                             { "@transNum", transNum },
@@ -171,7 +171,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             { "@refTransType", item.RefTransType }
                         };
 
-                        conn.ArgSQLCommand = PaymentQuery.InsertCR(payment.CRHeader);
+                        conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.CRHeader);
                         conn.ArgSQLParam = param;
 
                         //Execute insert header
@@ -195,7 +195,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                     {"@refTransType", detail.DetRefTransType }
                                 };
 
-                            conn.ArgSQLCommand = PaymentQuery.InsertCR(payment.CRDetail);
+                            conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.CRDetail);
                             conn.ArgSQLParam = detailParam;
 
                             //execute insert detail

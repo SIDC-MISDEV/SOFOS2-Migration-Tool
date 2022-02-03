@@ -1,7 +1,9 @@
-﻿using SOFOS2_Migration_Tool.Inventory.Model;
+﻿using SOFOS2_Migration_Tool.Helper;
+using SOFOS2_Migration_Tool.Inventory.Model;
 using SOFOS2_Migration_Tool.Service;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +13,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
     public class AdjustmentController
     {
         string transType = "IA";
+        string dropSitePath = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "LOGS");
+        string folder = "Inventory/";
 
         #region Public Methods
 
@@ -164,6 +168,20 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
             }
         }
 
+        public string InsertAdjustmentLogs(List<Adjustment> _header, string date)
+        {
+
+            string fileName = string.Format("Adjustment-{0}-{1}.csv", date.Replace(" / ", ""), DateTime.Now.ToString("ddMMyyyyHHmmss"));
+            dropSitePath = Path.Combine(dropSitePath, folder);
+
+            if (!Directory.Exists(dropSitePath))
+                Directory.CreateDirectory(dropSitePath);
+
+            ObjectToCSV<Adjustment> receiveFromVendorObjectToCSV = new ObjectToCSV<Adjustment>();
+            string filename = Path.Combine(dropSitePath, fileName);
+            receiveFromVendorObjectToCSV.SaveToCSV(_header, filename);
+            return folder;
+        }
 
         #endregion INSERT
 
@@ -204,6 +222,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
         private void CreateAdjustmentHeaderDocument(MySQLHelper conn, Adjustment item, int transNum, Global global)
         {
+
             var param = new Dictionary<string, object>()
                         {
                             { "@transDate", item.TransDate },
