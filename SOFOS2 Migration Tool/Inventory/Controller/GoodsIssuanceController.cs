@@ -234,6 +234,11 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
         private void CreateGoodsIssuanceHeaderDocument(MySQLHelper conn, GoodsIssuance item, int transNum, Global global)
         {
+            if (string.IsNullOrWhiteSpace(item.ToWarehouse) || item.ToWarehouse.Substring(0, 2) != "WH")
+            {
+                item.ToWarehouse = Global.WarehouseCode;
+            }
+
             var param = new Dictionary<string, object>()
                         {
                             { "@transDate", item.TransDate },
