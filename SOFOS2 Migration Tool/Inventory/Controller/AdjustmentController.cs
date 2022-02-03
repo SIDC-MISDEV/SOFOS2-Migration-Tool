@@ -222,6 +222,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
         private void CreateAdjustmentHeaderDocument(MySQLHelper conn, Adjustment item, int transNum, Global global)
         {
+
             var param = new Dictionary<string, object>()
                         {
                             { "@transDate", item.TransDate },
