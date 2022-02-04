@@ -117,7 +117,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
-
+                    conn.BeginTransaction();
 
                     transNum = g.GetLatestTransNum("fp000", "transNum");
 
