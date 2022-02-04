@@ -14,14 +14,23 @@ namespace SOFOS2_Migration_Tool.Service
 
             sQuery.Append(@"SELECT x.* FROM (
                                 SELECT transdate,reference,transtype,memberId, total AS 'amount' FROM sapt0
-                                WHERE transtype IN ('CI','CT','AP') AND DATE(transdate)= @date
+                                WHERE transtype IN ('CI','AP') AND DATE(transdate)= @date
                                 UNION ALL
                                 SELECT transdate,REFERENCE,transtype,memberId,total *-1 AS 'amount' FROM sapt0
-                                WHERE left(crossreference,2) IN ('CI','CT','AP') AND DATE(transdate)= @date
+                                WHERE left(crossreference,2) IN ('CI','AP') AND DATE(transdate)= @date
                                 UNION ALL
                                 SELECT transdate,REFERENCE,transtype,memberId,total *-1 AS 'amount' FROM sapr0
-                                WHERE left(crossreference,2) IN ('CI','CT','AP') AND DATE(transdate)= @date
-                            ) AS x order by x.transdate;");
+                                WHERE left(crossreference,2) IN ('CI','AP') AND DATE(transdate)= @date
+                                UNION ALL
+                                SELECT transdate,reference,transtype,employeeId as 'memberId', total AS 'amount' FROM sapt0
+                                WHERE transtype IN ('CO','CT') AND DATE(transdate)= @date
+                                UNION ALL
+                                SELECT transdate,REFERENCE,transtype,employeeId as 'memberId',total *-1 AS 'amount' FROM sapt0
+                                WHERE left(crossreference,2) IN ('CO','CT') AND DATE(transdate)= @date
+                                UNION ALL
+                                SELECT transdate,REFERENCE,transtype,employeeId as 'memberId',total *-1 AS 'amount' FROM sapr0
+                                WHERE left(crossreference,2) IN ('CO','CT') AND DATE(transdate)= @date
+                        ) AS x order by x.transdate;");
 
             return sQuery;
         }
