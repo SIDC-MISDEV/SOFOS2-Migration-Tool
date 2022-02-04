@@ -245,7 +245,7 @@ namespace SOFOS2_Migration_Tool
 
                 else
                 {
-                    reference = _series == null ? "" : (Convert.ToInt32(_series)).ToString();
+                    reference = Convert.ToInt32(_series).ToString();
                     int numZero = 10 - reference.Length;
 
                     do
