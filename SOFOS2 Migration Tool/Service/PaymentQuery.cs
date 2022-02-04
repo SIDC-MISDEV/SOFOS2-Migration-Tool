@@ -67,14 +67,14 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' transNum, 
                                     '' as transNum,
                                     reference, 
-                                    sum(credit) as total, 
+                                    credit as total, 
                                     DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') as transDate,
                                     idUser,
                                     'CLOSED' as status,
                                     cancelled,
-                                    'Migration Tool' remarks 
+                                    reference as remarks 
                                     FROM ledger 
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate GROUP BY idfile");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate ORDER BY reference ASC");
                     break;
 
                 case payment.JVDetail:
@@ -92,8 +92,8 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as memberName,
                                     '' as accountName,
                                     '' as refTransType,
-                                    '' as intComputed,
-                                    '' as paidToDate,
+                                    0 as intComputed,
+                                    '0.00' as paidToDate,
                                     'CLOSED' as status,
                                     '' as lastpaymentdate,
                                     '' as AccountNo
@@ -238,6 +238,13 @@ namespace SOFOS2_Migration_Tool.Service
                             and memberId=@memberId and AccountNo=@accountno and reference=@reference group by reference) as x group by reference");
                     break;
 
+
+                case payment.JVRemarks:
+
+                    sQuery.Append(@"SELECT remarks FROM fjv00 WHERE LEFT(remarks,2)='JV'");
+
+                    break;
+
                 default:
                     break;
             }
@@ -288,13 +295,13 @@ namespace SOFOS2_Migration_Tool.Service
             return sQuery;
         }
 
-
         public static StringBuilder InsertOR(payment process)
         {
             var sQuery = new StringBuilder();
 
             switch (process)
             {
+
                 case payment.ORHeader:
 
                     sQuery.Append(@"INSERT INTO FP000 (transNum,reference,Total,transDate,idUser,memberId,memberName,status,cancelled,remarks,type,paidBy,branchCode,extracted,transType,refTransType,AccountNo) 
@@ -305,6 +312,7 @@ namespace SOFOS2_Migration_Tool.Service
 
                     sQuery.Append(@"INSERT INTO FP100 (transNum,crossReference,amount,idUser,balance,accountCode,pType,accountName) 
                             VALUES (@transNum,@crossReference,@amount,@idUser,@balance,@accountCode,@pType,@accountName)");
+
 
                     break;
                 default:
@@ -320,7 +328,9 @@ namespace SOFOS2_Migration_Tool.Service
 
             switch (process)
             {
-                case payment.Invoice:
+
+               case payment.Invoice:
+
 
                     sQuery.Append(@"UPDATE sapt0 SET paidToDate=@paidtodate, intComputed=@intcomputed, status=@status, lastpaymentdate=@lastpaymentdate WHERE reference=@reference");
                     break;
@@ -337,6 +347,32 @@ namespace SOFOS2_Migration_Tool.Service
             }
          return sQuery;
       }
+      
+      public static StringBuilder InsertJV(payment process)
+        {
+            var sQuery = new StringBuilder();
+
+            switch (process)
+            {
+
+
+                case payment.JVHeader:
+
+                    sQuery.Append(@"INSERT INTO FJV00 (transNum, reference, Total, transDate, idUser, status, cancelled, remarks) 
+                            VALUES (@transNum, @reference, @Total, @transDate, @idUser, @status, @cancelled, @remarks)");
+
+                    break;
+                case payment.JVDetail:
+
+                    sQuery.Append(@"INSERT INTO FJV10 ( transNum, accountCode, crossReference, idUser, debit, credit, memberId, memberName, accountName, refTransType, intComputed, paidToDate, status,  AccountNo) 
+                            VALUES ( @transNum, @accountCode, @crossReference, @idUser, @debit, @credit, @memberId, @memberName, @accountName, @refTransType, @intComputed, @paidToDate, @status,  @AccountNo)");
+                    break;
+                default:
+                    break;
+            }
+
+            return sQuery;
+        }
 
     }
 
@@ -345,7 +381,8 @@ namespace SOFOS2_Migration_Tool.Service
 
 public enum payment
     {
-        CRHeader, CRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, CreditLimit, TransactionPayments, Interest, Balance
+
+        CRHeader, CRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, CreditLimit, TransactionPayments, Interest, Balance, JVRemarks
     }
 
 }
