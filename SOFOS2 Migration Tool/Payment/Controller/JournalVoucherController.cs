@@ -16,6 +16,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             try
             {
                 var result = new List<JournalVoucher>();
+                var refRemarks = new List<string>();
                 string principalaccount = "112010000000001";
                 string oldinterestaccount = "441200000000000";
                 string newinterestaccount = "430400000000000";
@@ -29,23 +30,47 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@transprefix", transprefix }
                 };
 
-                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetQuery(payment.JVHeader), filter))
+
+                using (var conn = new MySQLHelper(Global.DestinationDatabase, PaymentQuery.GetPaymentQuery(payment.JVRemarks)))
                 {
                     using (var dr = conn.MySQLReader())
                     {
                         while (dr.Read())
                         {
-                            result.Add(new JournalVoucher
-                            {
-                                Reference = dr["reference"].ToString(),
-                                Total = Convert.ToDecimal(dr["total"]),
-                                TransDate = dr["transDate"].ToString(),
-                                IdUser = dr["idUser"].ToString(),
-                                Status = dr["status"].ToString(),
-                                Cancelled = Convert.ToBoolean(dr["cancelled"]),
-                                Remarks = dr["remarks"].ToString(),
-                                });
+                            refRemarks.Add(dr["remarks"].ToString());
                         }
+                    }
+
+                
+                           
+                }
+
+        
+
+                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetPaymentQuery(payment.JVHeader), filter))
+
+                {
+                    using (var dr = conn.MySQLReader())
+                    {
+                        while (dr.Read())
+                        {
+                            if(!refRemarks.Contains(dr["remarks"].ToString()))
+                            {
+                                result.Add(new JournalVoucher
+                                {
+                                    Reference = dr["reference"].ToString(),
+                                    Total = Convert.ToDecimal(dr["total"]),
+                                    TransDate = dr["transDate"].ToString(),
+                                    IdUser = dr["idUser"].ToString(),
+                                    Status = dr["status"].ToString(),
+                                    Cancelled = Convert.ToBoolean(dr["cancelled"]),
+                                    Remarks = dr["remarks"].ToString(),
+                                });
+                            }
+
+                        }
+
+
                     }
                 }
                 return result;
@@ -123,6 +148,93 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             }
             catch (Exception)
             {
+                throw;
+            }
+        }
+
+        public void InsertJV(List<JournalVoucher> _header, List<JournalVoucher> _detail)
+        {
+            try
+            {
+                Global g = new Global();
+                int transNum = 0;
+                long series = 0;
+
+                using (var conn = new MySQLHelper(Global.DestinationDatabase))
+                {
+                    conn.BeginTransaction();
+
+                    transNum = g.GetLatestTransNum("fjv00", "transNum");
+
+                    foreach (var item in _header)
+                    {
+                        var reference = g.GetJVReference("sst00", "series", series);
+                        var param = new Dictionary<string, object>()
+                        {
+                            { "@transNum", transNum },
+                            { "@reference", reference },
+                            { "@Total", item.Total },
+                            { "@transDate", item.TransDate },
+                            { "@idUser", item.IdUser },
+                            { "@status", item.Status },
+                            { "@cancelled", item.Cancelled },
+                            { "@remarks", item.Remarks }
+                        
+                        };
+
+                        conn.ArgSQLCommand = PaymentQuery.InsertJV(payment.JVHeader);
+                        conn.ArgSQLParam = param;
+
+                        //Execute insert header
+                        conn.ExecuteMySQL();
+
+                        #region Insert Details
+                        var details = _detail.Where(n => n.Reference == item.Reference).ToList();
+
+                        foreach (var detail in details)
+                        {
+                            var detailParam = new Dictionary<string, object>()
+                                {
+                                    {"@transNum", transNum },
+                                    {"@accountCode", detail.AccountCode },
+                                    {"@crossReference", "" },
+                                    {"@idUser", detail.IdUser },
+                                    {"@debit", detail.Debit },
+                                    {"@credit", detail.Credit },
+                                    {"@memberId", detail.MemberId },
+                                    {"@memberName", detail.MemberName },
+                                    {"@accountName", detail.AccountName },
+                                    {"@refTransType", detail.DetRefTransType },
+                                    {"@intComputed", detail.IntComputed },
+                                    {"@paidToDate", detail.PaidToDate },
+                                    {"@status", detail.Status },
+                                    {"@AccountNo", detail.AccountNumber }
+                                };
+
+                            conn.ArgSQLCommand = PaymentQuery.InsertJV(payment.JVDetail);
+                            conn.ArgSQLParam = detailParam;
+
+                            //execute insert detail
+                            var cmdDetail = conn.ExecuteMySQL();
+                        }
+                        #endregion
+
+                        transNum++;
+                        series = Convert.ToInt32(reference.Replace("JV", "")) + 1;
+                    }
+
+                    conn.ArgSQLCommand = Query.UpdateReferenceCount();
+                    conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", "JV" } };
+                    conn.ExecuteMySQL();
+
+
+                    conn.CommitTransaction();
+                }
+
+            }
+            catch
+            {
+
                 throw;
             }
         }
