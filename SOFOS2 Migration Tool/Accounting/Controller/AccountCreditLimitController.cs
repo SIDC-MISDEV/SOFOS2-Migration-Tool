@@ -1,7 +1,9 @@
 ﻿using SOFOS2_Migration_Tool.Accounting.Model;
+using SOFOS2_Migration_Tool.Helper;
 using SOFOS2_Migration_Tool.Service;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +12,11 @@ namespace SOFOS2_Migration_Tool.Accounting.Controller
 {
     public class AccountCreditLimitController
     {
+
+        string dropSitePath = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "LOGS");
+        string folder = "CreditLimit/";
+
+
         #region Public Methods
 
         #region GET
@@ -99,8 +106,43 @@ namespace SOFOS2_Migration_Tool.Accounting.Controller
             }
         }
 
+        public string InsertAccountCreditLimitsLogs(List<AccountCreditLimits> _header, string date)
+        {
 
+            string fileName = string.Format("AccountCreditLimits-{0}-{1}.csv", date.Replace(" / ", ""), DateTime.Now.ToString("ddMMyyyyHHmmss"));
+            dropSitePath = Path.Combine(dropSitePath, folder);
+
+            if (!Directory.Exists(dropSitePath))
+                Directory.CreateDirectory(dropSitePath);
+
+            ObjectToCSV<AccountCreditLimits> receiveFromVendorObjectToCSV = new ObjectToCSV<AccountCreditLimits>();
+            string filename = Path.Combine(dropSitePath, fileName);
+            receiveFromVendorObjectToCSV.SaveToCSV(_header, filename);
+            return folder;
+        }
         #endregion INSERT
+
+        #region UPDATE
+        public int UpdateTransactionAccountNumber()
+        {
+            int rowsAffected = 0;
+            try
+            {
+                using (var conn = new MySQLHelper(Global.DestinationDatabase))
+                {
+                    rowsAffected = UpdateSalesInvoiceAccountNumber(conn);
+                    conn.CommitTransaction();
+
+                    return rowsAffected;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+            
+        }
+        #endregion UPDATE
 
         #endregion Public Methods
 
@@ -158,6 +200,25 @@ namespace SOFOS2_Migration_Tool.Accounting.Controller
             conn.ArgSQLCommand = AccountCreditLimitQuery.UpdateMemberShareCapital();
             conn.ArgSQLParam = new Dictionary<string, object>() { { "@memberId", memberId }, { "@shareCapital", shareCapital } };
             conn.ExecuteMySQL();
+        }
+
+        private int UpdateSalesInvoiceAccountNumber(MySQLHelper conn)
+        {
+            int rowsAffected = 0;
+            rowsAffected = UpdateSalesInvoiceAccountNumberForMembersTransaction(conn);
+            rowsAffected += UpdateSalesInvoiceAccountNumberForEmployeeTransaction(conn);
+            return rowsAffected;
+        }
+
+        private int UpdateSalesInvoiceAccountNumberForMembersTransaction(MySQLHelper conn)
+        {
+            conn.ArgSQLCommand = AccountCreditLimitQuery.UpdateSalesInvoiceAccountNumberForMembersTransaction();
+            return conn.ExecuteMySQL();
+        }
+        private int UpdateSalesInvoiceAccountNumberForEmployeeTransaction(MySQLHelper conn)
+        {
+            conn.ArgSQLCommand = AccountCreditLimitQuery.UpdateSalesInvoiceAccountNumberForEmployeeTransaction();
+            return conn.ExecuteMySQL();
         }
         #endregion Private Methods
     }
