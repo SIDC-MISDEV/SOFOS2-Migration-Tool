@@ -206,7 +206,7 @@ namespace SOFOS2_Migration_Tool
             }
         }
 
-        public string GetJVReference(string tableName, string fieldName)
+        public string GetJVReference(string tableName, string fieldName, long series)
         {
             try
             {
@@ -215,15 +215,37 @@ namespace SOFOS2_Migration_Tool
                 string zeroText = "";
                 string reference = "";
 
+                var _series = series;
+
                 query = $@"SELECT {fieldName} FROM {tableName} WHERE transType = 'JV' ORDER BY {fieldName} DESC LIMIT 1;";
 
-
-                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                if (_series == 0)
                 {
-                    var data = conn.GetMySQLScalar();
+                    using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                    {
+                        var data = conn.GetMySQLScalar();
 
-                    reference = data == null ? "" : (Convert.ToInt32(data) + 1).ToString();
+                        reference = data == null ? "" : (Convert.ToInt32(data) + 1).ToString();
 
+                        int numZero = 10 - reference.Length;
+
+                        do
+                        {
+                            zeroText = string.Concat(zeroText, "0");
+                            numZero--;
+                        }
+                        while (numZero != 0);
+
+                        result = string.Concat("JV", zeroText, reference);
+
+                    }
+
+                    
+                }
+
+                else
+                {
+                    reference = _series == null ? "" : (Convert.ToInt32(_series)).ToString();
                     int numZero = 10 - reference.Length;
 
                     do
@@ -234,7 +256,6 @@ namespace SOFOS2_Migration_Tool
                     while (numZero != 0);
 
                     result = string.Concat("JV", zeroText, reference);
-
                 }
 
                 return result;

@@ -16,6 +16,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             try
             {
                 var result = new List<JournalVoucher>();
+                var refRemarks = new List<string>();
                 string principalaccount = "112010000000001";
                 string oldinterestaccount = "441200000000000";
                 string newinterestaccount = "430400000000000";
@@ -29,23 +30,46 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@transprefix", transprefix }
                 };
 
+                using (var conn = new MySQLHelper(Global.DestinationDatabase, PaymentQuery.GetPaymentQuery(payment.JVRemarks)))
+                {
+                    using (var dr = conn.MySQLReader())
+                    {
+                        while (dr.Read())
+                        {
+                            refRemarks.Add(dr["remarks"].ToString());
+                        }
+                    }
+
+                
+                           
+                }
+
+                //Store list string
+                //
+
                 using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetPaymentQuery(payment.JVHeader), filter))
                 {
                     using (var dr = conn.MySQLReader())
                     {
                         while (dr.Read())
                         {
-                            result.Add(new JournalVoucher
+                            if(!refRemarks.Contains(dr["remarks"].ToString()))
                             {
-                                Reference = dr["reference"].ToString(),
-                                Total = Convert.ToDecimal(dr["total"]),
-                                TransDate = dr["transDate"].ToString(),
-                                IdUser = dr["idUser"].ToString(),
-                                Status = dr["status"].ToString(),
-                                Cancelled = Convert.ToBoolean(dr["cancelled"]),
-                                Remarks = dr["remarks"].ToString(),
+                                result.Add(new JournalVoucher
+                                {
+                                    Reference = dr["reference"].ToString(),
+                                    Total = Convert.ToDecimal(dr["total"]),
+                                    TransDate = dr["transDate"].ToString(),
+                                    IdUser = dr["idUser"].ToString(),
+                                    Status = dr["status"].ToString(),
+                                    Cancelled = Convert.ToBoolean(dr["cancelled"]),
+                                    Remarks = dr["remarks"].ToString(),
                                 });
+                            }
+
                         }
+
+
                     }
                 }
                 return result;
@@ -137,13 +161,13 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
-
+                    conn.BeginTransaction();
 
                     transNum = g.GetLatestTransNum("fjv00", "transNum");
 
                     foreach (var item in _header)
                     {
-                        var reference = g.GetJVReference("sst00", "series");
+                        var reference = g.GetJVReference("sst00", "series", series);
                         var param = new Dictionary<string, object>()
                         {
                             { "@transNum", transNum },

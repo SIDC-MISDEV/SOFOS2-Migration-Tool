@@ -62,14 +62,14 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' transNum, 
                                     '' as transNum,
                                     reference, 
-                                    sum(credit) as total, 
+                                    credit as total, 
                                     DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') as transDate,
                                     idUser,
                                     'CLOSED' as status,
                                     cancelled,
-                                    'Migration Tool' remarks 
+                                    reference as remarks 
                                     FROM ledger 
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate GROUP BY idfile");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate ORDER BY reference ASC");
                     break;
 
                 case payment.JVDetail:
@@ -130,6 +130,12 @@ namespace SOFOS2_Migration_Tool.Service
                                     if(idaccount='441200000000000','CI','') as refTransType 
                                     FROM ledger
                                     WHERE LEFT(reference,2)='OR' and idaccount in('112010000000001','441200000000000') and date(date)='2021-10-15'");
+                    break;
+
+                case payment.JVRemarks:
+
+                    sQuery.Append(@"SELECT remarks FROM fjv00 WHERE LEFT(remarks,2)='JV'");
+
                     break;
                 default:
                     break;
@@ -193,7 +199,7 @@ namespace SOFOS2_Migration_Tool.Service
 
     public enum payment
     {
-        CRHeader, CRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, CreditLimit
+        CRHeader, CRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, CreditLimit, JVRemarks
     }
 
 }
