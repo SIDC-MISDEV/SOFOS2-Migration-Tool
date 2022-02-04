@@ -30,6 +30,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@transprefix", transprefix }
                 };
 
+
                 using (var conn = new MySQLHelper(Global.DestinationDatabase, PaymentQuery.GetPaymentQuery(payment.JVRemarks)))
                 {
                     using (var dr = conn.MySQLReader())
@@ -44,10 +45,10 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                            
                 }
 
-                //Store list string
-                //
+        
 
                 using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetPaymentQuery(payment.JVHeader), filter))
+
                 {
                     using (var dr = conn.MySQLReader())
                     {
@@ -100,7 +101,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@transprefix", transprefix }
                 };
 
-                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetPaymentQuery(payment.JVDetail), filter))
+                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetQuery(payment.JVDetail), filter))
                 {
                     using (var dr = conn.MySQLReader())
                     {

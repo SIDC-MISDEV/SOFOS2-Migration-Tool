@@ -50,10 +50,7 @@ namespace SOFOS2_Migration_Tool
                 return;
 
             try
-            { 
-                //PaymentComputeController pcc = new PaymentComputeController();
-                //var invoicelist = pcc.GetInvoice("CI"); 
-
+            {
                 CollectionReceiptController crc = new CollectionReceiptController();
                 var crheader = crc.GetCollectionReceiptHeader(date, "OR");
                 var crdetail = crc.GetCollectionReceiptDetail(date, "OR");
@@ -63,6 +60,7 @@ namespace SOFOS2_Migration_Tool
                 JournalVoucherController jvc = new JournalVoucherController();
                 var jvheader = jvc.GetJournalVoucherHeader(date, "JV");
                 var jvdetail = jvc.GetJournalVoucherDetail(date, "JV");
+
                 if (jvheader.Count > 0)
                     jvc.InsertJV(jvheader, jvdetail);
 
@@ -73,17 +71,21 @@ namespace SOFOS2_Migration_Tool
                     message = string.Format(@" ({0}) Collection Receipt transactions was transfered successfully.", crheader.Count);
 
                 MessageBox.Show(message);
+
+                MessageBox.Show(this, message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+
                 pcbPayment.BackgroundImage = checkedImage;
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("Error : {0}", ex.Message));
+                MessageBox.Show(this, string.Format("Error : {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnPurchasing_Click(object sender, EventArgs e)
         {
-
+           
             if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Purchasing))
                 return;
 
@@ -110,18 +112,21 @@ namespace SOFOS2_Migration_Tool
                 if (receiveFromVendorHeader.Count + returnGoodsHeader.Count > 0)
                     message = string.Format(@" ({0}) Receive From Vendor  and ({1}) Receive Goods transactions was transfered successfully.", receiveFromVendorHeader.Count, returnGoodsHeader.Count);
 
-                MessageBox.Show(message);
+                MessageBox.Show(this, message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 pcbPurchasing.BackgroundImage = checkedImage;
+
+                #region LOGS
+                receiveFromVendorController.InsertRVLogs(receiveFromVendorHeader, date);
+                returnGoodsController.InsertReturnGoodsLogs(returnGoodsHeader, date);
+                #endregion LOGS
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("Error : {0}", ex.Message));
+                MessageBox.Show(this, string.Format("Error : {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
         }
-
-        
 
         private void btnSales_Click(object sender, EventArgs e)
         {
@@ -152,17 +157,22 @@ namespace SOFOS2_Migration_Tool
                 if (salesHeader.Count + returnFromCustomerHeader.Count > 0)
                     message = string.Format(@" ({0}) Sales and ({1}) Return from Customer transactions was transfered successfully.", salesHeader.Count, returnFromCustomerHeader.Count);
 
-                MessageBox.Show(message);
+                MessageBox.Show(this, message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 pcbSales.BackgroundImage = checkedImage;
+
+                #region LOGS
+                salesController.InsertSalesLogs(salesHeader, date);
+                returnFromCustomerController.InsertReturnFromCustomerLogs(returnFromCustomerHeader, date);
+                #endregion LOGS
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("Error : {0}",ex.Message));
+                MessageBox.Show(this, string.Format("Error : {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        
+ 
         private void btnInventory_Click(object sender, EventArgs e)
         {
             if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Inventory))
@@ -195,12 +205,21 @@ namespace SOFOS2_Migration_Tool
                 if (goodsReceiptdata.Count + goodsIssuancedata.Count + adjustmentData.Count > 0)
                     message = string.Format(@" ({0}) Goods Receipt, {1} Goods Issuances and ({2}) Inventory Adjustments transactions was transfered successfully.", goodsReceiptdata.Count, goodsIssuancedata.Count, adjustmentData.Count);
 
-                MessageBox.Show(message);
+                MessageBox.Show(this, message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                 pcbInventory.BackgroundImage = checkedImage;
+
+                #region LOGS
+                goodsReceiptController.InsertGoodsReceiptLogs(goodsReceiptdata, date);
+                goodsIssuanceController.InsertGoodsIssuanceLogs(goodsIssuancedata, date);
+                adjustmentController.InsertAdjustmentLogs(adjustmentData, date);
+                #endregion LOGS
+
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("Error : {0}", ex.Message));
+                MessageBox.Show(this, string.Format("Error : {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -208,6 +227,7 @@ namespace SOFOS2_Migration_Tool
         {
             return string.IsNullOrWhiteSpace(salesModule) ? checkedImage : crossImage;
         }
+
         private bool UserConfirmation(ProcessEnum processEnum, ModuleEnum moduleEnum)
         {
             string message = string.Empty;
@@ -234,7 +254,7 @@ namespace SOFOS2_Migration_Tool
                     break;
             }
 
-            DialogResult dialogResult = MessageBox.Show(message, "Confirmation", MessageBoxButtons.YesNo);
+            DialogResult dialogResult = MessageBox.Show(this, message, "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             return dialogResult != DialogResult.Yes;
         }
 
@@ -242,8 +262,26 @@ namespace SOFOS2_Migration_Tool
         {
             if (UserConfirmation(ProcessEnum.Recompute, ModuleEnum.Payment))
                 return;
-            pcbRecomputePayment.BackgroundImage = checkedImage;
 
+            try
+            {
+
+                PaymentComputeController pcc = new PaymentComputeController();
+                
+                //pcc.AlterPrimaryKey("fp100", "detailNum");
+                
+                
+                var paymentlist = pcc.GetAllTransactionPayments(date);
+                if (paymentlist.Count > 0)
+                    pcc.ComputePayment(paymentlist,date);
+                    
+                pcbRecomputePayment.BackgroundImage = checkedImage;
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Error : {0}", ex.Message));
+            }
         }
 
         private void btnRecomputeInventory_Click(object sender, EventArgs e)
@@ -263,13 +301,18 @@ namespace SOFOS2_Migration_Tool
                 if (trans.Count > 0)
                     message = string.Format(@" ({0}) transactions in 'Purchasing, Inventory or Sales module' was recomputed successfully.", trans.Count);
 
-                MessageBox.Show(message);
+                MessageBox.Show(this, message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 pcbRecomputeInventory.BackgroundImage = checkedImage;
+
+                #region LOGS
+                recompute.UpdateRunningQuantityValueCostLogs(trans, date);
+                #endregion LOGS
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("Error : {0}", ex.Message));
+                MessageBox.Show(this, string.Format("Error : {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -303,13 +346,17 @@ namespace SOFOS2_Migration_Tool
                 if (reComputeSalesCredit.Count > 0)
                     message = string.Format(@" ({0}) sales transactions with credit was recomputed successfully.", reComputeSalesCredit.Count);
 
-                MessageBox.Show(message);
+                MessageBox.Show(this, message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 pcbRecomputeSalesCreditLimit.BackgroundImage = checkedImage;
+
+                #region LOGS
+                reComputeSalesCreditController.UpdateChargeAmountLogs(reComputeSalesCredit, date);
+                #endregion LOGS
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("Error : {0}", ex.Message));
+                MessageBox.Show(this, string.Format("Error : {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -317,7 +364,7 @@ namespace SOFOS2_Migration_Tool
         {
             if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.SalesCreditLimit))
                 return;
-
+            int affectedSalesTransaction = 0;
             try
             { 
                 #region Credit Limit
@@ -327,19 +374,24 @@ namespace SOFOS2_Migration_Tool
                 if (accountCreditLimitData.Count > 0)
                     accountCreditLimitController.InsertAccountCreditLimits(accountCreditLimitData);
 
+                affectedSalesTransaction = accountCreditLimitController.UpdateTransactionAccountNumber();
                 #endregion Credit Limit
 
                 string message = string.Format(@"No data found in SOFOS1 - Accounting module (Credit Limit) dated : {0}.", date);
-                if (accountCreditLimitData.Count > 0)
-                    message = string.Format(@" ({0}) Credit Limit transactions was transfered successfully.", accountCreditLimitData.Count);
+                if (accountCreditLimitData.Count + affectedSalesTransaction > 0)
+                    message = string.Format(@" ({0}) Credit Limit transactions was transfered successfully and {1} sales transactions are updated with their assigned account number in credit limit.", accountCreditLimitData.Count, affectedSalesTransaction);
 
-                MessageBox.Show(message);
+                MessageBox.Show(this, message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 pcbCreditLimit.BackgroundImage = checkedImage;
+
+                #region LOGS
+                accountCreditLimitController.InsertAccountCreditLimitsLogs(accountCreditLimitData, date);
+                #endregion LOGS
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("Error : {0}", ex.Message));
+                MessageBox.Show(this, string.Format("Error : {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

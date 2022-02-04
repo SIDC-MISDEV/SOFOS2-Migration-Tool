@@ -123,7 +123,6 @@
             // btnRecomputePayment
             // 
             this.btnRecomputePayment.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnRecomputePayment.Enabled = false;
             this.btnRecomputePayment.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnRecomputePayment.Location = new System.Drawing.Point(62, 119);
             this.btnRecomputePayment.Name = "btnRecomputePayment";

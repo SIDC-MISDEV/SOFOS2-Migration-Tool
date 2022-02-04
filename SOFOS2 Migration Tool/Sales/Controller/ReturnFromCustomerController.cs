@@ -1,7 +1,9 @@
-﻿using SOFOS2_Migration_Tool.Sales.Model;
+﻿using SOFOS2_Migration_Tool.Helper;
+using SOFOS2_Migration_Tool.Sales.Model;
 using SOFOS2_Migration_Tool.Service;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +13,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
     public class ReturnFromCustomerController
     {
         string transType = "RC";
+        string dropSitePath = Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "LOGS");
+        string folder = "Sales/";
 
         #region Public Methods
 
@@ -211,6 +215,20 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
             }
         }
 
+        public string InsertReturnFromCustomerLogs(List<ReturnFromCustomer> _header, string date)
+        {
+
+            string fileName = string.Format("ReturnFromCustomer-{0}-{1}.csv", date.Replace(" / ", ""), DateTime.Now.ToString("ddMMyyyyHHmmss"));
+            dropSitePath = Path.Combine(dropSitePath, folder);
+
+            if (!Directory.Exists(dropSitePath))
+                Directory.CreateDirectory(dropSitePath);
+
+            ObjectToCSV<ReturnFromCustomer> receiveFromVendorObjectToCSV = new ObjectToCSV<ReturnFromCustomer>();
+            string filename = Path.Combine(dropSitePath, fileName);
+            receiveFromVendorObjectToCSV.SaveToCSV(_header, filename);
+            return folder;
+        }
 
         #endregion INSERT
 
