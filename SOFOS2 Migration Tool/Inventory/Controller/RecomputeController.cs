@@ -235,6 +235,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                     { "@cost", averageCost },
                                     { "@itemCode", tran.ItemCode }
                                 };
+
+                                conn.ExecuteMySQL();
                             }
 
                             #endregion
