@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace SOFOS2_Migration_Tool.Inventory.Controller
 {
@@ -245,10 +246,19 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         conn.CommitTransaction();
                     else
                     {
-                        conn.RollbackTransaction();
-                        NegativeRunningQuantityItemLogs(errorItem);
+                        var dialogResult = MessageBox.Show("Detected negative qty items, do you still want to continue?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                        throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
+                        if(dialogResult == DialogResult.Yes)
+                        {
+                            conn.CommitTransaction();
+                        }
+                        else
+                        {
+                            conn.RollbackTransaction();
+                            NegativeRunningQuantityItemLogs(errorItem);
+
+                            throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
+                        }
                     }
 
                 }
