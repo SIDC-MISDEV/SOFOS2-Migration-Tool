@@ -142,7 +142,7 @@
             this.groupBox1.Controls.Add(this.btnRecomputeInventory);
             this.groupBox1.Controls.Add(this.btnRecomputePayment);
             this.groupBox1.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(32, 335);
+            this.groupBox1.Location = new System.Drawing.Point(32, 341);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(316, 184);
             this.groupBox1.TabIndex = 7;
@@ -208,7 +208,7 @@
             this.groupBox2.Controls.Add(this.btnInventory);
             this.groupBox2.Controls.Add(this.btnSales);
             this.groupBox2.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox2.Location = new System.Drawing.Point(32, 60);
+            this.groupBox2.Location = new System.Drawing.Point(32, 66);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(316, 256);
             this.groupBox2.TabIndex = 8;
@@ -287,7 +287,7 @@
             this.dtpDateParam.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.dtpDateParam.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtpDateParam.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpDateParam.Location = new System.Drawing.Point(231, 35);
+            this.dtpDateParam.Location = new System.Drawing.Point(231, 41);
             this.dtpDateParam.Name = "dtpDateParam";
             this.dtpDateParam.Size = new System.Drawing.Size(117, 25);
             this.dtpDateParam.TabIndex = 1;
@@ -298,7 +298,7 @@
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(179, 37);
+            this.label1.Location = new System.Drawing.Point(179, 43);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(45, 19);
             this.label1.TabIndex = 10;
@@ -308,7 +308,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(381, 523);
+            this.ClientSize = new System.Drawing.Size(381, 535);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dtpDateParam);
             this.Controls.Add(this.groupBox2);

@@ -138,83 +138,86 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                 Global g = new Global();
                 int transNum = 0;
                 long series = 0;
-                
-                using (var conn = new MySQLHelper(Global.DestinationDatabase))
+                using (var conns = new MySQLHelper(Global.SourceDatabase))
                 {
-
-
-                    transNum = g.GetLatestTransNum("fp000", "transNum");
-
-                    foreach (var item in _header)
+                    using (var conn = new MySQLHelper(Global.DestinationDatabase))
                     {
-                        var reference = g.GetCRReference("sst00", "series","CR");
-                        var param = new Dictionary<string, object>()
+                        transNum = g.GetLatestTransNum("fp000", "transNum");
+                        var reference = g.GetCRReference("sst00", "series");
+                        foreach (var item in _header)
                         {
-                            { "@transNum", transNum },
-                            { "@reference", reference },
-                            { "@Total", item.Total },
-                            { "@transDate", item.TransDate },
-                            { "@idUser", item.IdUser },
-                            { "@memberId", item.MemberId },
-                            { "@memberName", item.MemberName },
-                            { "@status", item.Status },
-                            { "@cancelled", item.Cancelled },
-                            { "@remarks", item.Remarks },
-                            { "@type", item.sType },
-                            { "@accountCode", item.AccountCode },
-                            { "@paidBy", item.PaidBy },
-                            { "@branchCode", Global.BranchCode },
-                            { "@extracted", item.Extracted },
-                            { "@transType", item.TransType },
-                            { "@series", "" },
-                            { "@AccountNo", item.AccountNumber },
-                            { "@refTransType", item.RefTransType }
-                        };
+                            
+                            var param = new Dictionary<string, object>()
+                            {
+                                { "@transNum", transNum },
+                                { "@reference", reference },
+                                { "@Total", item.Total },
+                                { "@transDate", item.TransDate },
+                                { "@idUser", item.IdUser },
+                                { "@memberId", item.MemberId },
+                                { "@memberName", item.MemberName },
+                                { "@status", item.Status },
+                                { "@cancelled", item.Cancelled },
+                                { "@remarks", item.Remarks },
+                                { "@type", item.sType },
+                                { "@accountCode", item.AccountCode },
+                                { "@paidBy", item.PaidBy },
+                                { "@branchCode", Global.BranchCode },
+                                { "@extracted", item.Extracted },
+                                { "@transType", item.TransType },
+                                { "@series", "" },
+                                { "@AccountNo", item.AccountNumber },
+                                { "@refTransType", item.RefTransType }
+                            };
 
-                        conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.CRHeader);
-                        conn.ArgSQLParam = param;
+                            conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.CRHeader);
+                            conn.ArgSQLParam = param;
 
-                        //Execute insert header
-                        conn.ExecuteMySQL();
+                            //Execute insert header
+                            conn.ExecuteMySQL();
 
-                        #region Insert Details
-                        var details = _detail.Where(n => n.Reference == item.Reference).ToList();
+                            #region Insert Details
+                            var details = _detail.Where(n => n.Reference == item.Reference).ToList();
 
-                        foreach (var detail in details)
-                        {
-                            var detailParam = new Dictionary<string, object>()
-                                {
-                                    {"@transNum", transNum },
-                                    {"@crossReference", "" },
-                                    {"@amount", detail.Amount },
-                                    {"@idUser", detail.IdUser },
-                                    {"@balance", detail.Balance },
-                                    {"@accountCode", detail.AccountCode },
-                                    {"@pType", detail.pType },
-                                    {"@accountName", detail.AccountName },
-                                    {"@refTransType", detail.DetRefTransType }
-                                };
+                            foreach (var detail in details)
+                            {
+                                var detailParam = new Dictionary<string, object>()
+                                    {
+                                        {"@transNum", transNum },
+                                        {"@crossReference", "" },
+                                        {"@amount", detail.Amount },
+                                        {"@idUser", detail.IdUser },
+                                        {"@balance", detail.Balance },
+                                        {"@accountCode", detail.AccountCode },
+                                        {"@pType", detail.pType },
+                                        {"@accountName", detail.AccountName },
+                                        {"@refTransType", detail.DetRefTransType }
+                                    };
 
-                            conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.CRDetail);
-                            conn.ArgSQLParam = detailParam;
+                                conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.CRDetail);
+                                conn.ArgSQLParam = detailParam;
 
-                            //execute insert detail
-                            var cmdDetail = conn.ExecuteMySQL();
+                                //execute insert detail
+                                var cmdDetail = conn.ExecuteMySQL();
+                            }
+                            #endregion
+
+                            transNum++;
+                            series = Convert.ToInt32(reference.Replace("CR", "")) + 1;
+                            reference = g.NextReference(series.ToString());
+
+                            conns.ArgSQLCommand = Query.UpdateTagging("mextracted", "ledger");
+                            conns.ArgSQLParam = new Dictionary<string, object>() { { "@value", "1" }, { "@reference", item.Reference } };
+                            conns.ExecuteMySQL();
                         }
-                        #endregion
 
-                        transNum++;
-                        series = Convert.ToInt32(reference.Replace("CR", "")) + 1;
+                        conn.ArgSQLCommand = Query.UpdateReferenceCount();
+                        conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", "CR" } };
+                        conn.ExecuteMySQL();
+                        conn.CommitTransaction();
                     }
-
-                    conn.ArgSQLCommand = Query.UpdateReferenceCount();
-                    conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", "CR" } };
-                    conn.ExecuteMySQL();
-
-
-                    conn.CommitTransaction();
+                    conns.CommitTransaction();
                 }
-
             }
             catch
             {
@@ -222,5 +225,96 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                 throw;
             }
         }
+        //public void InsertCR(List<CollectionReceipt> _header, List<CollectionReceipt> _detail)
+        //{
+        //    try
+        //    {
+        //        Global g = new Global();
+        //        int transNum = 0;
+        //        long series = 0;
+
+        //        using (var conn = new MySQLHelper(Global.DestinationDatabase))
+        //        {
+
+
+        //            transNum = g.GetLatestTransNum("fp000", "transNum");
+
+        //            foreach (var item in _header)
+        //            {
+        //                var reference = g.GetCRReference("sst00", "series","CR");
+        //                var param = new Dictionary<string, object>()
+        //                {
+        //                    { "@transNum", transNum },
+        //                    { "@reference", reference },
+        //                    { "@Total", item.Total },
+        //                    { "@transDate", item.TransDate },
+        //                    { "@idUser", item.IdUser },
+        //                    { "@memberId", item.MemberId },
+        //                    { "@memberName", item.MemberName },
+        //                    { "@status", item.Status },
+        //                    { "@cancelled", item.Cancelled },
+        //                    { "@remarks", item.Remarks },
+        //                    { "@type", item.sType },
+        //                    { "@accountCode", item.AccountCode },
+        //                    { "@paidBy", item.PaidBy },
+        //                    { "@branchCode", Global.BranchCode },
+        //                    { "@extracted", item.Extracted },
+        //                    { "@transType", item.TransType },
+        //                    { "@series", "" },
+        //                    { "@AccountNo", item.AccountNumber },
+        //                    { "@refTransType", item.RefTransType }
+        //                };
+
+        //                conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.CRHeader);
+        //                conn.ArgSQLParam = param;
+
+        //                //Execute insert header
+        //                conn.ExecuteMySQL();
+
+        //                #region Insert Details
+        //                var details = _detail.Where(n => n.Reference == item.Reference).ToList();
+
+        //                foreach (var detail in details)
+        //                {
+        //                    var detailParam = new Dictionary<string, object>()
+        //                        {
+        //                            {"@transNum", transNum },
+        //                            {"@crossReference", "" },
+        //                            {"@amount", detail.Amount },
+        //                            {"@idUser", detail.IdUser },
+        //                            {"@balance", detail.Balance },
+        //                            {"@accountCode", detail.AccountCode },
+        //                            {"@pType", detail.pType },
+        //                            {"@accountName", detail.AccountName },
+        //                            {"@refTransType", detail.DetRefTransType }
+        //                        };
+
+        //                    conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.CRDetail);
+        //                    conn.ArgSQLParam = detailParam;
+
+        //                    //execute insert detail
+        //                    var cmdDetail = conn.ExecuteMySQL();
+        //                }
+        //                #endregion
+
+        //                transNum++;
+        //                series = Convert.ToInt32(reference.Replace("CR", "")) + 1;
+        //            }
+
+        //            conn.ArgSQLCommand = Query.UpdateReferenceCount();
+        //            conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", "CR" } };
+        //            conn.ExecuteMySQL();
+
+
+        //            conn.CommitTransaction();
+        //        }
+
+        //    }
+        //    catch
+        //    {
+
+        //        throw;
+        //    }
+        //}
     }
 }

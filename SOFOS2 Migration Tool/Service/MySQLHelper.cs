@@ -124,9 +124,10 @@ namespace SOFOS2_Migration_Tool.Service
         {
             try
             {
-                if (mysqlTrans != null)
+                if (mysqlTrans == null)
                 {
-                    mysqlTrans = cnn.BeginTransaction(IsolationLevel.ReadCommitted);
+                    cnn.Open();
+                    mysqlTrans = cnn.BeginTransaction(IsolationLevel.Serializable);
                 }
             }
             catch
@@ -146,7 +147,7 @@ namespace SOFOS2_Migration_Tool.Service
                 if (cnn.State == ConnectionState.Closed)
                 {
                     cnn.Open();
-                    mysqlTrans = cnn.BeginTransaction(IsolationLevel.ReadCommitted);
+                    mysqlTrans = cnn.BeginTransaction(IsolationLevel.Serializable);
                 }
 
                 int res = 0;
@@ -230,7 +231,11 @@ namespace SOFOS2_Migration_Tool.Service
         {
             try
             {
-                cnn.Open();
+                if (cnn.State == ConnectionState.Closed)
+                {
+                    cnn.Open();
+                }
+                
                 return cmd.ExecuteScalar();
             }
             catch

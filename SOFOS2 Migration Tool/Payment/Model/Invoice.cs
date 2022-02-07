@@ -8,6 +8,7 @@ namespace SOFOS2_Migration_Tool.Payment.Model
 {
     public class Invoice
     {
+        public string TransNum { get; set; }
         public string TransDate { get; set; }
         public string TransType { get; set; }
         public string Reference { get; set; }

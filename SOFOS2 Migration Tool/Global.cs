@@ -57,6 +57,76 @@ namespace SOFOS2_Migration_Tool
                 throw;
             }
         }
+
+        public string GetCRReference(string tableName, string fieldName)
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+                string zeroText = "";
+                string reference = "";
+
+                query = $@"SELECT {fieldName} FROM {tableName} WHERE transType = 'CR' ORDER BY {fieldName} DESC LIMIT 1;";
+
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    var data = conn.GetMySQLScalar();
+
+                    reference = data == null ? "" : (Convert.ToInt32(data) + 1).ToString();
+
+                    int numZero = 10 - reference.Length;
+
+                    do
+                    {
+                        zeroText = string.Concat(zeroText, "0");
+                        numZero--;
+                    }
+                    while (numZero != 0);
+
+                    result = string.Concat("CR", zeroText, reference);
+
+                }
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        public string NextReference(string series)
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+                string zeroText = "";
+                string reference = "";
+
+                int numZero = 10 - series.Length;
+
+                do
+                {
+                    zeroText = string.Concat(zeroText, "0");
+                    numZero--;
+                }
+                while (numZero != 0);
+
+                result = string.Concat("CR", zeroText, series);
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
         public string GetLatestTransactionReference(MySQLHelper conn, string module, string transactionType)
         {
             try
@@ -202,6 +272,26 @@ namespace SOFOS2_Migration_Tool
             catch
             {
 
+                throw;
+            }
+        }
+
+        public string GetDetailNum(MySQLHelper conn, string tableName, string transnum, string accountcode)
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+
+                query = $@"SELECT detailNum FROM {tableName} order by detailnum desc LIMIT 1;";
+
+                var data = conn.GetMySQLScalar();
+
+                result = data == null ? "" : data.ToString();
+                return result;
+            }
+            catch
+            {
                 throw;
             }
         }
