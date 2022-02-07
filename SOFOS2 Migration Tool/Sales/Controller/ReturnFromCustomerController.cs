@@ -159,7 +159,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
-
+                    conn.BeginTransaction();
 
                     transNum = global.GetLatestTransNum("sapr0", "transNum");
 

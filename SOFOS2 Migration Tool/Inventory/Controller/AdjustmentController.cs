@@ -134,7 +134,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
-
+                    conn.BeginTransaction();
 
                     transNum = global.GetLatestTransNum("iia00", "transNum");
 
