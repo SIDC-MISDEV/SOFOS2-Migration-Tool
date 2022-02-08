@@ -16,6 +16,7 @@ namespace SOFOS2_Migration_Tool.Payment.Model
         public string MemberName { get; set; }
         public string AccountCode { get; set; }
         public decimal PaidToDate { get; set; }
+        public decimal PaidAmount { get; set; }
         public decimal Total { get; set; }
         public bool Cancelled { get; set; }
         public string Status { get; set; }
