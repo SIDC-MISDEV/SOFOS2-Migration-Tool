@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace SOFOS2_Migration_Tool.Inventory.Controller
 {
@@ -100,6 +101,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
+                    conn.BeginTransaction();
+
                     foreach (var tran in _transactions)
                     {
                         item = new Item();
@@ -144,6 +147,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             }
                             else
                             {
+
                                 if(process == Process.Sales)
                                     tranRunVal = Math.Round((item.Cost * (tran.Quantity * tran.Conversion)) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
                                 else
@@ -231,6 +235,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                     { "@cost", averageCost },
                                     { "@itemCode", tran.ItemCode }
                                 };
+
+                                conn.ExecuteMySQL();
                             }
 
                             #endregion
@@ -242,10 +248,20 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         conn.CommitTransaction();
                     else
                     {
-                        conn.RollbackTransaction();
-                        NegativeRunningQuantityItemLogs(errorItem);
+                        var dialogResult = MessageBox.Show("Detected negative qty items, do you still want to continue?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                        throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
+                        if(dialogResult == DialogResult.Yes)
+                        {
+                            conn.CommitTransaction();
+                            NegativeRunningQuantityItemLogs(errorItem);
+                        }
+                        else
+                        {
+                            conn.RollbackTransaction();
+                            NegativeRunningQuantityItemLogs(errorItem);
+
+                            throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
+                        }
                     }
 
                 }
