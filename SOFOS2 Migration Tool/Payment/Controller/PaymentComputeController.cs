@@ -11,10 +11,11 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
     class PaymentComputeController
     {
         Global g = null;
-        decimal _balance = 0, balance=0;
+        decimal balance=0;
         int _count = 0;
         string _detailnum = string.Empty;
         bool isAllocated;
+
         public void ComputePayment(List<Payments> paymentlist, string date)
         {
             using (var conn = new MySQLHelper(Global.DestinationDatabase))
@@ -39,11 +40,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             }
 
                         }
-                        //invoicelist.Where(c => c.Reference == payment.CrossReference).Select(c => { c.isCheck = true; return c; }).ToList();
                     }
-
-                    //ArrangeDetailNum(conn, "fp100", "detailNum");
-                    
                     conn.CommitTransaction();
                     
                 }
@@ -364,7 +361,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             { "@detailnum", detailnum },
                             { "@memberid", memberid },
                             { "@accountno", accountnumber },
-                            { "@amount", paymentamount },
+                            { "@amount", paidtodate },
                             { "@crossreference", crossreference },
                             { "@accountcode", accountcode },
                             { "@balance", 0 }
@@ -376,7 +373,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     //Execute insert header
                     conn.ExecuteMySQL();
 
-                    UpdateAccountCreditLimit(conn, memberid, accountnumber, paymentamount);
+                    UpdateAccountCreditLimit(conn, memberid, accountnumber, paidtodate);
                     isAllocated = true;
                     _count = _count - 1;
                     
