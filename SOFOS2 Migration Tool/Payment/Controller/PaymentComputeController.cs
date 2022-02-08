@@ -11,7 +11,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
     class PaymentComputeController
     {
         Global g = null;
-        decimal _balance = 0;
+        decimal _balance = 0, balance=0;
+        int _count = 0;
         string _detailnum = string.Empty;
         bool isAllocated;
         public void ComputePayment(List<Payments> paymentlist, string date)
@@ -29,22 +30,12 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                             foreach (var il in invoicelist)
                             {
-                                //if (pl.Reference.Substring(0, 2) == "CR" && Convert.ToInt32(pl.TransNum) <= 1)
-                                //{
-                                //    _balance = il.Total;
-                                //}
-                                //else
-                                //{
-                                //    _balance = Convert.ToDecimal(getBalance(conn, pl.TransNum, pl.AccountCode, il.Reference));
-                                //}
-
-
+                                
                                 var interestlist = ComputeInterest(conn, date, il.Reference, il.MemberId, il.AccountNumber, pl.TransDate, il.MemberName, pl.IdUser);
                                 InsertInt(conn, interestlist);
                                 if (invoicelist.Count > 0)
                                     UpdateInvoice(conn, il.TransNum, il.Reference, il.PaidToDate, il.IntComputed, il.LastPaymentDate, il.Status, il.AccountCode);
-                                UpdatePayment(conn, pl.TransNum, pl.DetailNum, pl.MemberId, pl.AccountNumber,pl.Reference, il.Reference, il.PaidToDate, il.Total, pl.Amount,pl.IdUser,pl.AccountCode);
-                                
+                                UpdatePayment(conn, pl.TransNum, pl.DetailNum, pl.MemberId, pl.AccountNumber, il.Reference, il.PaidToDate, il.Total, pl.Amount,pl.IdUser,pl.AccountCode,invoicelist.Count);                                
                             }
 
                         }
@@ -355,133 +346,25 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             }
         }
 
-        public void UpdatePayment(MySQLHelper conn, string transnum, string detailnum, string memberid, string accountnumber, string reference, string crossreference, decimal paidtodate, decimal total, decimal paymentamount, string iduser, string accountcode)
+        public void UpdatePayment(MySQLHelper conn, string transnum, string detailnum, string memberid, string accountnumber, string crossreference, decimal paidtodate, decimal total, decimal paymentamount, string iduser, string accountcode, int hasallocation)
         {
             try
             {
                 Global g = new Global();
-                int transNum = 0;
-                long series = 0;
 
                 #region Update Payment
-                decimal balance = paymentamount - total;
-                if ( total == paidtodate)
+                
+                if (total==paidtodate && hasallocation>1 && isAllocated==false)
                 {
-                    if (isAllocated == true)
-                    {
-                        var param = new Dictionary<string, object>()
-                        {
-                            { "@transnum", transnum },
-                            { "@detailnum", _detailnum },
-                            { "@memberid", memberid },
-                            { "@accountno", accountnumber },
-                            { "@reference", reference },
-                            { "@amount", _balance },
-                            { "@crossreference", crossreference },
-                            { "@accountcode", accountcode },
-                            { "@balance", 0 }
-                        };
-
-                        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
-                        conn.ArgSQLParam = param;
-
-                        //Execute insert header
-                        conn.ExecuteMySQL();
-                        conn.CommitTransaction();
-                        UpdateAccountCreditLimit(conn, memberid, accountnumber, _balance);
-                        _detailnum = string.Empty;
-                        isAllocated = false;
-                        
-                        _balance = 0;
-
-                        
-                    }
-                    if (balance == 0)
-                    {
-                        var param = new Dictionary<string, object>()
-                        {
-                            { "@transnum", transnum },
-                            { "@detailnum", detailnum },
-                            { "@memberid", memberid },
-                            { "@accountno", accountnumber },
-                            { "@reference", reference },
-                            { "@amount", paidtodate },
-                            { "@crossreference", crossreference },
-                            { "@accountcode", accountcode },
-                            { "@balance", 0 }
-                        };
-
-                        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
-                        conn.ArgSQLParam = param;
-
-                        //Execute insert header
-                        conn.ExecuteMySQL();
-
-                        UpdateAccountCreditLimit(conn, memberid, accountnumber, paidtodate);
-
-                    }
-                    else
-                    {
-                        var param = new Dictionary<string, object>()
-                        {
-                            { "@transnum", transnum },
-                            { "@detailnum", detailnum },
-                            { "@memberid", memberid },
-                            { "@accountno", accountnumber },
-                            { "@reference", reference },
-                            { "@amount", paidtodate },
-                            { "@crossreference", crossreference },
-                            { "@accountcode", accountcode },
-                            { "@balance", 0 }
-                        };
-
-                        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
-                        conn.ArgSQLParam = param;
-
-                        //Execute insert header
-                        conn.ExecuteMySQL();
-
-                        UpdateAccountCreditLimit(conn, memberid, accountnumber, paidtodate);
-
-                        string accountname = g.GetAccountName(accountcode);
-                        var param2 = new Dictionary<string, object>()
-                        {
-                            { "@transNum", transnum },
-                            { "@amount", balance },
-                            { "@idUser", iduser },
-                            { "@accountcode", accountcode },
-                            { "@pType", "P" },
-                            { "@balance", 0 },
-                            { "@crossreference", "" },
-                            { "@accountName", accountname }
-
-                        };
-
-                        conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
-                        conn.ArgSQLParam = param2;
-
-                        //Execute insert header
-                        conn.ExecuteMySQL();
-                        conn.CommitTransaction();
-                        conn.ArgSQLCommand = PaymentQuery.GetQuery(payment.GetDetailNum);
-
-                        var dr = conn.GetMySQLScalar();
-
-                        _detailnum = dr.ToString();
-                        isAllocated = true;
-                        _balance = balance;
-                    }
-                }
-                else if (isAllocated == true)
-                {
+                    _count = hasallocation-1;
+                    balance = paymentamount - paidtodate;
                     var param = new Dictionary<string, object>()
                         {
                             { "@transnum", transnum },
-                            { "@detailnum", _detailnum },
+                            { "@detailnum", detailnum },
                             { "@memberid", memberid },
                             { "@accountno", accountnumber },
-                            { "@reference", reference },
-                            { "@amount", _balance },
+                            { "@amount", paymentamount },
                             { "@crossreference", crossreference },
                             { "@accountcode", accountcode },
                             { "@balance", 0 }
@@ -492,27 +375,24 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                     //Execute insert header
                     conn.ExecuteMySQL();
-                    //conn.CommitTransaction();
-                    UpdateAccountCreditLimit(conn, memberid, accountnumber, _balance);
 
-                    _detailnum = string.Empty;
-                    isAllocated = false;
-                    _balance = 0;
-
+                    UpdateAccountCreditLimit(conn, memberid, accountnumber, paymentamount);
+                    isAllocated = true;
+                    _count = _count - 1;
                     
                 }
 
-                else
+                else if (total == paidtodate && hasallocation == 1 && isAllocated == false)
                 {
-
+                    _count = hasallocation - 1;
+                    balance = paymentamount - paidtodate;
                     var param = new Dictionary<string, object>()
                         {
                             { "@transnum", transnum },
                             { "@detailnum", detailnum },
                             { "@memberid", memberid },
                             { "@accountno", accountnumber },
-                            { "@reference", reference },
-                            { "@amount",paidtodate },
+                            { "@amount", paymentamount },
                             { "@crossreference", crossreference },
                             { "@accountcode", accountcode },
                             { "@balance", 0 }
@@ -523,10 +403,303 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                     //Execute insert header
                     conn.ExecuteMySQL();
-                    conn.CommitTransaction();
 
-                    UpdateAccountCreditLimit(conn, memberid, accountnumber, paidtodate);
+                    UpdateAccountCreditLimit(conn, memberid, accountnumber, paymentamount);
+                    
                 }
+                else if (total != paidtodate && hasallocation == 1 && isAllocated == false)
+                {
+                   
+                    var param = new Dictionary<string, object>()
+                        {
+                            { "@transnum", transnum },
+                            { "@detailnum", detailnum },
+                            { "@memberid", memberid },
+                            { "@accountno", accountnumber },
+                            { "@amount", paymentamount },
+                            { "@crossreference", crossreference },
+                            { "@accountcode", accountcode },
+                            { "@balance", 0 }
+                        };
+
+                    conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                    conn.ArgSQLParam = param;
+
+                    //Execute insert header
+                    conn.ExecuteMySQL();
+
+                    UpdateAccountCreditLimit(conn, memberid, accountnumber, paymentamount);
+
+                }
+
+                else if (total == paidtodate && _count != 0 && isAllocated == true)
+                {
+                    string accountname = g.GetAccountName(accountcode);
+                    var param = new Dictionary<string, object>()
+                            {
+                                { "@transNum", transnum },
+                                { "@amount", balance },
+                                { "@idUser", iduser },
+                                { "@accountcode", accountcode },
+                                { "@pType", "P" },
+                                { "@balance", 0 },
+                                { "@crossreference", crossreference },
+                                { "@accountName", accountname }
+
+                            };
+
+                    conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
+                    conn.ArgSQLParam = param;
+
+                    //Execute insert header
+                    conn.ExecuteMySQL();
+
+                    UpdateAccountCreditLimit(conn, memberid, accountnumber, balance);
+                    isAllocated = true;
+                    //balance = 0;
+                }
+                else if (total != paidtodate && _count == 0 && isAllocated == true)
+                {
+                    string accountname = g.GetAccountName(accountcode);
+                    var param = new Dictionary<string, object>()
+                            {
+                                { "@transNum", transnum },
+                                { "@amount", balance },
+                                { "@idUser", iduser },
+                                { "@accountcode", accountcode },
+                                { "@pType", "P" },
+                                { "@balance", 0 },
+                                { "@crossreference", crossreference },
+                                { "@accountName", accountname }
+
+                            };
+
+                    conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
+                    conn.ArgSQLParam = param;
+
+                    //Execute insert header
+                    conn.ExecuteMySQL();
+                    UpdateAccountCreditLimit(conn, memberid, accountnumber, balance);
+                    isAllocated = false;
+                    balance = 0;
+
+                }
+                else if (total != paidtodate && _count == 0 && isAllocated == false)
+                {
+                    string accountname = g.GetAccountName(accountcode);
+                    var param = new Dictionary<string, object>()
+                            {
+                                { "@transNum", transnum },
+                                { "@amount", paymentamount },
+                                { "@idUser", iduser },
+                                { "@accountcode", accountcode },
+                                { "@pType", "P" },
+                                { "@balance", 0 },
+                                { "@crossreference", crossreference },
+                                { "@accountName", accountname }
+
+                            };
+
+                    conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
+                    conn.ArgSQLParam = param;
+
+                    //Execute insert header
+                    conn.ExecuteMySQL();
+                    UpdateAccountCreditLimit(conn, memberid, accountnumber, paymentamount);
+                    isAllocated = false;
+                    balance = 0;
+
+                }
+                else if (total == paidtodate && _count == 0 && isAllocated == true)
+                {
+                    string accountname = g.GetAccountName(accountcode);
+                    var param = new Dictionary<string, object>()
+                            {
+                                { "@transNum", transnum },
+                                { "@amount", balance },
+                                { "@idUser", iduser },
+                                { "@accountcode", accountcode },
+                                { "@pType", "P" },
+                                { "@balance", 0 },
+                                { "@crossreference", crossreference },
+                                { "@accountName", accountname }
+
+                            };
+
+                    conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
+                    conn.ArgSQLParam = param;
+
+                    //Execute insert header
+                    conn.ExecuteMySQL();
+                    UpdateAccountCreditLimit(conn, memberid, accountnumber, balance);
+                    isAllocated = false;
+                    balance = 0;
+                }
+                else
+                {
+                }
+                //if ( total == paidtodate)
+                //{
+                //    if (isAllocated == true)
+                //    {
+                //        var param = new Dictionary<string, object>()
+                //        {
+                //            { "@transnum", transnum },
+                //            { "@detailnum", _detailnum },
+                //            { "@memberid", memberid },
+                //            { "@accountno", accountnumber },
+                //            { "@reference", reference },
+                //            { "@amount", _balance },
+                //            { "@crossreference", crossreference },
+                //            { "@accountcode", accountcode },
+                //            { "@balance", 0 }
+                //        };
+
+                //        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                //        conn.ArgSQLParam = param;
+
+                //        //Execute insert header
+                //        conn.ExecuteMySQL();
+                //        conn.CommitTransaction();
+                //        UpdateAccountCreditLimit(conn, memberid, accountnumber, _balance);
+                //        _detailnum = string.Empty;
+                //        isAllocated = false;
+                        
+                //        _balance = 0;
+
+                        
+                //    }
+                //    if (balance == 0)
+                //    {
+                //        var param = new Dictionary<string, object>()
+                //        {
+                //            { "@transnum", transnum },
+                //            { "@detailnum", detailnum },
+                //            { "@memberid", memberid },
+                //            { "@accountno", accountnumber },
+                //            { "@reference", reference },
+                //            { "@amount", paidtodate },
+                //            { "@crossreference", crossreference },
+                //            { "@accountcode", accountcode },
+                //            { "@balance", 0 }
+                //        };
+
+                //        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                //        conn.ArgSQLParam = param;
+
+                //        //Execute insert header
+                //        conn.ExecuteMySQL();
+
+                //        UpdateAccountCreditLimit(conn, memberid, accountnumber, paidtodate);
+
+                //    }
+                //    else
+                //    {
+                //        var param = new Dictionary<string, object>()
+                //        {
+                //            { "@transnum", transnum },
+                //            { "@detailnum", detailnum },
+                //            { "@memberid", memberid },
+                //            { "@accountno", accountnumber },
+                //            { "@reference", reference },
+                //            { "@amount", paidtodate },
+                //            { "@crossreference", crossreference },
+                //            { "@accountcode", accountcode },
+                //            { "@balance", 0 }
+                //        };
+
+                //        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                //        conn.ArgSQLParam = param;
+
+                //        //Execute insert header
+                //        conn.ExecuteMySQL();
+
+                //        UpdateAccountCreditLimit(conn, memberid, accountnumber, paidtodate);
+
+                //        string accountname = g.GetAccountName(accountcode);
+                //        var param2 = new Dictionary<string, object>()
+                //        {
+                //            { "@transNum", transnum },
+                //            { "@amount", balance },
+                //            { "@idUser", iduser },
+                //            { "@accountcode", accountcode },
+                //            { "@pType", "P" },
+                //            { "@balance", 0 },
+                //            { "@crossreference", "" },
+                //            { "@accountName", accountname }
+
+                //        };
+
+                //        conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
+                //        conn.ArgSQLParam = param2;
+
+                //        //Execute insert header
+                //        conn.ExecuteMySQL();
+                //        conn.CommitTransaction();
+                //        conn.ArgSQLCommand = PaymentQuery.GetQuery(payment.GetDetailNum);
+
+                //        var dr = conn.GetMySQLScalar();
+
+                //        _detailnum = dr.ToString();
+                //        isAllocated = true;
+                //        _balance = balance;
+                //    }
+                //}
+                //else if (isAllocated == true)
+                //{
+                //    var param = new Dictionary<string, object>()
+                //        {
+                //            { "@transnum", transnum },
+                //            { "@detailnum", _detailnum },
+                //            { "@memberid", memberid },
+                //            { "@accountno", accountnumber },
+                //            { "@reference", reference },
+                //            { "@amount", _balance },
+                //            { "@crossreference", crossreference },
+                //            { "@accountcode", accountcode },
+                //            { "@balance", 0 }
+                //        };
+
+                //    conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                //    conn.ArgSQLParam = param;
+
+                //    //Execute insert header
+                //    conn.ExecuteMySQL();
+                //    //conn.CommitTransaction();
+                //    UpdateAccountCreditLimit(conn, memberid, accountnumber, _balance);
+
+                //    _detailnum = string.Empty;
+                //    isAllocated = false;
+                //    _balance = 0;
+
+                    
+                //}
+
+                //else
+                //{
+
+                //    var param = new Dictionary<string, object>()
+                //        {
+                //            { "@transnum", transnum },
+                //            { "@detailnum", detailnum },
+                //            { "@memberid", memberid },
+                //            { "@accountno", accountnumber },
+                //            { "@reference", reference },
+                //            { "@amount",paidtodate },
+                //            { "@crossreference", crossreference },
+                //            { "@accountcode", accountcode },
+                //            { "@balance", 0 }
+                //        };
+
+                //    conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                //    conn.ArgSQLParam = param;
+
+                //    //Execute insert header
+                //    conn.ExecuteMySQL();
+                //    conn.CommitTransaction();
+
+                //    UpdateAccountCreditLimit(conn, memberid, accountnumber, paidtodate);
+                //}
                 #endregion
 
                 #region Update JV

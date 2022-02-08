@@ -283,7 +283,7 @@ namespace SOFOS2_Migration_Tool.Service
 
                 case payment.TransactionPayments:
 
-                    sQuery.Append(@"UPDATE fp000 a INNER JOIN fp100 b ON a.transNum=b.transNum SET crossReference=@crossreference, balance=@balance, amount=@amount WHERE memberId=@memberid AND AccountNo=@accountno AND reference=@reference AND b.transnum=@transnum AND b.accountcode=@accountcode AND b.detailNum=@detailnum");
+                    sQuery.Append(@"UPDATE fp000 a INNER JOIN fp100 b ON a.transNum=b.transNum SET crossReference=@crossreference, balance=@balance, amount=@amount WHERE memberId=@memberid AND AccountNo=@accountno AND b.transnum=@transnum AND b.accountcode=@accountcode AND b.detailNum=@detailnum");
                     break;
                 case payment.CreditLimit:
 
