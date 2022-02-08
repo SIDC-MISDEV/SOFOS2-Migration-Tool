@@ -253,6 +253,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         if(dialogResult == DialogResult.Yes)
                         {
                             conn.CommitTransaction();
+                            NegativeRunningQuantityItemLogs(errorItem);
                         }
                         else
                         {
