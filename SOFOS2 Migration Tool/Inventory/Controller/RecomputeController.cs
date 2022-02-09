@@ -110,6 +110,11 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         //Get running value and running quantity of an item.
                         item = GetItem(conn, tran.ItemCode);
 
+                        if(item.ItemCode == "GRO002962")
+                        {
+
+                        }
+
                         //Initialize running qty,  running value and average cost
                         averageCost = 0;
                         tranRunQty = 0;
@@ -125,9 +130,10 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             Enum.TryParse(tran.TransactionType, out process);
 
 
-                            tranRunQty = Math.Round((tran.Quantity * tran.Conversion) + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
+                            //tranRunQty = Math.Round((tran.Quantity * tran.Conversion) + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
+                            tranRunQty = Math.Round(tran.Quantity + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
 
-                            if(tranRunQty == 0)
+                            if (tranRunQty == 0)
                             {
                                 tranRunVal = 0;
                                 tranRunQty = 0;
@@ -148,8 +154,13 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             else
                             {
 
-                                if(process == Process.Sales)
-                                    tranRunVal = Math.Round((item.Cost * (tran.Quantity * tran.Conversion)) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+                                //if(process == Process.Sales)
+                                //    tranRunVal = Math.Round((item.Cost * (tran.Quantity * tran.Conversion)) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+                                //else
+                                //    tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+
+                                if (process == Process.Sales)
+                                    tranRunVal = Math.Round((item.Cost * tran.Quantity) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
                                 else
                                     tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
 
