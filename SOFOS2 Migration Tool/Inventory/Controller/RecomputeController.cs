@@ -110,11 +110,6 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         //Get running value and running quantity of an item.
                         item = GetItem(conn, tran.ItemCode);
 
-                        if(item.ItemCode == "GRO002962")
-                        {
-
-                        }
-
                         //Initialize running qty,  running value and average cost
                         averageCost = 0;
                         tranRunQty = 0;
