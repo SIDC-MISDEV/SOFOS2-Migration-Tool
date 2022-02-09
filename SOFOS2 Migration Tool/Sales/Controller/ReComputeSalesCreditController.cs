@@ -59,6 +59,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
+                    conn.BeginTransaction();
+
                     foreach (var transaction in _transactions)
                     {
 

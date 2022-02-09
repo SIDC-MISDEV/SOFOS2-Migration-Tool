@@ -116,7 +116,7 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
-
+                    conn.BeginTransaction();
 
                     transNum = g.GetLatestTransNum("ppr00", "transNum");
 

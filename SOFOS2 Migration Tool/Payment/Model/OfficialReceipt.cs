@@ -27,6 +27,7 @@ namespace SOFOS2_Migration_Tool.Payment.Model
         public string TransType { get; set; }
         public string Series { get; set; }
         public string RefTransType { get; set; }
+        public string AccountNumber { get; set; }
 
         //Details
         public string CrossReference { get; set; }
