@@ -24,7 +24,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@transprefix", transprefix }
                 };
 
-                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetPaymentQuery(payment.ORHeader), filter))
+                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetQuery(payment.ORHeader), filter))
                 {
                     using (var dr = conn.MySQLReader())
                     {
@@ -79,7 +79,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@transprefix", transprefix }
                 };
 
-                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetPaymentQuery(payment.ORDetail), filter))
+                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetQuery(payment.ORDetail), filter))
                 {
                     using (var dr = conn.MySQLReader())
                     {
@@ -147,7 +147,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             { "@refTransType", item.RefTransType }
                         };
 
-                        conn.ArgSQLCommand = PaymentQuery.InsertOR(payment.ORHeader);
+                        conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.ORHeader);
                         conn.ArgSQLParam = param;
 
                         //Execute insert header
@@ -171,7 +171,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                     {"@refTransType", detail.DetRefTransType }
                                 };
 
-                            conn.ArgSQLCommand = PaymentQuery.InsertOR(payment.ORDetail);
+                            conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.ORDetail);
                             conn.ArgSQLParam = detailParam;
 
                             //execute insert detail
