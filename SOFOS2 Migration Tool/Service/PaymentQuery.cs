@@ -290,6 +290,14 @@ namespace SOFOS2_Migration_Tool.Service
                             VALUES (@transNum,@crossReference,@amount,@idUser,@balance,@accountCode,@pType,@accountName)");
 
                     break;
+
+                case payment.NewCRDetail:
+
+                    sQuery.Append(@"INSERT INTO fp100 (transNum,crossReference,amount,idUser,balance,accountCode,pType,accountName) 
+                            VALUES (@transNum,@crossReference,@amount,@idUser,@balance,@accountCode,@pType,@accountName)");
+
+                    break;
+
                 case payment.JVHeader:
 
                     sQuery.Append(@"INSERT INTO FJV00 (transNum, reference, Total, transDate, idUser, status, cancelled, remarks) 
