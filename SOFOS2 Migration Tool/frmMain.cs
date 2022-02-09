@@ -64,11 +64,9 @@ namespace SOFOS2_Migration_Tool
                 if (orheader.Count > 0)
                     orc.InsertOR(orheader, ordetail);
 
-                //JournalVoucherController jvc = new JournalVoucherController();
-                //var jvheader = jvc.GetJournalVoucherHeader("2021-03-31","JV");
-                //var jvdetail = jvc.GetJournalVoucherDetail("2021-03-31", "JV");
-
-
+                JournalVoucherController jvc = new JournalVoucherController();
+                var jvheader = jvc.GetJournalVoucherHeader(date, "JV");
+                var jvdetail = jvc.GetJournalVoucherDetail(date, "JV");
                 if (jvheader.Count > 0)
                     jvc.InsertJV(jvheader, jvdetail);
 
@@ -273,16 +271,16 @@ namespace SOFOS2_Migration_Tool
 
             try
             {
-
                 PaymentComputeController pcc = new PaymentComputeController();
-                
-                //pcc.AlterPrimaryKey("fp100", "detailNum");
-                
-                
+
+                string message = string.Format(@"No transactions in Payment module found in SOFOS2 dated : {0}.", date);
+
                 var paymentlist = pcc.GetAllTransactionPayments(date);
                 if (paymentlist.Count > 0)
-                    pcc.ComputePayment(paymentlist,date);
-                    
+                    pcc.ComputePayment(paymentlist, date);
+
+                message = string.Format(@" ({0}) invoice transactions with payment was recomputed successfully.", paymentlist.Count);
+                MessageBox.Show(this, message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 pcbRecomputePayment.BackgroundImage = checkedImage;
 
             }
