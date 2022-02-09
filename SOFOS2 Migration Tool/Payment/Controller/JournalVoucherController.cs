@@ -31,7 +31,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                 };
 
 
-                using (var conn = new MySQLHelper(Global.DestinationDatabase, PaymentQuery.GetPaymentQuery(payment.JVRemarks)))
+                using (var conn = new MySQLHelper(Global.DestinationDatabase, PaymentQuery.GetQuery(payment.JVRemarks)))
                 {
                     using (var dr = conn.MySQLReader())
                     {
@@ -47,7 +47,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
         
 
-                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetPaymentQuery(payment.JVHeader), filter))
+                using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetQuery(payment.JVHeader), filter))
 
                 {
                     using (var dr = conn.MySQLReader())
@@ -182,7 +182,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                         
                         };
 
-                        conn.ArgSQLCommand = PaymentQuery.InsertJV(payment.JVHeader);
+                        conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.JVHeader);
                         conn.ArgSQLParam = param;
 
                         //Execute insert header
@@ -211,7 +211,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                     {"@AccountNo", detail.AccountNumber }
                                 };
 
-                            conn.ArgSQLCommand = PaymentQuery.InsertJV(payment.JVDetail);
+                            conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.JVDetail);
                             conn.ArgSQLParam = detailParam;
 
                             //execute insert detail

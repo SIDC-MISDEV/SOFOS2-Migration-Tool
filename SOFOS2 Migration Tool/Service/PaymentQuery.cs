@@ -272,15 +272,26 @@ namespace SOFOS2_Migration_Tool.Service
                     break;
                 case payment.ORHeader:
 
-                    sQuery.Append(@"INSERT INTO fp000 (transNum,reference,Total,transDate,idUser,memberId,memberName,status,cancelled,remarks,type,accountCode,paidBy,branchCode,extracted,transType,refTransType,AccountNo) 
-                            VALUES (@transNum,@reference,@Total,@transDate,@idUser,@memberId,@memberName,@status,@cancelled,@remarks,@type,@accountCode,@paidBy,@branchCode,@extracted,@transType,@refTransType,@AccountNo)");
+                    sQuery.Append(@"INSERT INTO FP000 (transNum,reference,Total,transDate,idUser,memberId,memberName,status,cancelled,remarks,type,paidBy,branchCode,extracted,transType,refTransType,AccountNo) 
+                            VALUES (@transNum,@reference,@Total,@transDate,@idUser,@memberId,@memberName,@status,@cancelled,@remarks,@type,@paidBy,@branchCode,@extracted,@transType,@refTransType,@AccountNo)");
 
                     break;
                 case payment.ORDetail:
 
-                    sQuery.Append(@"INSERT INTO fp100 (transNum,crossReference,amount,idUser,balance,accountCode,pType,accountName,refTransType) 
-                            VALUES (@transNum,@crossReference,@amount,@idUser,@balance,@accountCode,@pType,@accountName,@refTransType)");
+                    sQuery.Append(@"INSERT INTO FP100 (transNum,crossReference,amount,idUser,balance,accountCode,pType,accountName) 
+                            VALUES (@transNum,@crossReference,@amount,@idUser,@balance,@accountCode,@pType,@accountName)");
 
+                    break;
+                case payment.JVHeader:
+
+                    sQuery.Append(@"INSERT INTO FJV00 (transNum, reference, Total, transDate, idUser, status, cancelled, remarks) 
+                            VALUES (@transNum, @reference, @Total, @transDate, @idUser, @status, @cancelled, @remarks)");
+
+                    break;
+                case payment.JVDetail:
+
+                    sQuery.Append(@"INSERT INTO FJV10 ( transNum, accountCode, crossReference, idUser, debit, credit, memberId, memberName, accountName, refTransType, intComputed, paidToDate, status,  AccountNo) 
+                            VALUES ( @transNum, @accountCode, @crossReference, @idUser, @debit, @credit, @memberId, @memberName, @accountName, @refTransType, @intComputed, @paidToDate, @status,  @AccountNo)");
                     break;
                 case payment.Interest:
 
@@ -295,32 +306,32 @@ namespace SOFOS2_Migration_Tool.Service
             return sQuery;
         }
 
-        public static StringBuilder InsertOR(payment process)
-        {
-            var sQuery = new StringBuilder();
+        //public static StringBuilder InsertOR(payment process)
+        //{
+        //    var sQuery = new StringBuilder();
 
-            switch (process)
-            {
+        //    switch (process)
+        //    {
 
-                case payment.ORHeader:
+        //        case payment.ORHeader:
 
-                    sQuery.Append(@"INSERT INTO FP000 (transNum,reference,Total,transDate,idUser,memberId,memberName,status,cancelled,remarks,type,paidBy,branchCode,extracted,transType,refTransType,AccountNo) 
-                            VALUES (@transNum,@reference,@Total,@transDate,@idUser,@memberId,@memberName,@status,@cancelled,@remarks,@type,@paidBy,@branchCode,@extracted,@transType,@refTransType,@AccountNo)");
+        //            sQuery.Append(@"INSERT INTO FP000 (transNum,reference,Total,transDate,idUser,memberId,memberName,status,cancelled,remarks,type,paidBy,branchCode,extracted,transType,refTransType,AccountNo) 
+        //                    VALUES (@transNum,@reference,@Total,@transDate,@idUser,@memberId,@memberName,@status,@cancelled,@remarks,@type,@paidBy,@branchCode,@extracted,@transType,@refTransType,@AccountNo)");
 
-                    break;
-                case payment.ORDetail:
+        //            break;
+        //        case payment.ORDetail:
 
-                    sQuery.Append(@"INSERT INTO FP100 (transNum,crossReference,amount,idUser,balance,accountCode,pType,accountName) 
-                            VALUES (@transNum,@crossReference,@amount,@idUser,@balance,@accountCode,@pType,@accountName)");
+        //            sQuery.Append(@"INSERT INTO FP100 (transNum,crossReference,amount,idUser,balance,accountCode,pType,accountName) 
+        //                    VALUES (@transNum,@crossReference,@amount,@idUser,@balance,@accountCode,@pType,@accountName)");
 
 
-                    break;
-                default:
-                    break;
-            }
+        //            break;
+        //        default:
+        //            break;
+        //    }
 
-            return sQuery;
-        }
+        //    return sQuery;
+        //}
       
       public static StringBuilder UpdateQuery(payment process)
       {
@@ -348,31 +359,31 @@ namespace SOFOS2_Migration_Tool.Service
          return sQuery;
       }
       
-      public static StringBuilder InsertJV(payment process)
-        {
-            var sQuery = new StringBuilder();
+      //public static StringBuilder InsertJV(payment process)
+      //  {
+      //      var sQuery = new StringBuilder();
 
-            switch (process)
-            {
+      //      switch (process)
+      //      {
 
 
-                case payment.JVHeader:
+      //          case payment.JVHeader:
 
-                    sQuery.Append(@"INSERT INTO FJV00 (transNum, reference, Total, transDate, idUser, status, cancelled, remarks) 
-                            VALUES (@transNum, @reference, @Total, @transDate, @idUser, @status, @cancelled, @remarks)");
+      //              sQuery.Append(@"INSERT INTO FJV00 (transNum, reference, Total, transDate, idUser, status, cancelled, remarks) 
+      //                      VALUES (@transNum, @reference, @Total, @transDate, @idUser, @status, @cancelled, @remarks)");
 
-                    break;
-                case payment.JVDetail:
+      //              break;
+      //          case payment.JVDetail:
 
-                    sQuery.Append(@"INSERT INTO FJV10 ( transNum, accountCode, crossReference, idUser, debit, credit, memberId, memberName, accountName, refTransType, intComputed, paidToDate, status,  AccountNo) 
-                            VALUES ( @transNum, @accountCode, @crossReference, @idUser, @debit, @credit, @memberId, @memberName, @accountName, @refTransType, @intComputed, @paidToDate, @status,  @AccountNo)");
-                    break;
-                default:
-                    break;
-            }
+      //              sQuery.Append(@"INSERT INTO FJV10 ( transNum, accountCode, crossReference, idUser, debit, credit, memberId, memberName, accountName, refTransType, intComputed, paidToDate, status,  AccountNo) 
+      //                      VALUES ( @transNum, @accountCode, @crossReference, @idUser, @debit, @credit, @memberId, @memberName, @accountName, @refTransType, @intComputed, @paidToDate, @status,  @AccountNo)");
+      //              break;
+      //          default:
+      //              break;
+      //      }
 
-            return sQuery;
-        }
+      //      return sQuery;
+      //  }
 
     }
 

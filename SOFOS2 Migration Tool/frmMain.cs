@@ -64,13 +64,12 @@ namespace SOFOS2_Migration_Tool
                 if (orheader.Count > 0)
                     orc.InsertOR(orheader, ordetail);
 
-                //JournalVoucherController jvc = new JournalVoucherController();
-                //var jvheader = jvc.GetJournalVoucherHeader("2021-03-31","JV");
-                //var jvdetail = jvc.GetJournalVoucherDetail("2021-03-31", "JV");
+                JournalVoucherController jvc = new JournalVoucherController();
+                var jvheader = jvc.GetJournalVoucherHeader(date, "JV");
+                var jvdetail = jvc.GetJournalVoucherDetail(date, "JV");
 
 
-                if (jvheader.Count > 0)
-                    jvc.InsertJV(jvheader, jvdetail);
+
 
 
 
