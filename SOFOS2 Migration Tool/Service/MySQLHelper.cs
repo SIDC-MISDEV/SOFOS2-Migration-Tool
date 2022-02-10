@@ -173,7 +173,7 @@ namespace SOFOS2_Migration_Tool.Service
             if (cnn.State == ConnectionState.Closed)
             {
                 cnn.Open();
-                mysqlTrans = cnn.BeginTransaction(IsolationLevel.ReadCommitted);
+                mysqlTrans = cnn.BeginTransaction(IsolationLevel.Serializable);
             }
             return cmd.ExecuteReader();
         }
