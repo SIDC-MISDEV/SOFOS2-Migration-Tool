@@ -185,6 +185,11 @@ namespace SOFOS2_Migration_Tool.Service
         {
             return new StringBuilder(@"UPDATE iiuom SET cost = @cost * conversion WHERE itemCode = @itemCode;");
         }
+
+        public static StringBuilder UpdateSellingPrice()
+        {
+            return new StringBuilder(@"UPDATE iiuom set sellingPrice = IF(cost > 0 AND markup > 0, (cost * (markup/100)) + cost, 0) where itemCode=@itemCode;");
+        }
     }
 
     public enum Process
