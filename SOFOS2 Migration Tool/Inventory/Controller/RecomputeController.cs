@@ -93,7 +93,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                     itemParam = new Dictionary<string, object>();
 
                 List<Transactions> trans = new List<Transactions>();
-                List<ItemProblem> errorItem = new List<ItemProblem>();
+                List<ItemProblem> errorItem = new List<ItemProblem>(),
+                    itemsNotFound = new List<ItemProblem>();
                 Item item = null;
                 StringBuilder sQuery = new StringBuilder();
                 decimal averageCost = 0, tranRunQty = 0, tranRunVal = 0;
@@ -163,7 +164,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                 averageCost = Math.Round(tranRunVal / tranRunQty, 2, MidpointRounding.AwayFromZero);
                             }
 
-                            
+
 
                             switch (process)
                             {
@@ -256,11 +257,42 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                             #endregion
                         }
+                        else
+                        {
+                            itemsNotFound.Add(new ItemProblem
+                            {
+                                ItemCode = tran.ItemCode,
+                                CurrentRunningQuantity = item.RunningQuantity,
+                                CurrentRunningValue = item.RunningValue,
+                                TransactionRunningQuantity = tran.Quantity,
+                                TransactionValue = tran.TransactionValue
+                            });
+                        }
 
                     }
 
                     if (errorItem.Count < 1)
-                        conn.CommitTransaction();
+                    {
+                        if (itemsNotFound.Count < 1)
+                            conn.CommitTransaction();
+                        else
+                        {
+                            var confirm = MessageBox.Show("Some item(s) in sofos2 are not found in SOFOS2 but exists in transaction of POS1, do you still want to continue?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                            if (confirm == DialogResult.Yes)
+                            {
+                                conn.CommitTransaction();
+                                NoItemLogs(itemsNotFound);
+                            }
+                            else
+                            {
+                                conn.RollbackTransaction();
+                                NoItemLogs(itemsNotFound);
+
+                                throw new Exception($@"Missing items detected. Please check error log file.");
+                            }
+                        }
+                    }
                     else
                     {
                         var dialogResult = MessageBox.Show("Detected negative qty items, do you still want to continue?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -305,6 +337,19 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
         private void NegativeRunningQuantityItemLogs(List<ItemProblem> items)
         {
             string fileName = string.Format($"Negative Running Quantity Items-{DateTime.Now.ToString("ddMMyyyyHHmmss")}.csv");
+            dropSitePath = Path.Combine(dropSitePath, folder);
+
+            if (!Directory.Exists(dropSitePath))
+                Directory.CreateDirectory(dropSitePath);
+
+            ObjectToCSV<ItemProblem> receiveFromVendorObjectToCSV = new ObjectToCSV<ItemProblem>();
+            string filename = Path.Combine(dropSitePath, fileName);
+            receiveFromVendorObjectToCSV.SaveToCSV(items, filename);
+        }
+
+        private void NoItemLogs(List<ItemProblem> items)
+        {
+            string fileName = string.Format($"SOFOS2 Missing Items-{DateTime.Now.ToString("ddMMyyyyHHmmss")}.csv");
             dropSitePath = Path.Combine(dropSitePath, folder);
 
             if (!Directory.Exists(dropSitePath))
