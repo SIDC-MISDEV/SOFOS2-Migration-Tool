@@ -82,5 +82,17 @@ namespace SOFOS2_Migration_Tool.Properties {
                 this["PASSWORD"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CASH_ACCOUNTCODE {
+            get {
+                return ((string)(this["CASH_ACCOUNTCODE"]));
+            }
+            set {
+                this["CASH_ACCOUNTCODE"] = value;
+            }
+        }
     }
 }

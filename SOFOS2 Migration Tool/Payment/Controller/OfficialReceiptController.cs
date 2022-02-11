@@ -10,7 +10,9 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 {
     class OfficialReceiptController
     {
+        string accountCode = Properties.Settings.Default.CASH_ACCOUNTCODE;
         Global g = null;
+
         public List<OfficialReceipt> GetOfficialReceiptHeader(string date, string transprefix)
         {
             try
@@ -94,7 +96,9 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                 Reference = dr["reference"].ToString(),
                             });
                             g = new Global();
+                           result.Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
                           
+
                         }
                     }
                 }
@@ -107,23 +111,31 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             }
         }
 
+      
+
         public void InsertOR(List<OfficialReceipt> _header, List<OfficialReceipt> _detail)
         {
             try
             {
+                Dictionary<string, string> accounts = new Dictionary<string, string>();
                 Global g = new Global();
                 int transNum = 0;
                 long series = 0;
+                int detailNum = 0;
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
                     conn.BeginTransaction();
 
                     transNum = g.GetLatestTransNum("fp000", "transNum");
+                    accounts = g.GetAllAccountCode();
+                    detailNum = g.GetLatestDetailNum();
+                    
 
                     foreach (var item in _header)
                     {
-                        
+                        item.Series = g.GetBIRSeries(conn, "OR");
+                        g.UpdateBIRSeries(conn, "OR");
                         var param = new Dictionary<string, object>()
                         {
                             { "@transNum", transNum },
@@ -142,7 +154,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             { "@branchCode", Global.BranchCode },
                             { "@extracted", item.Extracted },
                             { "@transType", item.TransType },
-                            { "@series", "" },
+                            { "@series", item.Series },
                             { "@AccountNo", item.AccountNumber },
                             { "@refTransType", item.RefTransType }
                         };
@@ -152,6 +164,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                         //Execute insert header
                         conn.ExecuteMySQL();
+
 
                         #region Insert Details
                         var details = _detail.Where(n => n.Reference == item.Reference).ToList();
@@ -176,11 +189,30 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                             //execute insert detail
                             var cmdDetail = conn.ExecuteMySQL();
+
+
                         }
+
+                        var paymentOR = new Dictionary<string, object>()
+                        {
+                            { "@transNum", transNum },
+                            { "@paymentCode", "CASH" },
+                            { "@amount", item.Total },
+                            { "@idUser", item.IdUser },
+                            { "@transtype", "OR" },
+                            { "@accountcode", accountCode },
+                            { "@accountName", accounts[accountCode] },
+                            { "@orDetailNum", detailNum }
+                        };
+
+                        conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.ORPayment);
+                        conn.ArgSQLParam = paymentOR;
+                        conn.ExecuteMySQL();
                         #endregion
 
                         transNum++;
-                       
+                        detailNum++;
+
                     }
 
                     conn.ArgSQLCommand = Query.UpdateReferenceCount();
