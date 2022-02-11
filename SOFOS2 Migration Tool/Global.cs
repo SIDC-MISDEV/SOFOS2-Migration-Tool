@@ -483,5 +483,62 @@ namespace SOFOS2_Migration_Tool
                 throw;
             }
         }
+
+        public Dictionary<string, string> GetAllAccountCode()
+        {
+            try
+            {
+                Dictionary<string, string> accountNames = new Dictionary<string, string>();
+
+
+                string query = $@"SELECT accountcode, accountname FROM aca00 order by accountcode ASC";
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    using (var dr = conn.MySQLReader())
+                    {
+                        while (dr.Read())
+                        {
+                            accountNames.Add(dr["accountcode"].ToString(), dr["accountname"].ToString());
+                        }
+                    }
+                }
+
+                return accountNames;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        public int GetLatestDetailNum()
+        {
+            try
+            {
+                int result = 0;
+                string query = string.Empty;
+
+                query = $@"SELECT max(detailnum) as ordetailnum FROM FP100;";
+
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    var data = conn.GetMySQLScalar();
+
+                    result = data == null ? 1 : Convert.ToInt32(data) + 1;
+
+                }
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
     }
 }

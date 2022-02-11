@@ -17,5 +17,8 @@
     <Setting Name="PASSWORD" Type="System.String" Scope="User">
       <Value Profile="(Default)">supervisor</Value>
     </Setting>
+    <Setting Name="CASH_ACCOUNTCODE" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

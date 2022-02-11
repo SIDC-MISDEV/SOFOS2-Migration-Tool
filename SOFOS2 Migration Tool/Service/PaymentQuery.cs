@@ -114,7 +114,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     'CLOSED' as status,
                                     cancelled,
                                     'Migration Tool' as remarks, 
-                                    1 as type, 
+                                    2 as type, 
                                     signatory as paidBy,
                                     '' as branchCode,
                                     extracted,
@@ -122,7 +122,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as series,
                                     '' as refTransType
                                     FROM ledger 
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount NOT IN  ('112010000000001', '112020000000003','112050000000003') AND credit > 0 AND date(date)=@transdate GROUP BY idfile ORDER BY reference ASC");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount NOT IN  ('112010000000001', '112020000000003','112050000000003','112050000000003','112010000000015', '112010000000011','112050000000003', '112050000000003', '112010000000002', '112030000000019','212010000000000','430400000000000'  ) AND credit > 0 AND date(date)=@transdate GROUP BY idfile ORDER BY reference ASC");
                     break;
 
                 case payment.ORDetail:
@@ -138,7 +138,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     if(idaccount='311010000000000','P','') as pType, 
                                     '' as accountName
                                     FROM ledger
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount NOT IN  ('112010000000001', '112020000000003','112050000000003') AND credit > 0 AND date(date)=@transdate GROUP BY idfile ORDER BY reference ASC");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount NOT IN ('112010000000001', '112020000000003','112050000000003','112050000000003','112010000000015', '112010000000011','112050000000003', '112050000000003', '112010000000002', '112030000000019','212010000000000','430400000000000'  ) AND credit > 0 AND date(date)=@transdate GROUP BY idfile ORDER BY reference ASC");
                     break;
 
                 case payment.Invoice:
@@ -252,6 +252,11 @@ namespace SOFOS2_Migration_Tool.Service
 
                     sQuery.Append(@"SELECT remarks FROM fjv00 WHERE LEFT(remarks,2)='JV'");
                     break;
+
+                case payment.ORDetailNum:
+
+                    sQuery.Append(@"SELECT detailnum FROM fp100 WHERE transnum=@transnum");
+                    break;
                 default:
                     break;
 
@@ -280,8 +285,8 @@ namespace SOFOS2_Migration_Tool.Service
                     break;
                 case payment.ORHeader:
 
-                    sQuery.Append(@"INSERT INTO FP000 (transNum,reference,Total,transDate,idUser,memberId,memberName,status,cancelled,remarks,type,paidBy,branchCode,extracted,transType,refTransType,AccountNo) 
-                            VALUES (@transNum,@reference,@Total,@transDate,@idUser,@memberId,@memberName,@status,@cancelled,@remarks,@type,@paidBy,@branchCode,@extracted,@transType,@refTransType,@AccountNo)");
+                    sQuery.Append(@"INSERT INTO FP000 (transNum,reference,Total,transDate,idUser,memberId,memberName,status,cancelled,remarks,type,paidBy,branchCode,extracted,transType,series,refTransType,AccountNo) 
+                            VALUES (@transNum,@reference,@Total,@transDate,@idUser,@memberId,@memberName,@status,@cancelled,@remarks,@type,@paidBy,@branchCode,@extracted,@transType,@series,@refTransType,@AccountNo)");
 
                     break;
                 case payment.ORDetail:
@@ -315,6 +320,14 @@ namespace SOFOS2_Migration_Tool.Service
                             VALUES (@transnum, @transdate, @transtype, @reftranstype, @reference, @amount, @memberid, @membername, @accountcode, @iduser, @crossreference, @Accountno)");
 
                     break;
+
+                case payment.ORPayment:
+
+                    sQuery.Append(@"INSERT INTO FTP00 (transNum,paymentCode,amount,idUser,transtype,accountcode,accountName,orDetailNum)
+                            VALUES (@transNum,@paymentCode,@amount,@idUser,@transtype,@accountcode,@accountName,@orDetailNum)");
+
+                    break;
+
                 default:
                     break;
             }
@@ -363,6 +376,6 @@ namespace SOFOS2_Migration_Tool.Service
 
     public enum payment
     {
-        CRHeader, CRDetail, NewCRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, JVInvoice, CreditLimit, TransactionPayments, Interest, Balance, GetDetailNum, JVRemarks
+        CRHeader, CRDetail, NewCRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, JVInvoice, CreditLimit, TransactionPayments, Interest, Balance, GetDetailNum, JVRemarks, ORPayment, ORDetailNum
     }
 }
