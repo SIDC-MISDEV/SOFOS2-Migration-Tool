@@ -96,9 +96,13 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                 conn.ArgSQLCommand = RecomputeQuery.GetItemUom();
                 conn.ArgSQLParam = prm;
 
-                var data = conn.GetMySQLScalar();
-
-                result = data == DBNull.Value ? false : true;
+                using (var dr = conn.MySQLExecuteReaderBeginTransaction())
+                {
+                    if (dr.HasRows)
+                        result = true;
+                    else
+                        result = false;
+                }
 
                 return result;
             }
@@ -357,7 +361,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
         private void NoItemLogs(List<ItemProblem> items)
         {
-            string fileName = string.Format($"SOFOS2 Missing Items-{DateTime.Now.ToString("ddMMyyyyHHmmss")}.csv");
+            string fileName = string.Format($"Missing Items-{DateTime.Now.ToString("ddMMyyyyHHmmss")}.csv");
             dropSitePath = Path.Combine(dropSitePath, folder);
 
             if (!Directory.Exists(dropSitePath))
