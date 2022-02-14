@@ -92,6 +92,11 @@ namespace SOFOS2_Migration_Tool.Service
                                         WHERE i.itemCode = @itemCode AND d.conversion = 1 AND d.isbaseuom=1;");
         }
 
+        public static StringBuilder GetItemUom()
+        {
+            return new StringBuilder(@"SELECT itemCode, uomCode FROM iiuom WHERE itemcode = @itemCode AND uomCode = @uomCode;");
+        }
+
         public static StringBuilder UpdateRunningQuantityValue(Process process)
         {
             var sQuery = new StringBuilder();
@@ -188,7 +193,8 @@ namespace SOFOS2_Migration_Tool.Service
 
         public static StringBuilder UpdateSellingPrice()
         {
-            return new StringBuilder(@"UPDATE iiuom set sellingPrice = IF(cost > 0 AND markup > 0, (cost * (markup/100)) + cost, 0) where itemCode=@itemCode;");
+            //return new StringBuilder(@"UPDATE iiuom set sellingPrice = IF(cost > 0 AND markup > 0, ROUND((cost * (markup/100)) + cost, 2) , 0) where itemCode=@itemCode;");
+            return new StringBuilder(@"UPDATE iiuom set sellingPrice = ROUND((@cost * (markup/100)) + @cost, 2) where itemCode=@itemCode;");
         }
     }
 
