@@ -85,6 +85,30 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
             }
         }
 
+        private bool CheckUOMExists(MySQLHelper conn, string itemCode, string uomCode)
+        {
+            try
+            {
+                bool result = false;
+
+                var prm = new Dictionary<string, object>() { { "@itemcode", itemCode }, { "@uomCode", uomCode } };
+
+                conn.ArgSQLCommand = RecomputeQuery.GetItemUom();
+                conn.ArgSQLParam = prm;
+
+                var data = conn.GetMySQLScalar();
+
+                result = data == DBNull.Value ? false : true;
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
         public void UpdateRunningQuantityValueCost(List<Transactions> _transactions)
         {
             try
@@ -94,11 +118,12 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                 List<Transactions> trans = new List<Transactions>();
                 List<ItemProblem> errorItem = new List<ItemProblem>(),
-                    itemsNotFound = new List<ItemProblem>();
+                    itemsNotFound = new List<ItemProblem>(),
+                    uomNotFound = new List<ItemProblem>();
                 Item item = null;
                 StringBuilder sQuery = new StringBuilder();
                 decimal averageCost = 0, tranRunQty = 0, tranRunVal = 0;
-
+                bool uomExists = false;
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
@@ -111,13 +136,15 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         //Get running value and running quantity of an item.
                         item = GetItem(conn, tran.ItemCode);
 
+                        uomExists = CheckUOMExists(conn, tran.ItemCode, tran.UomCode);
+
                         //Initialize running qty,  running value and average cost
                         averageCost = 0;
                         tranRunQty = 0;
                         tranRunVal = 0;
 
 
-                        if (!string.IsNullOrEmpty(item.ItemCode))
+                        if (!string.IsNullOrEmpty(item.ItemCode) && uomExists)
                         {
 
 
@@ -236,6 +263,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                             if (process.Equals(Process.Receiving) || process.Equals(Process.ReceiveFromVendor))
                             {
+
                                 conn.ArgSQLCommand = RecomputeQuery.UpdateItemCost();
                                 conn.ArgSQLParam = new Dictionary<string, object>()
                                 {
@@ -261,7 +289,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         {
                             itemsNotFound.Add(new ItemProblem
                             {
-                                ItemCode = tran.ItemCode,
+                                ItemCode = $"{tran.ItemCode}-{tran.UomCode}",
                                 CurrentRunningQuantity = item.RunningQuantity,
                                 CurrentRunningValue = item.RunningValue,
                                 TransactionRunningQuantity = tran.Quantity,
@@ -277,38 +305,18 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             conn.CommitTransaction();
                         else
                         {
-                            var confirm = MessageBox.Show("Some item(s) in sofos2 are not found in SOFOS2 but exists in transaction of POS1, do you still want to continue?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                            conn.RollbackTransaction();
+                            NoItemLogs(itemsNotFound);
 
-                            if (confirm == DialogResult.Yes)
-                            {
-                                conn.CommitTransaction();
-                                NoItemLogs(itemsNotFound);
-                            }
-                            else
-                            {
-                                conn.RollbackTransaction();
-                                NoItemLogs(itemsNotFound);
-
-                                throw new Exception($@"Missing items detected. Please check error log file.");
-                            }
+                            throw new Exception($@"Missing items detected. Please check error log file.");
                         }
                     }
                     else
                     {
-                        var dialogResult = MessageBox.Show("Detected negative qty items, do you still want to continue?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        conn.RollbackTransaction();
+                        NegativeRunningQuantityItemLogs(errorItem);
 
-                        if(dialogResult == DialogResult.Yes)
-                        {
-                            conn.CommitTransaction();
-                            NegativeRunningQuantityItemLogs(errorItem);
-                        }
-                        else
-                        {
-                            conn.RollbackTransaction();
-                            NegativeRunningQuantityItemLogs(errorItem);
-
-                            throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
-                        }
+                        throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
                     }
 
                 }
