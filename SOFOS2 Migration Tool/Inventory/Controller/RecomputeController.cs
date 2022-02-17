@@ -277,14 +277,14 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                                 conn.ExecuteMySQL();
 
-                                #region Update selling price
+                                //#region Update selling price
 
-                                //Update selling price
-                                conn.ArgSQLCommand = RecomputeQuery.UpdateSellingPrice();
-                                conn.ArgSQLParam = new Dictionary<string, object>() { { "@itemCode", tran.ItemCode }, { "@cost", averageCost } };
-                                conn.ExecuteMySQL();
+                                ////Update selling price
+                                //conn.ArgSQLCommand = RecomputeQuery.UpdateSellingPrice();
+                                //conn.ArgSQLParam = new Dictionary<string, object>() { { "@itemCode", tran.ItemCode }, { "@cost", averageCost } };
+                                //conn.ExecuteMySQL();
 
-                                #endregion
+                                //#endregion
                             }
 
                             #endregion
