@@ -39,10 +39,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                         {
                             refRemarks.Add(dr["remarks"].ToString());
                         }
-                    }
-
-                
-                           
+                    }        
                 }
 
         

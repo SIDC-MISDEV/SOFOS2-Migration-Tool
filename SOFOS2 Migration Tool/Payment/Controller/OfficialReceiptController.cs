@@ -18,7 +18,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             try
             {
                 var result = new List<OfficialReceipt>();
-               
+                var reference = new List<string>();
+
 
                 var filter = new Dictionary<string, object>()
                 {
@@ -26,34 +27,48 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@transprefix", transprefix }
                 };
 
+                using (var conn = new MySQLHelper(Global.DestinationDatabase, PaymentQuery.GetQuery(payment.ORReference)))
+                {
+                    using (var dr = conn.MySQLReader())
+                    {
+                        while (dr.Read())
+                        {
+                            reference.Add(dr["reference"].ToString());
+                        }
+                    }
+                }
+
                 using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetQuery(payment.ORHeader), filter))
                 {
                     using (var dr = conn.MySQLReader())
                     {
                         while (dr.Read())
                         {
-                            result.Add(new OfficialReceipt
+                            if (!reference.Contains(dr["reference"].ToString()))
                             {
-                                Reference = dr["reference"].ToString(),
-                                Total = Convert.ToDecimal(dr["total"]),
-                                TransDate = dr["transDate"].ToString(),
-                                IdUser = dr["idUser"].ToString(),
-                                MemberId = dr["memberId"].ToString(),
-                                MemberName = dr["memberName"].ToString(),
-                                Status = dr["status"].ToString(),
-                                Remarks = dr["remarks"].ToString(),
-                                Cancelled = Convert.ToBoolean(dr["cancelled"]),
-                                sType = dr["type"].ToString(),
-                                PaidBy = dr["paidBy"].ToString(),
-                                BranchCode = Global.BranchCode,
-                                Extracted = dr["extracted"].ToString(),
-                                TransType = dr["transType"].ToString(),
-                                RefTransType = dr["refTransType"].ToString()
-                            });
+                                result.Add(new OfficialReceipt
+                                {
+                                    Reference = dr["reference"].ToString(),
+                                    Total = Convert.ToDecimal(dr["total"]),
+                                    TransDate = dr["transDate"].ToString(),
+                                    IdUser = dr["idUser"].ToString(),
+                                    MemberId = dr["memberId"].ToString(),
+                                    MemberName = dr["memberName"].ToString(),
+                                    Status = dr["status"].ToString(),
+                                    Remarks = dr["remarks"].ToString(),
+                                    Cancelled = Convert.ToBoolean(dr["cancelled"]),
+                                    sType = dr["type"].ToString(),
+                                    PaidBy = dr["paidBy"].ToString(),
+                                    BranchCode = Global.BranchCode,
+                                    Extracted = dr["extracted"].ToString(),
+                                    TransType = dr["transType"].ToString(),
+                                    RefTransType = dr["refTransType"].ToString()
+                                });
 
-                            g = new Global();
-                            result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.MemberName = g.GetMemberName(dr["memberId"].ToString()); return c; }).ToList();
-                            result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.AccountNumber = g.GetAccountNumber(dr["memberId"].ToString(), dr["refTransType"].ToString()); return c; }).ToList();
+                                g = new Global();
+                                result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.MemberName = g.GetMemberName(dr["memberId"].ToString()); return c; }).ToList();
+                                result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.AccountNumber = g.GetAccountNumber(dr["memberId"].ToString(), dr["refTransType"].ToString()); return c; }).ToList();
+                            }
                         }
                     }
                 }
@@ -212,6 +227,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                         transNum++;
                         detailNum++;
+                        series = Convert.ToInt32(item.Reference.Replace("OR", "")) + 1;
 
                     }
 
