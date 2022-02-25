@@ -67,14 +67,14 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' transNum, 
                                     '' as transNum,
                                     reference, 
-                                    credit as total, 
+                                    sum(credit) as total, 
                                     DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') as transDate,
                                     idUser,
                                     'CLOSED' as status,
                                     cancelled,
                                     reference as remarks 
                                     FROM ledger 
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate ORDER BY reference ASC");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate GROUP BY reference ORDER BY reference ASC");
                     break;
                 case payment.JVDetail:
 
