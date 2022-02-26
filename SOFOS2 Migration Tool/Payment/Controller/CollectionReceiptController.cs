@@ -59,7 +59,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             g = new Global();
                             result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.MemberName = g.GetMemberName(dr["memberId"].ToString()); return c; }).ToList();
                             result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.AccountNumber = g.GetAccountNumber(dr["memberId"].ToString(), dr["refTransType"].ToString()); return c; }).ToList();
-                        }
+                            
+                            }
                     }
                 }
 
@@ -131,19 +132,26 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             }
         }
 
+
         public void InsertCR(List<CollectionReceipt> _header, List<CollectionReceipt> _detail)
         {
             try
             {
+                Dictionary<string, string> accounts = new Dictionary<string, string>();
                 Global g = new Global();
                 int transNum = 0;
                 long series = 0;
+                int detailNum = 0;
+
                 using (var conns = new MySQLHelper(Global.SourceDatabase))
                 {
                     using (var conn = new MySQLHelper(Global.DestinationDatabase))
                     {
                         transNum = g.GetLatestTransNum("fp000", "transNum");
                         var reference = g.GetCRReference("sst00", "series");
+                        accounts = g.GetAllAccountCode();
+                        detailNum = g.GetLatestDetailNum();
+
                         foreach (var item in _header)
                         {
                             
@@ -199,7 +207,26 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                                 //execute insert detail
                                 var cmdDetail = conn.ExecuteMySQL();
+
+                                var paymentOR = new Dictionary<string, object>()
+                                {
+                                    { "@transNum", transNum },
+                                    { "@paymentCode", "CASH" },
+                                    { "@amount", item.Total },
+                                    { "@idUser", item.IdUser },
+                                    { "@transtype", "OR" },
+                                    { "@accountcode", detail.AccountCode },
+                                    { "@accountName", detail.AccountName },
+                                    { "@orDetailNum", detailNum }
+                                };
+
+                                conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.ORPayment);
+                                conn.ArgSQLParam = paymentOR;
+                                conn.ExecuteMySQL();
                             }
+
+                           
+
                             #endregion
 
                             transNum++;
