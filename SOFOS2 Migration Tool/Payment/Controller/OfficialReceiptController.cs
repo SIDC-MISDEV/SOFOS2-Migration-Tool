@@ -121,7 +121,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                 Global g = new Global();
                 int transNum = 0;
                 long series = 0;
-                int detailNum = 0;
+                int detailNum =0;
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
@@ -131,7 +131,6 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     accounts = g.GetAllAccountCode();
                     detailNum = g.GetLatestDetailNum();
                     
-
                     foreach (var item in _header)
                     {
                         item.Series = g.GetBIRSeries(conn, "OR");
@@ -189,8 +188,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                             //execute insert detail
                             var cmdDetail = conn.ExecuteMySQL();
-
-
+                            
                         }
 
                         var paymentOR = new Dictionary<string, object>()

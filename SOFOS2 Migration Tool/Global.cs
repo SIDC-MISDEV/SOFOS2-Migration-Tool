@@ -513,6 +513,35 @@ namespace SOFOS2_Migration_Tool
             }
         }
 
+        public Dictionary<string, string> GetAllPaymentMode()
+        {
+            try
+            {
+                Dictionary<string, string> PaymentMode = new Dictionary<string, string>();
+
+
+                string query = $@"SELECT paymentCode, accountCode FROM fpm00 WHERE active=1";
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    using (var dr = conn.MySQLReader())
+                    {
+                        while (dr.Read())
+                        {
+                            PaymentMode.Add(dr["paymentCode"].ToString(), dr["accountCode"].ToString());
+                        }
+                    }
+                }
+
+                return PaymentMode;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
         public int GetLatestDetailNum()
         {
             try
@@ -527,7 +556,7 @@ namespace SOFOS2_Migration_Tool
                 {
                     var data = conn.GetMySQLScalar();
 
-                    result = data == null ? 1 : Convert.ToInt32(data) + 1;
+                    result = Convert.IsDBNull(data) ? 1 : Convert.ToInt32(data) + 1;
 
                 }
 

@@ -45,7 +45,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' transNum,
                                     reference, 
                                     '' crossReference, 
-                                    credit as amount, 
+                                    (debit+credit) as amount, 
                                     idUser, 
                                     '' balance,
                                     idaccount as accountCode, 
@@ -53,7 +53,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as accountName,
                                     if(idaccount=@oldinterestaccount or idaccount=@newinterestaccount,'CI','') as refTransType 
                                     FROM ledger
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount,@cash,@check) AND date(date)=@transdate");
                     break;
 
                 case payment.Balance:
