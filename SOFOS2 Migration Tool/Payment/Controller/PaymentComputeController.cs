@@ -250,6 +250,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                 throw;
             }
         }
+
         public void UpdateInvoice(MySQLHelper conn, string transnum, string reference, decimal paidtodate, int intcomputed, string lastpaymentdate, string status, string accountcode)
         {
             try
@@ -646,6 +647,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
 
         }
+
         public void DropPrimaryKey(MySQLHelper conn, string table, string field)
         {
             conn.ArgSQLCommand = Query.DropPrimaryKey(table, field);
