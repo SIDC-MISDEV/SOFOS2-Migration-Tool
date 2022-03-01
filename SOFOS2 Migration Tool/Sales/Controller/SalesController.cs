@@ -317,11 +317,6 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
                         CreateSalesHeaderDocument(conn, item, transNum, global);
 
-                        if(item.Reference == "SI0000000017")
-                        {
-
-                        }
-
                         var details = _detail.Where(n => n.Reference == item.Reference).ToList();
                         CreateSalesDetailDocument(conn, details, transNum);
                         var payments = _payments.Where(n => n.Reference == item.Reference).ToList();
