@@ -141,7 +141,10 @@ namespace SOFOS2_Migration_Tool.Service
                                     ) AS 'Vatexempt',
                                     /* end of VatExemptSales*/
 
-                                    0 AS 'CancelledQty'
+                                    0 AS 'CancelledQty',
+                                    CASE WHEN s.packaging = 25 THEN 1
+										 WHEN s.packaging = 50 THEN 2
+										 ELSE 0 END AS 'packaging'
                                     FROM invoice i
                                     INNER JOIN ledger l ON i.reference = l.reference
                                     INNER JOIN stocks s ON i.idstock = s.idstock
@@ -209,6 +212,21 @@ namespace SOFOS2_Migration_Tool.Service
             }
 
             return sQuery;
+        }
+
+        public static StringBuilder GetKanegoItemCategory()
+        {
+            return new StringBuilder(@"SELECT prefix FROM ic000 WHERE icnum IN (SELECT catid FROM sdsc0) AND prefix <> 'RCE'");
+        }
+
+        public static StringBuilder GetKanegoRiceDiscount()
+        {
+            return new StringBuilder(@"SELECT id, NoBagsFrom, NoBagsTo, Discountper25kg FROM sdsb0;");
+        }
+
+        public static StringBuilder GetKanegoNonRiceDiscount()
+        {
+            return new StringBuilder(@"SELECT id, amountFrom, amountTo, percentage FROM sds00;");
         }
     }
 

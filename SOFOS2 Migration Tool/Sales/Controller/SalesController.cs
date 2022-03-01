@@ -22,6 +22,86 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
         #region GET
 
+        public List<string> GetKanegoCategory()
+        {
+            try
+            {
+                var result = new List<string>();
+
+                using (var conn = new MySQLHelper(Global.DestinationDatabase, SalesQuery.GetKanegoItemCategory()))
+                {
+                    using (var dr = conn.MySQLReader())
+                    {
+                        while (dr.Read())
+                        {
+                            result.Add(dr["prefix"].ToString());
+                        }
+                    }
+                }
+
+                return result;
+
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        public List<KanegoDiscount> GetKanegoDiscountParameters(bool isRiceDiscount)
+        {
+            try
+            {
+                var result = new List<KanegoDiscount>();
+                var sb = new StringBuilder();
+
+                if (isRiceDiscount)
+                    sb.Append(SalesQuery.GetKanegoRiceDiscount());
+                else
+                    sb.Append(SalesQuery.GetKanegoNonRiceDiscount());
+
+
+                using (var conn = new MySQLHelper(Global.DestinationDatabase, sb))
+                {
+                    using (var dr = conn.MySQLReader())
+                    {
+                        while (dr.Read())
+                        {
+                            if (isRiceDiscount)
+                            {
+                                result.Add(new KanegoDiscount
+                                {
+                                    ID = Convert.ToInt32(dr["ID"]),
+                                    NumberBagsFrom = Convert.ToDecimal(dr["NoBagsFrom"]),
+                                    NumberBagsTo = Convert.ToDecimal(dr["NoBagsTo"]),
+                                    DiscountPerTwentyFiveKilo = Convert.ToDecimal(dr["Discountper25kg"])
+                                });
+                            }
+                            else
+                            {
+                                result.Add(new KanegoDiscount
+                                {
+                                    ID = Convert.ToInt32(dr["ID"]),
+                                    AmountFrom = Convert.ToDecimal(dr["AmountFrom"]),
+                                    AmountTo = Convert.ToDecimal(dr["AmountTo"]),
+                                    Percentage = Convert.ToDecimal(dr["Percentage"])
+                                });
+                            }
+                        }
+                    }
+                }
+
+                return result;
+
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
         public List<Sales.Model.Sales> GetSalesHeader(string date)
         {
             try
@@ -82,7 +162,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
                                 SegmentCode = Global.MainSegment,
                                 BusinessSegment = Global.BusinessSegment,
-                                BranchCode = Global.BranchCode
+                                BranchCode = Global.BranchCode,
+                                KanegoDiscount = Convert.ToDecimal(dr["kanegodiscount"])
 
                             });
                         }
@@ -143,8 +224,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                                 Vat = Convert.ToDecimal(dr["Vat"]),
                                 Vatable = Convert.ToDecimal(dr["Vatable"]),
                                 Vatexempt = Convert.ToDecimal(dr["Vatexempt"]),
-                                CancelledQty = Convert.ToDecimal(dr["CancelledQty"])
-
+                                CancelledQty = Convert.ToDecimal(dr["CancelledQty"]),
+                                Packaging = Convert.ToDecimal(dr["packaging"])
                             });
                         }
                     }
@@ -221,6 +302,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
+
+
                     conn.BeginTransaction();
 
                     transNum = global.GetLatestTransNum("sapt0", "transNum");
@@ -233,6 +316,11 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                         #region Creation of Document
 
                         CreateSalesHeaderDocument(conn, item, transNum, global);
+
+                        if(item.Reference == "SI0000000017")
+                        {
+
+                        }
 
                         var details = _detail.Where(n => n.Reference == item.Reference).ToList();
                         CreateSalesDetailDocument(conn, details, transNum);
@@ -303,8 +391,71 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
         private void CreateSalesDetailDocument(MySQLHelper conn, List<SalesItem> details, int transNum)
         {
+            List<KanegoDiscount> riceKanegoDiscount = null,
+                    nonRiceKanegoDiscount = null;
+            List<string> itemKanegoDiscount = null;
+
+            decimal nonRiceTotal = 0,
+                nonRiceDetKanegoDiscount = 0,
+                discountMultiplier = 0,
+                kanegoDiscount = 0;
+
+            #region Get kanego discount for rice
+
+            riceKanegoDiscount = new List<KanegoDiscount>();
+
+            //Get kanego discount for rice
+            riceKanegoDiscount = GetKanegoDiscountParameters(isRiceDiscount: true);
+
+            #endregion
+
+
+            #region Get kanego discount for non rice
+
+            nonRiceKanegoDiscount = new List<KanegoDiscount>();
+
+            //Get kanego discount percentage
+            nonRiceKanegoDiscount = GetKanegoDiscountParameters(isRiceDiscount: false);
+
+            //Get kanego item category
+            itemKanegoDiscount = GetKanegoCategory();
+
+            nonRiceTotal = details.Where(item => itemKanegoDiscount.Contains(item.ItemCode.Substring(0, 3)))
+                .Sum(n => n.Total);
+
+            nonRiceDetKanegoDiscount = nonRiceKanegoDiscount
+                .Where(n => n.AmountFrom <= nonRiceTotal && n.AmountTo >= nonRiceTotal)
+                .Select(kn => kn.Percentage).FirstOrDefault();
+
+            kanegoDiscount = nonRiceTotal * (nonRiceDetKanegoDiscount / 100);
+
+            #endregion
+
+
             foreach (var detail in details)
             {
+                if (detail.ItemCode.Substring(0, 3) == "RCE")
+                {
+                    decimal totalRiceQty = detail.Quantity * detail.Packaging;
+
+                    detail.KanegoDiscount = riceKanegoDiscount
+                        .Where(kanego => kanego.NumberBagsFrom <= totalRiceQty && kanego.NumberBagsTo >= totalRiceQty)
+                        .Select(discount => discount.DiscountPerTwentyFiveKilo).FirstOrDefault();
+
+                }
+                else if (itemKanegoDiscount.Contains(detail.ItemCode.Substring(0, 3)) && nonRiceDetKanegoDiscount > 0)
+                {
+                    discountMultiplier = kanegoDiscount / nonRiceTotal;
+
+                    detail.KanegoDiscount = Math.Round(detail.Total * discountMultiplier, 2);
+
+                }
+                else
+                {
+                    detail.KanegoDiscount = 0;
+                }
+
+
                 var detailParam = new Dictionary<string, object>()
                                 {
                                     {"@barcode", detail.Barcode },
