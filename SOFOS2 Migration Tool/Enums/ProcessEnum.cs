@@ -13,6 +13,6 @@ namespace SOFOS2_Migration_Tool.Enums
 
     public enum ModuleEnum
     {
-        Purchasing, Inventory, Sales,Payment, SalesCreditLimit
+        Purchasing, Inventory, Sales,Payment, SalesCreditLimit, Customers
     }
 }

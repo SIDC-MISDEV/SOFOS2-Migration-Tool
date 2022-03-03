@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using SOFOS2_Migration_Tool.Enums;
 using SOFOS2_Migration_Tool.Accounting.Controller;
+using SOFOS2_Migration_Tool.Customer.Controller;
 
 namespace SOFOS2_Migration_Tool
 {
@@ -332,6 +333,7 @@ namespace SOFOS2_Migration_Tool
             pcbRecomputeInventory.BackgroundImage = null;
             pcbRecomputePayment.BackgroundImage = null;
             pcbRecomputeSalesCreditLimit.BackgroundImage = null;
+            pcbMembers.BackgroundImage = null;
             pcbSales.BackgroundImage = null;
         }
 
@@ -394,6 +396,54 @@ namespace SOFOS2_Migration_Tool
                 #region LOGS
                 accountCreditLimitController.InsertAccountCreditLimitsLogs(accountCreditLimitData, date);
                 #endregion LOGS
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, string.Format("Error : {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnMembers_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int memberResult = 0, employeeResult = 0;
+                string msg = string.Empty;
+
+                if(UserConfirmation(ProcessEnum.Migrate, ModuleEnum.Customers)) 
+                    return;
+
+                #region Members and Employees
+                CustomerController controller = new CustomerController();
+
+                var employees = controller.GetEmployees();
+                var members = controller.GetCustomer();
+                
+
+                if (members.Count > 0)
+                    memberResult = controller.InsertCustomer(members);
+                
+                if (employees.Count > 0)
+                    employeeResult = controller.InsertEmployee(employees);
+
+
+                if (memberResult > 0)
+                    msg = $"{memberResult.ToString("#,##")} member(s) was transferred successfully.";
+                else
+                    msg = $"No member was transferred.";
+
+                if (employeeResult > 0)
+                    msg += $"{Environment.NewLine}{memberResult} employee(s) was transferred successfully.";
+                else
+                    msg += $"{Environment.NewLine}No employee was transferred.";
+
+
+                MessageBox.Show(this, msg, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                pcbMembers.BackgroundImage = checkedImage;
+
+                #endregion
+
             }
             catch (Exception ex)
             {
