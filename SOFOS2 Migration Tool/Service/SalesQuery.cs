@@ -151,7 +151,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     INNER JOIN pcosting p ON i.idstock = p.idstock AND i.unit = p.unit
                                     WHERE
                                     /*left(i.reference, 2) = @transType AND date(l.date) = @date*/
-                                    LEFT(i.reference, 2) IN ('SI','CI','CO','AP','CT')
+                                    LEFT(i.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','GO','RT','CP','SB','PI','CB','BT','CS','RT','CL')
                                     AND date(l.date) = @date
                                     GROUP BY i.reference, i.idstock, i.unit
                                     ORDER BY l.reference ASC;
