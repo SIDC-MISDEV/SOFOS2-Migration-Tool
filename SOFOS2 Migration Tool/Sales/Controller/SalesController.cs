@@ -442,7 +442,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                 {
                     discountMultiplier = kanegoDiscount / nonRiceTotal;
 
-                    detail.KanegoDiscount = Math.Round(detail.Total * discountMultiplier, 2);
+                    detail.KanegoDiscount = detail.Total * discountMultiplier;
 
                 }
                 else
