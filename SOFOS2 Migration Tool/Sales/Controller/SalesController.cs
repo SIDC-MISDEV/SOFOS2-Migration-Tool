@@ -463,7 +463,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                                     {"@cost", detail.Cost },
                                     {"@sellingPrice", detail.SellingPrice },
                                     {"@feedsdiscount", detail.Feedsdiscount },
-                                    {"@total", detail.Total },
+                                    {"@total", detail.Total - detail.KanegoDiscount - detail.Feedsdiscount - detail.Feedsdiscount},
                                     {"@conversion", detail.Conversion },
                                     {"@systemDate", detail.SystemDate },
                                     {"@idUser", detail.IdUser },
