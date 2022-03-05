@@ -28,7 +28,7 @@ namespace SOFOS2_Migration_Tool.Service
                             '430400000000000' AS 'InterestAccount'
                              FROM coabalances c
                             INNER JOIN files f on f.idFile=c.idFile
-                             WHERE c.idAccount='311010000000000' AND DATE(c.dateForwarded)= @date;
+                             WHERE c.idAccount='311010000000000' AND DATE(c.dateForwarded)= @date AND f.filestatus != 'WITHDRAWN';
                             ");
             return sQuery;
         }
