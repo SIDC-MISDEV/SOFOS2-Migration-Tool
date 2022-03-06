@@ -318,7 +318,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                         CreateSalesHeaderDocument(conn, item, transNum, global);
 
                         var details = _detail.Where(n => n.Reference == item.Reference).ToList();
-                        CreateSalesDetailDocument(conn, details, transNum);
+                        CreateSalesDetailDocument(conn, details, transNum, item.KanegoDiscount);
                         var payments = _payments.Where(n => n.Reference == item.Reference).ToList();
                         CreateSalesPayment(conn, payments, transNum);
 
@@ -337,7 +337,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             cancelledDocument.TransType = "CD"; 
 
                             CreateSalesHeaderDocument(conn, cancelledDocument, transNum, global);
-                            CreateSalesDetailDocument(conn, details, transNum);
+                            CreateSalesDetailDocument(conn, details, transNum, item.KanegoDiscount);
 
                             var cancelledDocumentseries = Convert.ToInt32(cancelledDocument.Reference.Replace(cancelledDocument.TransType, "")) + 1;
                             UpdateLastReference(conn, cancelledDocumentseries, cancelledDocument.TransType);
@@ -384,7 +384,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
         #region Private Methods
 
-        private void CreateSalesDetailDocument(MySQLHelper conn, List<SalesItem> details, int transNum)
+        private void CreateSalesDetailDocument(MySQLHelper conn, List<SalesItem> details, int transNum, decimal _kanegoDiscount)
         {
             List<KanegoDiscount> riceKanegoDiscount = null,
                     nonRiceKanegoDiscount = null;
@@ -429,21 +429,28 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
             foreach (var detail in details)
             {
-                if (detail.ItemCode.Substring(0, 3) == "RCE")
+                if(_kanegoDiscount > 0)
                 {
-                    decimal totalRiceQty = detail.Quantity * detail.Packaging;
+                    if (detail.ItemCode.Substring(0, 3) == "RCE")
+                    {
+                        decimal totalRiceQty = detail.Quantity * detail.Packaging;
 
-                    detail.KanegoDiscount = riceKanegoDiscount
-                        .Where(kanego => kanego.NumberBagsFrom <= totalRiceQty && kanego.NumberBagsTo >= totalRiceQty)
-                        .Select(discount => discount.DiscountPerTwentyFiveKilo).FirstOrDefault();
+                        detail.KanegoDiscount = riceKanegoDiscount
+                            .Where(kanego => kanego.NumberBagsFrom <= totalRiceQty && kanego.NumberBagsTo >= totalRiceQty)
+                            .Select(discount => discount.DiscountPerTwentyFiveKilo).FirstOrDefault();
 
-                }
-                else if (itemKanegoDiscount.Contains(detail.ItemCode.Substring(0, 3)) && nonRiceDetKanegoDiscount > 0)
-                {
-                    discountMultiplier = kanegoDiscount / nonRiceTotal;
+                    }
+                    else if (itemKanegoDiscount.Contains(detail.ItemCode.Substring(0, 3)) && nonRiceDetKanegoDiscount > 0)
+                    {
+                        discountMultiplier = kanegoDiscount / nonRiceTotal;
 
-                    detail.KanegoDiscount = detail.Total * discountMultiplier;
+                        detail.KanegoDiscount = detail.Total * discountMultiplier;
 
+                    }
+                    else
+                    {
+                        detail.KanegoDiscount = 0;
+                    }
                 }
                 else
                 {
