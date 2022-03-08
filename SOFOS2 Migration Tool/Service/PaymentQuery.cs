@@ -36,7 +36,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as series,
                                     'CI' as refTransType
                                     FROM ledger 
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate AND mextracted=0 GROUP BY reference");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount,@duetointercompany) AND credit > 0 AND date(date)=@transdate AND mextracted=0 GROUP BY reference");
                     break;
 
                 case payment.CRDetail:
@@ -45,7 +45,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' transNum,
                                     reference, 
                                     '' crossReference, 
-                                    (debit+credit) as amount, 
+                                    (ifnull(debit,0) + ifnull(credit,0)) as amount, 
                                     idUser, 
                                     '' balance,
                                     idaccount as accountCode, 
@@ -53,7 +53,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as accountName,
                                     if(idaccount=@oldinterestaccount or idaccount=@newinterestaccount,'CI','') as refTransType 
                                     FROM ledger
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount,@cash,@check) AND date(date)=@transdate");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount,@duetointercompany,@cash,@check,@giftcheck) AND date(date)=@transdate");
                     break;
 
                 case payment.Balance:
@@ -67,14 +67,14 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' transNum, 
                                     '' as transNum,
                                     reference, 
-                                    credit as total, 
+                                    sum(credit) as total, 
                                     DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') as transDate,
                                     idUser,
                                     'CLOSED' as status,
                                     cancelled,
                                     reference as remarks 
                                     FROM ledger 
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate ORDER BY reference ASC");
+                                     WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount,@duetointercompany,@miscellaneousincome) AND credit > 0 AND date(date)=@transdate GROUP BY reference ORDER BY reference ASC");
                     break;
 
                 case payment.JVDetail:
@@ -98,7 +98,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as lastpaymentdate,
                                     '' as AccountNo
                                     FROM ledger 
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount) AND credit > 0 AND date(date)=@transdate");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount,@duetointercompany,@miscellaneousincome,@cash,@check,@giftcheck) AND date(date)=@transdate");
                     break;
 
                 case payment.ORHeader:
@@ -122,7 +122,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as series,
                                     '' as refTransType
                                     FROM ledger 
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount NOT IN  ('112010000000001', '112020000000003','112050000000003','112050000000003','112010000000015', '112010000000011','112050000000003', '112050000000003', '112010000000002', '112030000000019','212010000000000','430400000000000'  ) AND credit > 0 AND date(date)=@transdate GROUP BY idfile ORDER BY reference ASC");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount NOT IN  ('112010000000001', '112020000000003','112050000000003','112050000000003','112010000000015', '112010000000011','112050000000003', '112050000000003', '112010000000002', '112030000000019','212010000000000','430400000000000'  ) AND credit > 0 AND date(date)=@transdate GROUP BY reference ORDER BY reference ASC");
                     break;
 
                 case payment.ORDetail:
@@ -131,14 +131,14 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' transNum,
                                     reference, 
                                     '' crossReference, 
-                                    credit as amount, 
+                                    (ifnull(debit,0) + ifnull(credit,0))  as amount,  
                                     idUser, 
                                     '' balance,
                                     idaccount as accountCode,
                                     if(idaccount='311010000000000','P','') as pType, 
                                     '' as accountName
                                     FROM ledger
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount NOT IN ('112010000000001', '112020000000003','112050000000003','112050000000003','112010000000015', '112010000000011','112050000000003', '112050000000003', '112010000000002', '112030000000019','212010000000000','430400000000000'  ) AND credit > 0 AND date(date)=@transdate GROUP BY idfile ORDER BY reference ASC");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount NOT IN ('112010000000001', '112020000000003','112050000000003','112050000000003','112010000000015', '112010000000011','112050000000003', '112050000000003', '112010000000002', '112030000000019','212010000000000','430400000000000' ) AND date(date)=@transdate  ORDER BY reference ASC");
                     break;
 
                 case payment.Invoice:
@@ -256,6 +256,11 @@ namespace SOFOS2_Migration_Tool.Service
                 case payment.ORDetailNum:
 
                     sQuery.Append(@"SELECT detailnum FROM fp100 WHERE transnum=@transnum");
+                    break;
+
+                case payment.ORReference:
+
+                    sQuery.Append(@"SELECT reference FROM fp000 WHERE LEFT(reference,2)='OR'");
                     break;
                 default:
                     break;
@@ -376,6 +381,6 @@ namespace SOFOS2_Migration_Tool.Service
 
     public enum payment
     {
-        CRHeader, CRDetail, NewCRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, JVInvoice, CreditLimit, TransactionPayments, Interest, Balance, GetDetailNum, JVRemarks, ORPayment, ORDetailNum
+        CRHeader, CRDetail, NewCRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, JVInvoice, CreditLimit, TransactionPayments, Interest, Balance, GetDetailNum, JVRemarks, ORPayment, ORDetailNum, ORReference
     }
 }

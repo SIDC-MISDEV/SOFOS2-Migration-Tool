@@ -11,6 +11,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
     public class JournalVoucherController
     {
         Global g = null;
+        Dictionary<string, string> paymentmode = new Dictionary<string, string>();
         public List<JournalVoucher> GetJournalVoucherHeader(string date, string transprefix)
         {
             try
@@ -20,6 +21,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                 string principalaccount = "112010000000001";
                 string oldinterestaccount = "441200000000000";
                 string newinterestaccount = "430400000000000";
+                string duetointercompany = "212010000000000";
+                string miscellaneousincome = "440400000000000";
 
                 var filter = new Dictionary<string, object>()
                 {
@@ -27,6 +30,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@principalaccount", principalaccount },
                     { "@oldinterestaccount", oldinterestaccount },
                     { "@newinterestaccount", newinterestaccount },
+                    { "@duetointercompany", duetointercompany },
+                    { "@miscellaneousincome", miscellaneousincome },
                     { "@transprefix", transprefix }
                 };
 
@@ -86,11 +91,15 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
         {
             try
             {
+                g = new Global();
                 var result = new List<JournalVoucher>();
+                paymentmode = g.GetAllPaymentMode();
 
                 string principalaccount = "112010000000001";
                 string oldinterestaccount = "441200000000000";
                 string newinterestaccount = "430400000000000";
+                string duetointercompany = "212010000000000";
+                string miscellaneousincome = "440400000000000";
 
                 var filter = new Dictionary<string, object>()
                 {
@@ -98,6 +107,11 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@principalaccount", principalaccount },
                     { "@oldinterestaccount", oldinterestaccount },
                     { "@newinterestaccount", newinterestaccount },
+                    { "@duetointercompany", duetointercompany },
+                    { "@miscellaneousincome", miscellaneousincome },
+                    { "@cash", paymentmode.FirstOrDefault(n => n.Value == "CASH").Key },
+                    { "@check", paymentmode.FirstOrDefault(n => n.Value == "CHECK").Key },
+                    { "@giftcheck", paymentmode.FirstOrDefault(n => n.Value == "Gift Check").Key },
                     { "@transprefix", transprefix }
                 };
 
@@ -126,7 +140,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                 Status = dr["status"].ToString(),
                             });
                             g = new Global();
-                            result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.MemberName = g.GetMemberName(dr["memberId"].ToString()); return c; }).ToList();
+                            result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.MemberName = g.GetFileName(dr["memberId"].ToString()); return c; }).ToList();
                             result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.AccountNumber = g.GetAccountNumber(dr["memberId"].ToString(), "CI"); return c; }).ToList();
                             if (dr["accountCode"].ToString() == principalaccount)
                             {
@@ -136,9 +150,21 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             {
                                 result.Where(c => c.AccountCode == newinterestaccount).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
                             }
-                            else
+                            else if (dr["accountCode"].ToString() == oldinterestaccount)
                             {
                                 result.Where(c => c.AccountCode == oldinterestaccount).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
+                            }
+                            else if (dr["accountCode"].ToString() == duetointercompany)
+                            {
+                                result.Where(c => c.AccountCode == duetointercompany).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
+                            }
+                            else if (dr["accountCode"].ToString() == miscellaneousincome)
+                            {
+                                result.Where(c => c.AccountCode == miscellaneousincome).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
+                            }
+                            else
+                            {
+                                result.Where(c => c.AccountCode == dr["accountCode"].ToString()).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
                             }
                         }
                     }
