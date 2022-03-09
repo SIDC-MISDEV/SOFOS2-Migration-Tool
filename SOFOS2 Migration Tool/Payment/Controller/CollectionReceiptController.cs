@@ -11,7 +11,9 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
     public class CollectionReceiptController
     {
         Global g = null;
-        
+        Dictionary<string, string> accounts = new Dictionary<string, string>();
+        Dictionary<string, string> paymentmode = new Dictionary<string, string>();
+
         public List<CollectionReceipt> GetCollectionReceiptHeader(string date, string transprefix)
         {
             try
@@ -59,7 +61,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             g = new Global();
                             result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.MemberName = g.GetMemberName(dr["memberId"].ToString()); return c; }).ToList();
                             result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.AccountNumber = g.GetAccountNumber(dr["memberId"].ToString(), dr["refTransType"].ToString()); return c; }).ToList();
-                        }
+                            
+                            }
                     }
                 }
 
@@ -76,11 +79,15 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
         {
             try
             {
+
                 var result = new List<CollectionReceipt>();
+                paymentmode = g.GetAllPaymentMode();
+                accounts = g.GetAllAccountCode();
 
                 string principalaccount = "112010000000001";
                 string oldinterestaccount = "441200000000000";
                 string newinterestaccount = "430400000000000";
+                
 
                 var filter = new Dictionary<string, object>()
                 {
@@ -88,6 +95,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@principalaccount", principalaccount },
                     { "@oldinterestaccount", oldinterestaccount },
                     { "@newinterestaccount", newinterestaccount },
+                    { "@cash", paymentmode["CASH"] },
+                    { "@check", paymentmode["CHECK"] },
                     { "@transprefix", transprefix }
                 };
 
@@ -109,15 +118,23 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             g = new Global();
                             if (dr["accountCode"].ToString() == principalaccount)
                             {
-                                result.Where(c => c.AccountCode == principalaccount).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
+                                result.Where(c => c.AccountCode == principalaccount).Select(c => { c.AccountName = accounts[dr["accountCode"].ToString()]; return c; }).ToList();
                             }
                             else if (dr["accountCode"].ToString() == newinterestaccount)
                             {
-                                result.Where(c => c.AccountCode == newinterestaccount).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
+                                result.Where(c => c.AccountCode == newinterestaccount).Select(c => { c.AccountName = accounts[dr["accountCode"].ToString()]; return c; }).ToList();
                             }
-                            else
+                            else if (dr["accountCode"].ToString() == oldinterestaccount)
                             {
-                                result.Where(c => c.AccountCode == oldinterestaccount).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
+                                result.Where(c => c.AccountCode == oldinterestaccount).Select(c => { c.AccountName = accounts[dr["accountCode"].ToString()]; return c; }).ToList();
+                            }
+                            else if (dr["accountCode"].ToString() == paymentmode["CASH"])
+                            {
+                                result.Where(c => c.AccountCode == paymentmode["CASH"]).Select(c => { c.AccountName = accounts[dr["accountCode"].ToString()]; return c; }).ToList();
+                            }
+                            else if (dr["accountCode"].ToString() == paymentmode["CHECK"])
+                            {
+                                result.Where(c => c.AccountCode == paymentmode["CHECK"]).Select(c => { c.AccountName = accounts[dr["accountCode"].ToString()]; return c; }).ToList();
                             }
                         }
                     }
@@ -131,19 +148,27 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             }
         }
 
+
         public void InsertCR(List<CollectionReceipt> _header, List<CollectionReceipt> _detail)
         {
             try
             {
+                
                 Global g = new Global();
                 int transNum = 0;
                 long series = 0;
+                int detailNum = 0;
+
                 using (var conns = new MySQLHelper(Global.SourceDatabase))
                 {
                     using (var conn = new MySQLHelper(Global.DestinationDatabase))
                     {
                         transNum = g.GetLatestTransNum("fp000", "transNum");
                         var reference = g.GetCRReference("sst00", "series");
+                        accounts = g.GetAllAccountCode();
+                        paymentmode = g.GetAllPaymentMode();
+                        detailNum = g.GetLatestDetailNum();
+
                         foreach (var item in _header)
                         {
                             
@@ -181,6 +206,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                             foreach (var detail in details)
                             {
+                                
                                 var detailParam = new Dictionary<string, object>()
                                     {
                                         {"@transNum", transNum },
@@ -199,7 +225,46 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                                 //execute insert detail
                                 var cmdDetail = conn.ExecuteMySQL();
+
+                                if (paymentmode[detail.AccountCode] == "CASH")
+                                {
+                                    var paymentOR = new Dictionary<string, object>()
+                                    {
+                                        { "@transNum", transNum },
+                                        { "@paymentCode", paymentmode[detail.AccountCode] },
+                                        { "@amount", item.Total },
+                                        { "@idUser", item.IdUser },
+                                        { "@transtype", "OR" },
+                                        { "@accountcode", detail.AccountCode },
+                                        { "@accountName", detail.AccountName },
+                                        { "@orDetailNum", detailNum }
+                                    };
+
+                                    conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.ORPayment);
+                                    conn.ArgSQLParam = paymentOR;
+                                    conn.ExecuteMySQL();
+                                }
+
+                                if (paymentmode[detail.AccountCode] == "CHECK")
+                                {
+                                    var paymentOR = new Dictionary<string, object>()
+                                    {
+                                        { "@transNum", transNum },
+                                        { "@paymentCode", paymentmode[detail.AccountCode] },
+                                        { "@amount", item.Total },
+                                        { "@idUser", item.IdUser },
+                                        { "@transtype", "OR" },
+                                        { "@accountcode", detail.AccountCode },
+                                        { "@accountName", detail.AccountName },
+                                        { "@orDetailNum", detailNum }
+                                    };
+
+                                    conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.ORPayment);
+                                    conn.ArgSQLParam = paymentOR;
+                                    conn.ExecuteMySQL();
+                                }
                             }
+                            
                             #endregion
 
                             transNum++;
