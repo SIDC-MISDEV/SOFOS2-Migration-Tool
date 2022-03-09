@@ -393,7 +393,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
             decimal nonRiceTotal = 0,
                 nonRiceDetKanegoDiscount = 0,
                 discountMultiplier = 0,
-                kanegoDiscount = 0;
+                kanegoDiscountNonRice = 0,
+                discountedTotal = 0;
 
             #region Get kanego discount for rice
 
@@ -422,12 +423,13 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                 .Where(n => n.AmountFrom <= nonRiceTotal && n.AmountTo >= nonRiceTotal)
                 .Select(kn => kn.Percentage).FirstOrDefault();
 
-            kanegoDiscount = nonRiceTotal * (nonRiceDetKanegoDiscount / 100);
+            kanegoDiscountNonRice = nonRiceTotal * (nonRiceDetKanegoDiscount / 100);
 
             #endregion
 
+            var sortedDetails = details.OrderByDescending(n => n.ItemCode);
 
-            foreach (var detail in details)
+            foreach (var detail in sortedDetails)
             {
                 if(_kanegoDiscount > 0)
                 {
@@ -442,9 +444,9 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                     }
                     else if (itemKanegoDiscount.Contains(detail.ItemCode.Substring(0, 3)) && nonRiceDetKanegoDiscount > 0)
                     {
-                        discountMultiplier = kanegoDiscount / nonRiceTotal;
+                        //discountMultiplier = kanegoDiscountNonRice / nonRiceTotal;
 
-                        detail.KanegoDiscount = detail.Total * discountMultiplier;
+                        detail.KanegoDiscount = detail.Total * (nonRiceDetKanegoDiscount / 100);
 
                     }
                     else
@@ -457,6 +459,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                     detail.KanegoDiscount = 0;
                 }
 
+                //discountedTotal = detail.Total - detail.KanegoDiscount - detail.Feedsdiscount;
+                discountedTotal = (detail.SellingPrice * detail.Quantity) - detail.KanegoDiscount - detail.Feedsdiscount;
 
                 var detailParam = new Dictionary<string, object>()
                                 {
@@ -470,7 +474,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                                     {"@cost", detail.Cost },
                                     {"@sellingPrice", detail.SellingPrice },
                                     {"@feedsdiscount", detail.Feedsdiscount },
-                                    {"@total", detail.Total - detail.KanegoDiscount - detail.Feedsdiscount - detail.Feedsdiscount},
+                                    {"@total", discountedTotal },
                                     {"@conversion", detail.Conversion },
                                     {"@systemDate", detail.SystemDate },
                                     {"@idUser", detail.IdUser },

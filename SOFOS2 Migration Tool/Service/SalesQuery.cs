@@ -22,7 +22,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     l.reference AS 'Reference',
                                     l.crossreference AS 'Crossreference',
                                     0 AS 'NoEffectOnInventory',
-                                    IF(f.type = 'SIDC','Non-Member','Member') AS 'CustomerType',
+                                    if(f.type = 'MEMBER', 'Member','Non-Member') AS 'CustomerType',
                                     IF(f.type in ('SIDC','MEMBER','AMEMBER'),l.idFile,'') AS 'MemberId',
                                     IF(f.type in ('SIDC','MEMBER','AMEMBER'),f.name,'') AS 'MemberName',
                                     IF(f.type = 'EMPLOYEE',l.idFile,'') AS 'EmployeeID',
