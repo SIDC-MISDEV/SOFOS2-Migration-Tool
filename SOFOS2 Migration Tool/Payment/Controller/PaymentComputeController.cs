@@ -36,7 +36,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                 InsertInt(conn, interestlist);
                                 if (invoicelist.Count > 0)
                                     UpdateInvoice(conn, il.TransNum, il.Reference, il.PaidToDate, il.IntComputed, il.LastPaymentDate, il.Status, il.AccountCode);
-                                UpdatePayment(conn, pl.TransNum, pl.DetailNum, pl.MemberId, pl.AccountNumber, il.Reference, il.PaidToDate,il.PaidAmount, il.Total, pl.Amount,pl.IdUser,pl.AccountCode,invoicelist.Count);                                
+                                UpdatePayment(conn, pl.TransNum, pl.DetailNum, pl.MemberId, pl.AccountNumber, pl.Reference.Substring(0,2), il.Reference, il.PaidToDate,il.PaidAmount, il.Total, pl.Amount,pl.IdUser,pl.AccountCode,invoicelist.Count);                                
                             }
 
                         }
@@ -346,7 +346,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             }
         }
 
-        public void UpdatePayment(MySQLHelper conn, string transnum, string detailnum, string memberid, string accountnumber, string crossreference, decimal paidtodate, decimal paidamount, decimal total, decimal paymentamount, string iduser, string accountcode, int hasallocation)
+        public void UpdatePayment(MySQLHelper conn, string transnum, string detailnum, string memberid, string accountnumber,string prefix, string crossreference, decimal paidtodate, decimal paidamount, decimal total, decimal paymentamount, string iduser, string accountcode, int hasallocation)
         {
             try
             {
@@ -457,7 +457,10 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     //pending process
                     balance = balance - paymentamount;
                     string accountname = g.GetAccountName(accountcode);
-                    var param = new Dictionary<string, object>()
+
+                    if (prefix == "CR")
+                    {
+                        var param = new Dictionary<string, object>()
                             {
                                 { "@transNum", transnum },
                                 { "@amount", paidamount },
@@ -470,11 +473,12 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                             };
 
-                    conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
-                    conn.ArgSQLParam = param;
+                        conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
+                        conn.ArgSQLParam = param;
 
-                    //Execute insert header
-                    conn.ExecuteMySQL();
+                        //Execute insert header
+                        conn.ExecuteMySQL();
+                    }
 
                     UpdateAccountCreditLimit(conn, memberid, accountnumber, paidamount);
                     isAllocated = true;
@@ -484,7 +488,9 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                 else if (total != paidtodate && _count == 0 && isAllocated == true)
                 {
                     string accountname = g.GetAccountName(accountcode);
-                    var param = new Dictionary<string, object>()
+                    if (prefix == "CR")
+                    {
+                        var param = new Dictionary<string, object>()
                             {
                                 { "@transNum", transnum },
                                 { "@amount", paidamount },
@@ -497,11 +503,13 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                             };
 
-                    conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
-                    conn.ArgSQLParam = param;
+                        conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
+                        conn.ArgSQLParam = param;
 
-                    //Execute insert header
-                    conn.ExecuteMySQL();
+                        //Execute insert header
+                        conn.ExecuteMySQL();
+                    }
+                    
                     UpdateAccountCreditLimit(conn, memberid, accountnumber, paidamount);
                     isAllocated = false;
                     balance = 0;
@@ -510,7 +518,9 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                 else if (total == paidtodate && _count == 0 && isAllocated == true)
                 {
                     string accountname = g.GetAccountName(accountcode);
-                    var param = new Dictionary<string, object>()
+                    if (prefix == "CR")
+                    {
+                        var param = new Dictionary<string, object>()
                             {
                                 { "@transNum", transnum },
                                 { "@amount", paidamount },
@@ -523,11 +533,12 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                             };
 
-                    conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
-                    conn.ArgSQLParam = param;
+                        conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
+                        conn.ArgSQLParam = param;
 
-                    //Execute insert header
-                    conn.ExecuteMySQL();
+                        //Execute insert header
+                        conn.ExecuteMySQL();
+                    }
                     UpdateAccountCreditLimit(conn, memberid, accountnumber, paidamount);
                     isAllocated = false;
                     balance = 0;
