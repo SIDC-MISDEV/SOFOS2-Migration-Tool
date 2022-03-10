@@ -67,5 +67,10 @@ namespace SOFOS2_Migration_Tool.Service
         {
             return new StringBuilder($@"UPDATE {table} SET {field} = @value WHERE transNum=@transNum AND detailNum=@detailNum;");
         }
+        public static StringBuilder UpdateORDetailNum()
+        {
+            return new StringBuilder($@"UPDATE ftp00 a, fp100 b SET a.ordetailnum = b.detailnum WHERE a.transnum=b.transnum AND a.transtype=@transtype;");
+        }
+
     }
 }
