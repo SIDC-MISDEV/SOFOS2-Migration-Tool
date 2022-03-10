@@ -72,11 +72,9 @@ namespace SOFOS2_Migration_Tool
 
 
 
-                string message = string.Format(@"No transactions found in SOFOS1 - Payment module (Collection Receipt) dated : {0}.", date);
-                if (crheader.Count > 0)
-                    message = string.Format(@" ({0}) Collection Receipt transactions was transfered successfully.", crheader.Count);
-
-                MessageBox.Show(message);
+                string message = string.Format(@"No transactions found in SOFOS1 - Payment module (Collection Receipt and Official Receipt and Journal Voucher) dated : {0}.", date);
+                if (crheader.Count + orheader.Count + jvheader.Count > 0)
+                    message = string.Format(@" ({0}) Collection Receipt and ({1}) Official Receipt and ({2}) Journal Voucher transactions was transfered successfully.", crheader.Count, orheader.Count, jvheader.Count);
 
                 MessageBox.Show(this, message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
 

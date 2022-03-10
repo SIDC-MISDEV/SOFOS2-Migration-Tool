@@ -528,7 +528,7 @@ namespace SOFOS2_Migration_Tool
                     {
                         while (dr.Read())
                         {
-                            PaymentMode.Add(dr["paymentCode"].ToString(), dr["accountCode"].ToString());
+                            PaymentMode.Add(dr["accountCode"].ToString(), dr["paymentCode"].ToString());
                         }
                     }
                 }
@@ -565,6 +565,30 @@ namespace SOFOS2_Migration_Tool
             catch
             {
 
+                throw;
+            }
+        }
+
+        public string GetFileName(string memberId)
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+
+
+                query = $@"SELECT name FROM files WHERE idfile= '{memberId}' LIMIT 1;";
+
+                using (var conn = new MySQLHelper(SourceDatabase, new StringBuilder(query)))
+                {
+                    var data = conn.GetMySQLScalar();
+
+                    result = data == null ? "" : data.ToString();
+                }
+                return result;
+            }
+            catch
+            {
                 throw;
             }
         }
