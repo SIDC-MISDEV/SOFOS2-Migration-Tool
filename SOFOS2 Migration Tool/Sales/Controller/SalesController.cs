@@ -156,7 +156,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                                 VatExemptSales = Convert.ToDecimal(dr["VatExemptSales"]),// for check
                                 VatAmount = Convert.ToDecimal(dr["VatAmount"]),// for check
                                 LrReference = "",
-                                GrossTotal = Convert.ToDecimal(dr["Total"]), // for check
+                                GrossTotal = Convert.ToDecimal(dr["GrossTotal"]), // for check
 
                                 SystemDate = dr["SystemDate"].ToString(),
 

@@ -33,6 +33,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     c.account AS 'AccountName',
                                     l.PaidToDate AS 'PaidToDate',
                                     IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT'), l.debit - l.discount - l.kanegodiscount, l.credit - l.discount - l.kanegodiscount) AS 'Total',
+                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT'), l.debit, l.credit) as 'GrossTotal',
                                     SUM(i.selling * i.quantity) AS 'TotalBasedOnDetails',
                                     l.amountReceived AS 'AmountTendered',
                                     0 AS 'InterestPaid',
