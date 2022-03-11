@@ -22,11 +22,11 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
         #region GET
 
-        public List<string> GetKanegoCategory()
+        public List<int> GetKanegoCategory()
         {
             try
             {
-                var result = new List<string>();
+                var result = new List<int>();
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase, SalesQuery.GetKanegoItemCategory()))
                 {
@@ -34,7 +34,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                     {
                         while (dr.Read())
                         {
-                            result.Add(dr["prefix"].ToString());
+                            result.Add(dr["icnum"] == null ? 0 : Convert.ToInt32(dr["icnum"]));
                         }
                     }
                 }
@@ -225,7 +225,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                                 Vatable = Convert.ToDecimal(dr["Vatable"]),
                                 Vatexempt = Convert.ToDecimal(dr["Vatexempt"]),
                                 CancelledQty = Convert.ToDecimal(dr["CancelledQty"]),
-                                Packaging = Convert.ToDecimal(dr["packaging"])
+                                Packaging = Convert.ToDecimal(dr["packaging"]),
+                                CategoryID = Convert.ToInt32(dr["catid"])
                             });
                         }
                     }
@@ -388,7 +389,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
         {
             List<KanegoDiscount> riceKanegoDiscount = null,
                     nonRiceKanegoDiscount = null;
-            List<string> itemKanegoDiscount = null;
+            List<int> itemKanegoDiscount = null;
 
             decimal nonRiceTotal = 0,
                 nonRiceDetKanegoDiscount = 0,
@@ -421,7 +422,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
             //Get kanego item category
             itemKanegoDiscount = GetKanegoCategory();
 
-            nonRiceTotal = details.Where(item => itemKanegoDiscount.Contains(item.ItemCode.Substring(0, 3)))
+            nonRiceTotal = details.Where(item => itemKanegoDiscount.Contains(item.CategoryID))
                 .Sum(n => n.Total);
 
             nonRiceDetKanegoDiscount = nonRiceKanegoDiscount
@@ -430,7 +431,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
             kanegoDiscountNonRice = nonRiceTotal * (nonRiceDetKanegoDiscount / 100);
 
-            kanegoNonRiceCount = details.Where(item => itemKanegoDiscount.Contains(item.ItemCode.Substring(0, 3))).Count();
+            kanegoNonRiceCount = details.Where(item => itemKanegoDiscount.Contains(item.CategoryID)).Count();
 
             var sortedDetail = details.OrderBy(n => n.Total);
 
@@ -451,7 +452,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                         tempKanegoDiscount += detail.KanegoDiscount;
 
                     }
-                    else if (itemKanegoDiscount.Contains(detail.ItemCode.Substring(0, 3)) && nonRiceDetKanegoDiscount > 0)
+                    else if (itemKanegoDiscount.Contains(detail.CategoryID) && nonRiceDetKanegoDiscount > 0)
                     {
                         detail.KanegoDiscount = Math.Round(detail.Total * (nonRiceDetKanegoDiscount / 100), 2, MidpointRounding.AwayFromZero);
                         tempKanegoDiscount = Math.Round(tempKanegoDiscount + detail.KanegoDiscount, 2, MidpointRounding.AwayFromZero);

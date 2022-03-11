@@ -103,6 +103,7 @@ namespace SOFOS2_Migration_Tool.Sales.Model
         public decimal Vatexempt { get; set; }
         public decimal CancelledQty { get; set; }
         public decimal Packaging { get; set; }
+        public int CategoryID { get; set; }
     }
 
     public class KanegoDiscount

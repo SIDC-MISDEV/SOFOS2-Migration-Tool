@@ -22,7 +22,9 @@ namespace SOFOS2_Migration_Tool.Service
                                     l.reference AS 'Reference',
                                     l.crossreference AS 'Crossreference',
                                     0 AS 'NoEffectOnInventory',
-                                    if(f.type = 'MEMBER', 'Member','Non-Member') AS 'CustomerType',
+                                    CASE WHEN f.type = 'NON-MEMBER' AND left(l.reference, 2) NOT IN ('CO','CT') THEN 'Non-Member'
+									     WHEN (f.type = 'MEMBER' OR f.type = 'AMEMBER') AND left(l.reference, 2) NOT IN ('CO','CT') THEN 'Member'
+										 ELSE 'Employee' END as CustomerType,
                                     IF(f.type in ('SIDC','MEMBER','AMEMBER'),l.idFile,'') AS 'MemberId',
                                     IF(f.type in ('SIDC','MEMBER','AMEMBER'),f.name,'') AS 'MemberName',
                                     IF(f.type = 'EMPLOYEE',l.idFile,'') AS 'EmployeeID',
@@ -145,7 +147,8 @@ namespace SOFOS2_Migration_Tool.Service
                                     0 AS 'CancelledQty',
                                     CASE WHEN s.packaging = 25 THEN 1
 										 WHEN s.packaging = 50 THEN 2
-										 ELSE 0 END AS 'packaging'
+										 ELSE 0 END AS 'packaging',
+                                    s.CatID
                                     FROM invoice i
                                     INNER JOIN ledger l ON i.reference = l.reference
                                     INNER JOIN stocks s ON i.idstock = s.idstock
@@ -217,7 +220,7 @@ namespace SOFOS2_Migration_Tool.Service
 
         public static StringBuilder GetKanegoItemCategory()
         {
-            return new StringBuilder(@"SELECT prefix FROM ic000 WHERE icnum IN (SELECT catid FROM sdsc0) AND prefix <> 'RCE'");
+            return new StringBuilder(@"SELECT icnum FROM ic000 WHERE icnum IN (SELECT catid FROM sdsc0) AND prefix <> 'RCE'");
         }
 
         public static StringBuilder GetKanegoRiceDiscount()
