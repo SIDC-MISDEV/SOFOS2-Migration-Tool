@@ -276,6 +276,64 @@ namespace SOFOS2_Migration_Tool
             }
         }
 
+        public int GetSeries(string tableName, string fieldName, string prefix)
+        {
+            try
+            {
+                int result = 0;
+                string query = string.Empty;
+       
+                query = $@"SELECT {fieldName} FROM {tableName} WHERE transType = '{prefix}' ORDER BY {fieldName} DESC LIMIT 1;";
+
+
+                using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
+                {
+                    var data = conn.GetMySQLScalar();
+
+                    result = Convert.IsDBNull(data) ? 1 : Convert.ToInt32(data) + 1;
+                }
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        public string MakeReference(string series, string prefix)
+        {
+            try
+            {
+                string result = string.Empty;
+                string query = string.Empty;
+                string zeroText = "";
+                string reference = "";
+
+                reference = series == null ? "" : (Convert.ToInt32(series)).ToString();
+
+                int numZero = 10 - reference.Length;
+
+                do
+                {
+                    zeroText = string.Concat(zeroText, "0");
+                    numZero--;
+                }
+                while (numZero != 0);
+
+                result = string.Concat(prefix, zeroText, reference);
+
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
         public string GetDetailNum(MySQLHelper conn, string tableName, string transnum, string accountcode)
         {
             try
