@@ -432,14 +432,12 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
             kanegoNonRiceCount = details.Where(item => itemKanegoDiscount.Contains(item.ItemCode.Substring(0, 3))).Count();
 
-            var sortedDetail = details.OrderByDescending(n => n.ItemCode);
+            var sortedDetail = details.OrderBy(n => n.Total);
 
             #endregion
 
             foreach (var detail in sortedDetail)
             {
-                
-
                 if (_kanegoDiscount > 0)
                 {
                     if (detail.ItemCode.Substring(0, 3) == "RCE")
@@ -477,9 +475,10 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                     detail.KanegoDiscount = 0;
                 }
 
-                
-
-                discountedTotal = (detail.SellingPrice * detail.Quantity) - detail.KanegoDiscount - detail.Feedsdiscount;
+                if(tempKD > 0)
+                    discountedTotal = (detail.SellingPrice * detail.Quantity) - tempKD - detail.Feedsdiscount;
+                else
+                    discountedTotal = (detail.SellingPrice * detail.Quantity) - detail.KanegoDiscount - detail.Feedsdiscount;
 
                 var detailParam = new Dictionary<string, object>()
                                 {

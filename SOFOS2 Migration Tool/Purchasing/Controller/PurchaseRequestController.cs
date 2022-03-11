@@ -123,7 +123,7 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                     foreach (var item in _header)
                     {
                         transNum++;
-                        series = Convert.ToInt32(item.Reference.Replace(transType, "")) + 1;
+                        series = Convert.ToInt32(item.Reference.Replace(transType, ""));
 
                         var param = new Dictionary<string, object>()
                         {
