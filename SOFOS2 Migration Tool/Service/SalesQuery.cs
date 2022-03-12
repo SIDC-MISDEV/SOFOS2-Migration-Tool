@@ -25,7 +25,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     CASE WHEN f.type = 'NON-MEMBER' AND left(l.reference, 2) NOT IN ('CO','CT') THEN 'Non-Member'
 									     WHEN (f.type = 'MEMBER' OR f.type = 'AMEMBER') AND left(l.reference, 2) NOT IN ('CO','CT') THEN 'Member'
 										 ELSE 'Employee' END as CustomerType,
-                                    IF(f.type in ('SIDC','MEMBER','AMEMBER'),l.idFile,'') AS 'MemberId',
+                                    IF(f.type in ('SIDC','MEMBER','AMEMBER'),l.idFile, l.idfile) AS 'MemberId',
                                     IF(f.type in ('SIDC','MEMBER','AMEMBER'),f.name,'') AS 'MemberName',
                                     IF(f.type = 'EMPLOYEE',l.idFile,'') AS 'EmployeeID',
                                     IF(f.type = 'EMPLOYEE',f.name,'') AS 'EmployeeName',

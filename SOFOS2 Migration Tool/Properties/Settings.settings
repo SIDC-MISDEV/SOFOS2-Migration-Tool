@@ -5,20 +5,23 @@
     <Setting Name="HOST" Type="System.String" Scope="User">
       <Value Profile="(Default)">127.0.0.1</Value>
     </Setting>
-    <Setting Name="SOURCE_DB" Type="System.String" Scope="User">
-      <Value Profile="(Default)">mahabang_parang</Value>
-    </Setting>
-    <Setting Name="DESTINATION_DB" Type="System.String" Scope="User">
-      <Value Profile="(Default)">sofos2_mp_sales</Value>
-    </Setting>
     <Setting Name="USERNAME" Type="System.String" Scope="User">
       <Value Profile="(Default)">root</Value>
     </Setting>
     <Setting Name="PASSWORD" Type="System.String" Scope="User">
       <Value Profile="(Default)">supervisor</Value>
     </Setting>
+    <Setting Name="SOURCE_DB" Type="System.String" Scope="User">
+      <Value Profile="(Default)">sanmiguel</Value>
+    </Setting>
+    <Setting Name="DESTINATION_DB" Type="System.String" Scope="User">
+      <Value Profile="(Default)">sofos2_sm</Value>
+    </Setting>
     <Setting Name="CASH_ACCOUNTCODE" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">111030000000053</Value>
+    </Setting>
+    <Setting Name="BRANCH_CODE" Type="System.String" Scope="User">
+      <Value Profile="(Default)">SIDC-1-2-1-6</Value>
     </Setting>
   </Settings>
 </SettingsFile>

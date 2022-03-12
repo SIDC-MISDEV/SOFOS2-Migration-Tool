@@ -398,7 +398,9 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                 tempKanegoDiscount = 0,
                 kanegoDiscrepancy = 0,
                 tempKD = 0,
-                kanegoNonRiceCount = 0;
+                kanegoNonRiceCount = 0,
+                totalNonKanego = 0,
+                riceTotal = 0;
 
             int count = 0;
 
@@ -448,22 +450,39 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                         detail.KanegoDiscount = riceKanegoDiscount
                             .Where(kanego => kanego.NumberBagsFrom <= totalRiceQty && kanego.NumberBagsTo >= totalRiceQty)
                             .Select(discount => discount.DiscountPerTwentyFiveKilo).FirstOrDefault();
-
-                        tempKanegoDiscount += detail.KanegoDiscount;
-
                     }
                     else if (itemKanegoDiscount.Contains(detail.CategoryID) && nonRiceDetKanegoDiscount > 0)
                     {
                         detail.KanegoDiscount = Math.Round(detail.Total * (nonRiceDetKanegoDiscount / 100), 2, MidpointRounding.AwayFromZero);
                         tempKanegoDiscount = Math.Round(tempKanegoDiscount + detail.KanegoDiscount, 2, MidpointRounding.AwayFromZero);
+                        totalNonKanego += detail.KanegoDiscount;
                         count++;
 
-                        if (tempKanegoDiscount != _kanegoDiscount && count == kanegoNonRiceCount)
+                        if (count == kanegoNonRiceCount)
                         {
+                            riceTotal = 0;
+
+                            if(details.Any(n => n.ItemCode.Substring(0,3) == "RCE"))
+                            {
+                                details.Where(n => n.ItemCode.Substring(0, 3) == "RCE").Select(n => new
+                                {
+                                    n.Quantity,
+                                    n.Packaging
+                                }).ToList()
+                                .ForEach(r =>
+                                {
+                                    riceTotal += riceKanegoDiscount
+                                                        .Where(kanego => kanego.NumberBagsFrom <= (r.Packaging * r.Quantity) && kanego.NumberBagsTo >= (r.Packaging * r.Quantity))
+                                                        .Select(discount => discount.DiscountPerTwentyFiveKilo).FirstOrDefault();
+                                });
+                            }
+
                             tempKD = Math.Round(detail.KanegoDiscount, 2, MidpointRounding.AwayFromZero);
-                            kanegoDiscrepancy = _kanegoDiscount - tempKanegoDiscount;
+                            kanegoDiscrepancy = (_kanegoDiscount - riceTotal) - tempKanegoDiscount;
 
                             detail.KanegoDiscount = tempKD + kanegoDiscrepancy;
+
+                            discountedTotal = (detail.SellingPrice * detail.Quantity) - detail.KanegoDiscount - detail.Feedsdiscount;
                         }
                     }
                     else
@@ -476,10 +495,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                     detail.KanegoDiscount = 0;
                 }
 
-                if(tempKD > 0)
-                    discountedTotal = (detail.SellingPrice * detail.Quantity) - tempKD - detail.Feedsdiscount;
-                else
-                    discountedTotal = (detail.SellingPrice * detail.Quantity) - detail.KanegoDiscount - detail.Feedsdiscount;
+                discountedTotal = (detail.SellingPrice * detail.Quantity) - detail.KanegoDiscount - detail.Feedsdiscount;
 
                 var detailParam = new Dictionary<string, object>()
                                 {
