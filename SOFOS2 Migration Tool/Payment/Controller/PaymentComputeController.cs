@@ -15,7 +15,9 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
         int _count = 0;
         string _detailnum = string.Empty;
         bool isAllocated;
-
+        int itransnum = 0;
+        int series = 0;
+        string ireference = string.Empty;
         public void ComputePayment(List<Payments> paymentlist, string date)
         {
             using (var conn = new MySQLHelper(Global.DestinationDatabase))
@@ -23,6 +25,10 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                 try
                 {
                     conn.BeginTransaction();
+                    g = new Global();
+
+                    itransnum = g.GetLatestTransNum("fint0", "transNum") - 1;
+                    series = g.GetSeries("sst00", "series", "IN") - 1;
                     foreach (var pl in paymentlist)
                     {
                         if (pl.AccountCode == "112010000000001")
@@ -31,18 +37,28 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                             foreach (var il in invoicelist)
                             {
-                                
+                               
                                 var interestlist = ComputeInterest(conn, date, il.Reference, il.MemberId, il.AccountNumber, pl.TransDate, il.MemberName, pl.IdUser);
-                                InsertInt(conn, interestlist);
+
+                                foreach (var item in interestlist)
+                                {
+                                    if (item.InterestAmount != 0)
+                                    {
+                                        itransnum = itransnum + 1;
+                                        series = series + 1;
+                                        ireference = g.MakeReference(series.ToString(), "IN");
+                                    }
+                                }
+
+                                InsertInt(conn, interestlist, itransnum.ToString(), ireference);
                                 if (invoicelist.Count > 0)
                                     UpdateInvoice(conn, il.TransNum, il.Reference, il.PaidToDate, il.IntComputed, il.LastPaymentDate, il.Status, il.AccountCode);
                                 UpdatePayment(conn, pl.TransNum, pl.DetailNum, pl.MemberId, pl.AccountNumber, pl.Reference.Substring(0,2), il.Reference, il.PaidToDate,il.PaidAmount, il.Total, pl.Amount,pl.IdUser,pl.AccountCode,invoicelist.Count);                                
                             }
-
                         }
+                       
                     }
                     conn.CommitTransaction();
-                    
                 }
                 catch (Exception)
                 {
@@ -557,21 +573,18 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             }
         }
 
-        public void InsertInt(MySQLHelper conn, List<Interest> _interest)
+        public void InsertInt(MySQLHelper conn, List<Interest> _interest, string transNum, string reference)
         {
             try
             {
-                Global g = new Global();
-                int transNum = 0;
+                
                 long series = 0;
-
-                transNum = g.GetLatestTransNum("fint0", "transNum");
 
                 foreach (var item in _interest)
                 {
                     if (item.InterestAmount != 0)
                     {
-                        var reference = g.GetCRReference("sst00", "series", "IN");
+                       
                         var param = new Dictionary<string, object>()
                         {
                             { "@transNum", transNum },
@@ -593,17 +606,15 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                         //Execute insert header
                         conn.ExecuteMySQL();
-
-                        transNum++;
+                        
                         series = Convert.ToInt32(reference.Replace("IN", "")) + 1;
+
+                        conn.ArgSQLCommand = Query.UpdateReferenceCount();
+                        conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", "IN" } };
+                        conn.ExecuteMySQL();
                     }
                     
                 }
-
-                conn.ArgSQLCommand = Query.UpdateReferenceCount();
-                conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", "IN" } };
-                conn.ExecuteMySQL();
-
 
             }
             catch
