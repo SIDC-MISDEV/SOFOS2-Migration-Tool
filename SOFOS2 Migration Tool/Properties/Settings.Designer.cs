@@ -37,30 +37,6 @@ namespace SOFOS2_Migration_Tool.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("mahabang_parang")]
-        public string SOURCE_DB {
-            get {
-                return ((string)(this["SOURCE_DB"]));
-            }
-            set {
-                this["SOURCE_DB"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("sofos2_mp_sales")]
-        public string DESTINATION_DB {
-            get {
-                return ((string)(this["DESTINATION_DB"]));
-            }
-            set {
-                this["DESTINATION_DB"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("root")]
         public string USERNAME {
             get {
@@ -85,13 +61,49 @@ namespace SOFOS2_Migration_Tool.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("sanmiguel")]
+        public string SOURCE_DB {
+            get {
+                return ((string)(this["SOURCE_DB"]));
+            }
+            set {
+                this["SOURCE_DB"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("sofos2_sm")]
+        public string DESTINATION_DB {
+            get {
+                return ((string)(this["DESTINATION_DB"]));
+            }
+            set {
+                this["DESTINATION_DB"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("111030000000053")]
         public string CASH_ACCOUNTCODE {
             get {
                 return ((string)(this["CASH_ACCOUNTCODE"]));
             }
             set {
                 this["CASH_ACCOUNTCODE"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SIDC-1-2-1-6")]
+        public string BRANCH_CODE {
+            get {
+                return ((string)(this["BRANCH_CODE"]));
+            }
+            set {
+                this["BRANCH_CODE"] = value;
             }
         }
     }

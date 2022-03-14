@@ -22,8 +22,10 @@ namespace SOFOS2_Migration_Tool.Service
                                     l.reference AS 'Reference',
                                     l.crossreference AS 'Crossreference',
                                     0 AS 'NoEffectOnInventory',
-                                    IF(f.type = 'SIDC','Non-Member',f.type) AS 'CustomerType',
-                                    IF(f.type in ('SIDC','MEMBER','AMEMBER'),l.idFile,'') AS 'MemberId',
+                                    CASE WHEN f.type = 'NON-MEMBER' AND left(l.reference, 2) NOT IN ('CO','CT') THEN 'Non-Member'
+									     WHEN (f.type = 'MEMBER' OR f.type = 'AMEMBER') AND left(l.reference, 2) NOT IN ('CO','CT') THEN 'Member'
+										 ELSE 'Employee' END as CustomerType,
+                                    IF(f.type in ('SIDC','MEMBER','AMEMBER'),l.idFile, l.idfile) AS 'MemberId',
                                     IF(f.type in ('SIDC','MEMBER','AMEMBER'),f.name,'') AS 'MemberName',
                                     IF(f.type = 'EMPLOYEE',l.idFile,'') AS 'EmployeeID',
                                     IF(f.type = 'EMPLOYEE',f.name,'') AS 'EmployeeName',
@@ -33,6 +35,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     c.account AS 'AccountName',
                                     l.PaidToDate AS 'PaidToDate',
                                     IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT'), l.debit - l.discount - l.kanegodiscount, l.credit - l.discount - l.kanegodiscount) AS 'Total',
+                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT'), l.debit, l.credit) as 'GrossTotal',
                                     SUM(i.selling * i.quantity) AS 'TotalBasedOnDetails',
                                     l.amountReceived AS 'AmountTendered',
                                     0 AS 'InterestPaid',
@@ -89,7 +92,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     INNER JOIN stocks s ON i.idstock = s.idstock
                                     LEFT JOIN files f ON l.idfile = f.idfile
                                     LEFT JOIN coa c ON l.idaccount = c.idaccount
-                                    where LEFT(l.reference, 2) IN ('SI','CI','CO','AP','CT')
+                                    where LEFT(l.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','GO','RT','CP','SB','PI','CB','BT','CS','RT','CL')
                                     AND date(l.date) = @date
                                     GROUP BY l.reference
                                     ORDER BY l.date ASC;
@@ -141,14 +144,18 @@ namespace SOFOS2_Migration_Tool.Service
                                     ) AS 'Vatexempt',
                                     /* end of VatExemptSales*/
 
-                                    0 AS 'CancelledQty'
+                                    0 AS 'CancelledQty',
+                                    CASE WHEN s.packaging = 25 THEN 1
+										 WHEN s.packaging = 50 THEN 2
+										 ELSE 0 END AS 'packaging',
+                                    s.CatID
                                     FROM invoice i
                                     INNER JOIN ledger l ON i.reference = l.reference
                                     INNER JOIN stocks s ON i.idstock = s.idstock
                                     INNER JOIN pcosting p ON i.idstock = p.idstock AND i.unit = p.unit
                                     WHERE
                                     /*left(i.reference, 2) = @transType AND date(l.date) = @date*/
-                                    LEFT(i.reference, 2) IN ('SI','CI','CO','AP','CT')
+                                    LEFT(i.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','GO','RT','CP','SB','PI','CB','BT','CS','RT','CL')
                                     AND date(l.date) = @date
                                     GROUP BY i.reference, i.idstock, i.unit
                                     ORDER BY l.reference ASC;
@@ -172,7 +179,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     extracted AS 'Extracted',
                                     0 AS 'OrDetailNum'
                                      FROM transactionpayments
-                                    WHERE LEFT(reference, 2) IN('SI', 'CI', 'CO', 'AP', 'CT') AND date(date) = @date;
+                                    WHERE LEFT(reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','GO','RT','CP','SB','PI','CB','BT','CS','RT','CL') AND date(date) = @date;
                                      ");
                     break;
                 default:
@@ -209,6 +216,21 @@ namespace SOFOS2_Migration_Tool.Service
             }
 
             return sQuery;
+        }
+
+        public static StringBuilder GetKanegoItemCategory()
+        {
+            return new StringBuilder(@"SELECT icnum FROM ic000 WHERE icnum IN (SELECT catid FROM sdsc0) AND prefix <> 'RCE'");
+        }
+
+        public static StringBuilder GetKanegoRiceDiscount()
+        {
+            return new StringBuilder(@"SELECT id, NoBagsFrom, NoBagsTo, Discountper25kg FROM sdsb0;");
+        }
+
+        public static StringBuilder GetKanegoNonRiceDiscount()
+        {
+            return new StringBuilder(@"SELECT id, amountFrom, amountTo, percentage FROM sds00;");
         }
     }
 

@@ -517,7 +517,7 @@ namespace SOFOS2_Migration_Tool
             {
                 string query = string.Empty;
 
-                query = $@"SELECT main_segment, business_segment, branchCode, branchName, whse FROM business_segments;";
+                query = $@"SELECT main_segment, business_segment, branchCode, branchName, whse FROM business_segments WHERE BranchCode = '{Properties.Settings.Default.BRANCH_CODE}';";
 
 
                 using (var conn = new MySQLHelper(SourceDatabase, new StringBuilder(query)))

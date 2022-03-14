@@ -102,5 +102,18 @@ namespace SOFOS2_Migration_Tool.Sales.Model
         public decimal Vatable { get; set; }
         public decimal Vatexempt { get; set; }
         public decimal CancelledQty { get; set; }
+        public decimal Packaging { get; set; }
+        public int CategoryID { get; set; }
+    }
+
+    public class KanegoDiscount
+    {
+        public int ID { get; set; }
+        public decimal AmountFrom { get; set; }
+        public decimal AmountTo { get; set; }
+        public decimal Percentage { get; set; }
+        public decimal NumberBagsFrom { get; set; }
+        public decimal NumberBagsTo { get; set; }
+        public decimal DiscountPerTwentyFiveKilo { get; set; }
     }
 }
