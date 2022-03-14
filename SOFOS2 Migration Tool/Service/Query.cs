@@ -67,10 +67,63 @@ namespace SOFOS2_Migration_Tool.Service
         {
             return new StringBuilder($@"UPDATE {table} SET {field} = @value WHERE transNum=@transNum AND detailNum=@detailNum;");
         }
+      
         public static StringBuilder UpdateORDetailNum()
         {
             return new StringBuilder($@"UPDATE ftp00 a, fp100 b SET a.ordetailnum = b.detailnum WHERE a.transnum=b.transnum AND a.transtype=@transtype;");
         }
 
+        public static StringBuilder GetEmployees()
+        {
+            return new StringBuilder(@"SELECT
+	            e.idemployee as EmployeeID,
+	            m.lastname,
+	            m.firstname,
+	            m.middlename,
+	            e.idFile as memberid
+            FROM employees e
+            INNER JOIN members m ON e.idfile = m.idfile");
+        }
+
+        public static StringBuilder GetMembers()
+        {
+            return new StringBuilder(@"select
+	            m.idfile `MemberId`,
+	            CASE WHEN d.type = 'MEMBER' THEN 'Regular' 
+		             ELSE 'Associate' END as `MemberType`,
+	            m.lastname,
+	            m.firstname,
+	            m.middlename,
+	            null as `HouseNo`,
+	            m.street as `Barangay`,
+	            m.municipality as `City`,
+	            m.province as `Province`,
+	            'Philippines' as `Country`,
+	            m.zipcode,
+	            m.telephone,
+	            m.birthday,
+	            m.sex as  `Gender`,
+	            m.marital `MaritalStatus`,
+	            m.knstat `IsKanegoSosyo`,
+	            m.cardno `KanegoCardNumber`,
+                CASE WHEN d.filestatus = 'TRANSFERRED' OR d.filestatus = 'WITHDRAWN' THEN 0 ELSE 1 END as Active,
+                m.datemember,
+	            'MIGRATION-TOOL' as `IdUser`
+            from members m 
+            INNER JOIN files d ON m.idfile = d.idfile
+            WHERE d.type  IN ('MEMBER','AMEMBER') AND d.fileStatus NOT IN ('TRANSFERRED','WITHDRAWN');");
+        }
+
+        public static StringBuilder InsertMembers()
+        {
+            return new StringBuilder(@"INSERT INTO `cci00` (membernum, `memberId`,`memberType`,`lastName`,`firstName`,`middleName`,`houseNo`,`barangay`,`city`,`province`,`country`,`zipcode`,`landlineNo`,`birthdate`,`gender`,`maritalStatus`,`dateMembership`,`isKanegoSosyo`,`kanegoCardNumber`,memberstatus,`idUser`)
+                SELECT @membernum, @memberid, @membertype, @lastname, @firstname, @middlename, @houseno, @barangay, @city, @provice, @country, @zipcode, @telephone, @birthdate, @gender,@maritalstatus, @datemember, @iskanego, @kanegono,@active,@iduser FROM DUAL
+                WHERE NOT EXISTS(SELECT memberid FROM cci00 WHERE memberid = @memberid) LIMIT 1;");
+        }
+
+        public static StringBuilder GetLastMember()
+        {
+            return new StringBuilder("SELECT MAX(membernum) FROM cci00;");
+        }
     }
 }

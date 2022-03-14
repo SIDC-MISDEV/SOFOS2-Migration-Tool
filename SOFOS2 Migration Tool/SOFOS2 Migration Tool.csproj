@@ -52,6 +52,8 @@
   <ItemGroup>
     <Compile Include="Accounting\Controller\AccountCreditLimitController.cs" />
     <Compile Include="Accounting\Model\AccountCreditLimits.cs" />
+    <Compile Include="Customer\Controller\CustomerController.cs" />
+    <Compile Include="Customer\Model\Customer.cs" />
     <Compile Include="Enums\ProcessEnum.cs" />
     <Compile Include="frmMain.cs">
       <SubType>Form</SubType>
