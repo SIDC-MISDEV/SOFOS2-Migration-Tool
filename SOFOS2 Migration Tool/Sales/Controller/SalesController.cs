@@ -446,10 +446,13 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                     if (detail.ItemCode.Substring(0, 3) == "RCE")
                     {
                         decimal totalRiceQty = detail.Quantity * detail.Packaging;
+                        decimal discountMultiplier = 0;
 
-                        detail.KanegoDiscount = riceKanegoDiscount
+                        discountMultiplier = riceKanegoDiscount
                             .Where(kanego => kanego.NumberBagsFrom <= totalRiceQty && kanego.NumberBagsTo >= totalRiceQty)
                             .Select(discount => discount.DiscountPerTwentyFiveKilo).FirstOrDefault();
+
+                        detail.KanegoDiscount = totalRiceQty * discountMultiplier;
                     }
                     else if (itemKanegoDiscount.Contains(detail.CategoryID) && nonRiceDetKanegoDiscount > 0)
                     {
