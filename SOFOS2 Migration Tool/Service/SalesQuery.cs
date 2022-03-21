@@ -165,7 +165,7 @@ namespace SOFOS2_Migration_Tool.Service
                 case SalesEnum.SalesPayment:
                     sQuery.Append(@"SELECT
                                     reference AS 'Reference',
-                                    idPaymentMethod AS 'PaymentCode',
+                                    CASE WHEN idPaymentMethod = 'GC' THEN 'Gift Check' ELSE idpaymentmethod END AS 'PaymentCode',
                                     amount AS 'Amount',
                                     checkNo as 'CheckNumber',
                                     bank AS 'BankCode',
