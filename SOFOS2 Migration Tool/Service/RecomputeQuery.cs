@@ -25,7 +25,7 @@ namespace SOFOS2_Migration_Tool.Service
                         UNION ALL
 
                         -- RC 
-                        select h.reference, d.itemcode, d.uomCode, d.conversion, d.quantity * d.conversion as 'quantity', d.cost, d.total * -1 as 'total','Sales' as 'TransactionType', h.transDate
+                        select h.reference, d.itemcode, d.uomCode, d.conversion, d.quantity * d.conversion as 'quantity', d.cost, d.total as 'total','Sales' as 'TransactionType', h.transDate
                         from sapr0 h 
                         INNER JOIN sapr1 d ON h.transNum = d.transNum
                         WHERE date(h.transDate) = @date
