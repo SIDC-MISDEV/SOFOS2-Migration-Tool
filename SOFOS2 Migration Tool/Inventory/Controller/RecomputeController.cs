@@ -186,7 +186,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                 //else
                                 //    tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
 
-                                if (process == Process.Sales)
+                                if (process == Process.Sales || process == Process.ReturnFromCustomer)
                                     tranRunVal = Math.Round((item.Cost * tran.Quantity) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
                                 else
                                     tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
@@ -201,6 +201,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             {
                                 case Process.Sales:
                                 case Process.Adjustment:
+                                case Process.ReturnFromCustomer:
 
                                     param = new Dictionary<string, object>()
                                     {
