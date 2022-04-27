@@ -61,7 +61,7 @@ namespace SOFOS2_Migration_Tool.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("sanmiguel")]
+        [global::System.Configuration.DefaultSettingValueAttribute("mahabang_parang")]
         public string SOURCE_DB {
             get {
                 return ((string)(this["SOURCE_DB"]));
@@ -73,7 +73,7 @@ namespace SOFOS2_Migration_Tool.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("sofos2_sm")]
+        [global::System.Configuration.DefaultSettingValueAttribute("sofos2_mpmar14")]
         public string DESTINATION_DB {
             get {
                 return ((string)(this["DESTINATION_DB"]));

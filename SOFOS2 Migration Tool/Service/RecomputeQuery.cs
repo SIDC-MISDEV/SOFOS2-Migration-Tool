@@ -25,7 +25,7 @@ namespace SOFOS2_Migration_Tool.Service
                         UNION ALL
 
                         -- RC 
-                        select h.reference, d.itemcode, d.uomCode, d.conversion, d.quantity * d.conversion * -1 as 'quantity', d.cost, d.total * -1 as 'total','Sales' as 'TransactionType', h.transDate
+                        select h.reference, d.itemcode, d.uomCode, d.conversion, IF(h.transType = 'CD',d.quantity * d.conversion * - 1, d.quantity * d.conversion) as 'quantity', d.cost, IF(h.transtype = 'CD', d.total * -1, d.total) as 'total','ReturnFromCustomer' as 'TransactionType', h.transDate
                         from sapr0 h 
                         INNER JOIN sapr1 d ON h.transNum = d.transNum
                         WHERE date(h.transDate) = @date
@@ -174,6 +174,19 @@ namespace SOFOS2_Migration_Tool.Service
                             AND d.itemcode = @itemCode AND uomCode = @uomCode; ");
 
                     break;
+
+                case Process.ReturnFromCustomer:
+
+                    sQuery.Append(@"UPDATE sapr0 h
+                            INNER JOIN sapr1 d ON h.transNum = d.transNum
+                            SET
+                                d.runningQty = @runningQuantity,
+                                d.runningValue = @runningValue,
+                                d.averageCost = @cost
+                            WHERE h.reference = @reference
+                            AND d.itemcode = @itemCode AND uomCode = @uomCode; ");
+                    break;
+
                 default:
                     break;
             }
@@ -200,6 +213,6 @@ namespace SOFOS2_Migration_Tool.Service
 
     public enum Process
     {
-        Sales, Adjustment, Issuance, ReturnGoods, Receiving, ReceiveFromVendor
+        Sales, Adjustment, Issuance, ReturnGoods, Receiving, ReceiveFromVendor, ReturnFromCustomer
     }
 }
