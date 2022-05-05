@@ -157,7 +157,6 @@ namespace SOFOS2_Migration_Tool.Service
                                     /*left(i.reference, 2) = @transType AND date(l.date) = @date*/
                                     LEFT(i.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','GO','RT','CP','SB','PI','CB','BT','CS','RT','CL','CG','VS')
                                     AND date(l.date) = @date
-                                    AND p.cost > 0
                                     GROUP BY i.reference, i.idstock, i.unit
                                     ORDER BY l.reference ASC;
                                     ");
