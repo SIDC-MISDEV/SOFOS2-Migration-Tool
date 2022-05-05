@@ -80,6 +80,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     INNER JOIN pcosting p ON i.idstock = p.idstock AND i.unit = p.unit
                                     WHERE
                                     LEFT(i.reference, 2) IN ('ST', 'AU', 'SO','SP','SF')
+                                    AND p.cost > 0
                                     AND date(l.date) = @date
                                     GROUP BY i.reference, i.idstock, i.unit,i.Cost
                                     ORDER BY l.reference ASC;

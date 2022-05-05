@@ -66,6 +66,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     WHERE
                                     LEFT(i.reference, 2) IN ('IA')
                                     AND date(l.date) = @date
+                                    AND p.cost > 0
                                     GROUP BY i.reference, i.idstock, i.unit,i.Cost
                                     ORDER BY l.reference ASC;
                                     ");
