@@ -170,6 +170,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                 errorItem.Add(new ItemProblem
                                 {
                                     ItemCode = item.ItemCode,
+                                    Reference = tran.Reference,
                                     CurrentRunningQuantity = item.RunningQuantity,
                                     CurrentRunningValue = item.RunningValue,
                                     TransactionRunningQuantity = tranRunQty,
@@ -283,38 +284,42 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         }
                         else
                         {
-                            itemsNotFound.Add(new ItemProblem
+                            var exist = itemsNotFound.Find(n => n.ItemCode.Contains($"{tran.ItemCode}-{tran.UomCode}"));
+
+                            if(exist == null)
                             {
-                                ItemCode = $"{tran.ItemCode}-{tran.UomCode}",
-                                CurrentRunningQuantity = item.RunningQuantity,
-                                CurrentRunningValue = item.RunningValue,
-                                TransactionRunningQuantity = tran.Quantity,
-                                TransactionValue = tran.TransactionValue
-                            });
+                                itemsNotFound.Add(new ItemProblem
+                                {
+                                    ItemCode = $"{tran.ItemCode}-{tran.UomCode}",
+                                    CurrentRunningQuantity = item.RunningQuantity,
+                                    CurrentRunningValue = item.RunningValue,
+                                    TransactionRunningQuantity = tran.Quantity,
+                                    TransactionValue = tran.TransactionValue
+                                });
+                            }
                         }
 
                     }
 
-                    if (errorItem.Count < 1)
+                    if (itemsNotFound.Count < 1)
                     {
-                        if (itemsNotFound.Count < 1)
+                        if (errorItem.Count < 1)
                             conn.CommitTransaction();
                         else
                         {
                             conn.RollbackTransaction();
-                            NoItemLogs(itemsNotFound);
+                            NegativeRunningQuantityItemLogs(errorItem);
 
-                            throw new Exception($@"Missing items detected. Please check error log file.");
+                            throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
                         }
                     }
                     else
                     {
                         conn.RollbackTransaction();
-                        NegativeRunningQuantityItemLogs(errorItem);
+                        NoItemLogs(itemsNotFound);
 
-                        throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
+                        throw new Exception($@"Missing items detected. Please check error log file.");
                     }
-
                 }
             }
             catch

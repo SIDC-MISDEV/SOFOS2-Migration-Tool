@@ -35,6 +35,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Model
     public class ItemProblem
     {
         public string ItemCode { get; set; }
+        public string Reference { get; set; }
         public decimal CurrentRunningQuantity { get; set; }
         public decimal CurrentRunningValue { get; set; }
         public decimal TransactionRunningQuantity { get; set; }
