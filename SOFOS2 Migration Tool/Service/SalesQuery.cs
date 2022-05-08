@@ -21,7 +21,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     left(l.reference,2) AS 'TransType',
                                     l.reference AS 'Reference',
                                     l.crossreference AS 'Crossreference',
-                                    0 AS 'NoEffectOnInventory',
+                                    CASE WHEN LEFT(l.reference, 2) =  'GO' OR LEFT(l.reference, 2) =  'VS' OR LEFT(l.reference, 2) =  'RO' THEN 1 ELSE 0 END AS 'NoEffectOnInventory',
                                     CASE WHEN f.type = 'NON-MEMBER' AND left(l.reference, 2) NOT IN ('CO','CT') THEN 'Non-Member'
 									     WHEN (f.type = 'MEMBER' OR f.type = 'AMEMBER') AND left(l.reference, 2) NOT IN ('CO','CT') THEN 'Member'
 										 ELSE 'Employee' END as CustomerType,
@@ -84,10 +84,8 @@ namespace SOFOS2_Migration_Tool.Service
                                         END
                                     ) AS 'VatAmount',
                                     /* end of VatAmount*/
-                                    
                                     DATE_FORMAT(l.timeStamp, '%Y-%m-%d %H:%i:%s') AS 'SystemDate',
-                                    null AS 'ColaReference',
-                                    CASE WHEN LEFT(l.reference, 2) IN ('GO', 'VS', 'RO')
+                                    null AS 'ColaReference'
                                     FROM ledger l
                                     INNER JOIN invoice i ON l.reference = i.reference
                                     INNER JOIN stocks s ON i.idstock = s.idstock
