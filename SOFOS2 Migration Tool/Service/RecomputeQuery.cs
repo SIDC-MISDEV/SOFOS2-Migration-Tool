@@ -16,7 +16,7 @@ namespace SOFOS2_Migration_Tool.Service
                         FROM
                         (
                         -- POS 
-                        select h.reference, d.itemcode, d.uomCode, d.conversion, IF(h.transtype = 'CD',d.quantity * d.conversion,  d.quantity * d.conversion * -1) as 'quantity', d.cost, IF(h.transtype = 'CD',d.total,  d.total * -1) as 'total', 'Sales' as 'TransactionType', h.transDate
+                        select h.reference, d.itemcode, d.uomCode, d.conversion, IF(h.transtype = 'CD',d.quantity * d.conversion,  d.quantity * d.conversion * -1) as 'quantity', d.cost, IF(h.transtype = 'CD',d.total,  d.total * -1) as 'total', 'Sales' as 'TransactionType', h.transDate, h.AllowNoEffectInventory
                         from sapt0 h 
                         INNER JOIN sapt1 d ON h.transNum = d.transNum
                         WHERE date(h.transDate) = @date
@@ -25,7 +25,7 @@ namespace SOFOS2_Migration_Tool.Service
                         UNION ALL
 
                         -- RC 
-                        select h.reference, d.itemcode, d.uomCode, d.conversion, IF(h.transType = 'CD',d.quantity * d.conversion * - 1, d.quantity * d.conversion) as 'quantity', d.cost, IF(h.transtype = 'CD', d.total * -1, d.total) as 'total','ReturnFromCustomer' as 'TransactionType', h.transDate
+                        select h.reference, d.itemcode, d.uomCode, d.conversion, IF(h.transType = 'CD',d.quantity * d.conversion * - 1, d.quantity * d.conversion) as 'quantity', d.cost, IF(h.transtype = 'CD', d.total * -1, d.total) as 'total','ReturnFromCustomer' as 'TransactionType', h.transDate, 0 as `AllowNoEffectInventory`
                         from sapr0 h 
                         INNER JOIN sapr1 d ON h.transNum = d.transNum
                         WHERE date(h.transDate) = @date
@@ -34,7 +34,7 @@ namespace SOFOS2_Migration_Tool.Service
                         UNION ALL
 
                         -- IA 
-                        select h.reference, d.itemcode, d.uomCode, u.conversion, (d.variance * u.conversion) as 'quantity', d.price, d.total,'Adjustment' as 'TransactionType', h.transDate
+                        select h.reference, d.itemcode, d.uomCode, u.conversion, (d.variance * u.conversion) as 'quantity', d.price, d.total,'Adjustment' as 'TransactionType', h.transDate, 0 as `AllowNoEffectInventory`
                         from iia00 h 
                         INNER JOIN iia10 d ON h.transNum = d.transNum
                         INNER JOIN iiuom u ON d.itemcode = u.itemcode AND d.uomCode = u.uomCode
@@ -44,7 +44,7 @@ namespace SOFOS2_Migration_Tool.Service
                         UNION ALL
 
                         -- ISSUANCE 
-                        select h.reference, d.itemcode, d.uomCode, d.conversion, d.quantity * d.conversion * -1 as 'quantity', d.price as 'cost', d.total * -1 as 'total','Issuance' as 'TransactionType', h.transDate
+                        select h.reference, d.itemcode, d.uomCode, d.conversion, d.quantity * d.conversion * -1 as 'quantity', d.price as 'cost', d.total * -1 as 'total','Issuance' as 'TransactionType', h.transDate, 0 as `AllowNoEffectInventory`
                         from iii00 h 
                         INNER JOIN iii10 d ON h.transNum = d.transNum
                         WHERE date(h.transDate) = @date
@@ -53,7 +53,7 @@ namespace SOFOS2_Migration_Tool.Service
                         UNION ALL
 
                         -- RG 
-                        select h.reference, d.itemcode, d.uomCode, d.conversion, IF(h.transtype = 'CD',d.quantity * d.conversion,  d.quantity * d.conversion * -1) as 'quantity', d.price as 'cost', IF(h.transtype = 'CD',d.total,  d.total * -1) as 'total','ReturnGoods' as 'TransactionType', h.transDate
+                        select h.reference, d.itemcode, d.uomCode, d.conversion, IF(h.transtype = 'CD',d.quantity * d.conversion,  d.quantity * d.conversion * -1) as 'quantity', d.price as 'cost', IF(h.transtype = 'CD',d.total,  d.total * -1) as 'total','ReturnGoods' as 'TransactionType', h.transDate, 0 as `AllowNoEffectInventory`
                         from prg00 h 
                         INNER JOIN prg10 d ON h.transNum = d.transNum
                         WHERE date(h.transDate) = @date
@@ -62,7 +62,7 @@ namespace SOFOS2_Migration_Tool.Service
                         UNION ALL
 
                         -- RR 
-                        select h.reference, d.itemcode, d.uomCode, d.conversion, d.quantity * d.conversion, d.price as 'cost', d.total,'Receiving' as 'TransactionType', h.transDate
+                        select h.reference, d.itemcode, d.uomCode, d.conversion, d.quantity * d.conversion, d.price as 'cost', d.total,'Receiving' as 'TransactionType', h.transDate, 0 as `AllowNoEffectInventory`
                         from iir00 h 
                         INNER JOIN iir10 d ON h.transNum = d.transNum
                         WHERE date(h.transDate) = @date
@@ -72,7 +72,7 @@ namespace SOFOS2_Migration_Tool.Service
                         UNION ALL
 
                         -- RV
-                        select h.reference, d.itemcode, d.uomCode, d.conversion, d.quantity * d.conversion, d.price as 'cost', d.total,'ReceiveFromVendor' as 'TransactionType', h.transDate
+                        select h.reference, d.itemcode, d.uomCode, d.conversion, d.quantity * d.conversion, d.price as 'cost', d.total,'ReceiveFromVendor' as 'TransactionType', h.transDate, 0 as `AllowNoEffectInventory`
                         from prv00 h 
                         INNER JOIN prv10 d ON h.transNum = d.transNum
                         WHERE date(h.transDate) = @date

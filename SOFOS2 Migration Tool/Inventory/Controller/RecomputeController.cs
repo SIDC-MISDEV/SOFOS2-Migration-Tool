@@ -38,7 +38,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                 Quantity = Convert.ToDecimal(dr["Quantity"]),
                                 TransactionValue = Convert.ToDecimal(dr["Total"]),
                                 TransactionType = dr["transactiontype"].ToString(),
-                                TransDate = dr["transdate"].ToString()
+                                TransDate = dr["transdate"].ToString(),
+                                AllowNoEffectInventory = Convert.ToBoolean(dr["AllowNoEffectInventory"])
                             });
                         }
                     }
@@ -147,7 +148,6 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         tranRunQty = 0;
                         tranRunVal = 0;
 
-
                         if (!string.IsNullOrEmpty(item.ItemCode) && uomExists)
                         {
 
@@ -250,18 +250,20 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                             #region Update running quantity and running value of master data
 
-
-                            itemParam = new Dictionary<string, object>()
+                            if (!tran.AllowNoEffectInventory)
+                            {
+                                itemParam = new Dictionary<string, object>()
                                 {
                                      { "@itemCode", tran.ItemCode },
                                      { "@runningQuantity", tranRunQty },
                                      { "@runningValue", tranRunVal }
                                 };
 
-                            //update running quantity and value of master data
-                            conn.ArgSQLCommand = RecomputeQuery.UpdateItemRunningQuantityValue();
-                            conn.ArgSQLParam = itemParam;
-                            conn.ExecuteMySQL();
+                                //update running quantity and value of master data
+                                conn.ArgSQLCommand = RecomputeQuery.UpdateItemRunningQuantityValue();
+                                conn.ArgSQLParam = itemParam;
+                                conn.ExecuteMySQL();
+                            }
 
                             #endregion
 
@@ -291,6 +293,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                 itemsNotFound.Add(new ItemProblem
                                 {
                                     ItemCode = $"{tran.ItemCode}-{tran.UomCode}",
+                                    Reference = tran.Reference,
                                     CurrentRunningQuantity = item.RunningQuantity,
                                     CurrentRunningValue = item.RunningValue,
                                     TransactionRunningQuantity = tran.Quantity,

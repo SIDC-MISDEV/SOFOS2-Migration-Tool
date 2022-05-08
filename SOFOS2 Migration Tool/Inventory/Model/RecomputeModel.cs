@@ -30,6 +30,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Model
         public decimal TransactionValue { get; set; }
         public string TransactionType { get; set; }
         public string TransDate { get; set; }
+        public bool AllowNoEffectInventory { get; set; }
     }
 
     public class ItemProblem
