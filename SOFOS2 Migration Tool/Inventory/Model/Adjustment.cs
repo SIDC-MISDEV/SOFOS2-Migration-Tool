@@ -54,5 +54,6 @@ namespace SOFOS2_Migration_Tool.Inventory.Model
         public decimal Price { get; set; }
         public string UomCode { get; set; }
         public decimal RunningValue { get; set; }
+        public decimal Conversion { get; set; }
     }
 }

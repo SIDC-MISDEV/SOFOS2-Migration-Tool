@@ -105,6 +105,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                 SystemDate = dr["SystemDate"].ToString(),
                                 IdUser = dr["IdUser"].ToString(),
                                 RunningValue = Convert.ToDecimal(dr["RunningValue"]),
+                                Conversion = Convert.ToDecimal(dr["conversion"])
                             });
                         }
                     }
@@ -210,7 +211,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                     {"@systemDate", detail.SystemDate },
                                     {"@idUser", detail.IdUser },
                                     {"@runningValue", detail.RunningValue },
-                                    {"@transDate", detail.TransDate }
+                                    {"@transDate", detail.TransDate },
+                                    {"@conversion", detail.Conversion }
                                 };
                 conn.ArgSQLCommand = AdjustmentQuery.InsertAdjustmentQuery(AdjustmentEnum.AdjustmentDetail);
                 conn.ArgSQLParam = detailParam;

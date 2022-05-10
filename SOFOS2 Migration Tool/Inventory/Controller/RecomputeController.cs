@@ -150,15 +150,21 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                         if (!string.IsNullOrEmpty(item.ItemCode) && uomExists)
                         {
-
-
                             Process process;
 
                             Enum.TryParse(tran.TransactionType, out process);
 
+                            if(tran.Reference.Substring(0, 2) == "IA")
+                            {
+
+                            }
+
 
                             //tranRunQty = Math.Round((tran.Quantity * tran.Conversion) + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
-                            tranRunQty = Math.Round(tran.Quantity + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
+                            if (!tran.AllowNoEffectInventory)
+                                tranRunQty = Math.Round(tran.Quantity + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
+                            else
+                                tranRunQty = item.RunningQuantity;
 
                             if (tranRunQty == 0)
                             {
@@ -181,16 +187,15 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             }
                             else
                             {
-
-                                //if(process == Process.Sales)
-                                //    tranRunVal = Math.Round((item.Cost * (tran.Quantity * tran.Conversion)) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
-                                //else
-                                //    tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
-
-                                if (process == Process.Sales || process == Process.ReturnFromCustomer)
-                                    tranRunVal = Math.Round((item.Cost * tran.Quantity) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+                                if (!tran.AllowNoEffectInventory)
+                                {
+                                    if (process == Process.Sales || process == Process.ReturnFromCustomer)
+                                        tranRunVal = Math.Round((item.Cost * tran.Quantity) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+                                    else
+                                        tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+                                }
                                 else
-                                    tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+                                    tranRunVal = item.RunningValue;
 
 
                                 averageCost = Math.Round(tranRunVal / tranRunQty, 2, MidpointRounding.AwayFromZero);
