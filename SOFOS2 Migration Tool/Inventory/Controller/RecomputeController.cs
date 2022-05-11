@@ -154,17 +154,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                             Enum.TryParse(tran.TransactionType, out process);
 
-                            if(tran.Reference.Substring(0, 2) == "IA")
-                            {
-
-                            }
-
-
                             //tranRunQty = Math.Round((tran.Quantity * tran.Conversion) + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
-                            if (!tran.AllowNoEffectInventory)
-                                tranRunQty = Math.Round(tran.Quantity + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
-                            else
-                                tranRunQty = item.RunningQuantity;
+                            tranRunQty = Math.Round(tran.Quantity + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
 
                             if (tranRunQty == 0)
                             {
@@ -187,15 +178,10 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             }
                             else
                             {
-                                if (!tran.AllowNoEffectInventory)
-                                {
-                                    if (process == Process.Sales || process == Process.ReturnFromCustomer)
-                                        tranRunVal = Math.Round((item.Cost * tran.Quantity) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
-                                    else
-                                        tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
-                                }
+                                if (process == Process.Sales || process == Process.ReturnFromCustomer)
+                                    tranRunVal = Math.Round((item.Cost * tran.Quantity) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
                                 else
-                                    tranRunVal = item.RunningValue;
+                                    tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
 
 
                                 averageCost = Math.Round(tranRunVal / tranRunQty, 2, MidpointRounding.AwayFromZero);
@@ -255,20 +241,17 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                             #region Update running quantity and running value of master data
 
-                            if (!tran.AllowNoEffectInventory)
-                            {
-                                itemParam = new Dictionary<string, object>()
+                            itemParam = new Dictionary<string, object>()
                                 {
                                      { "@itemCode", tran.ItemCode },
                                      { "@runningQuantity", tranRunQty },
                                      { "@runningValue", tranRunVal }
                                 };
 
-                                //update running quantity and value of master data
-                                conn.ArgSQLCommand = RecomputeQuery.UpdateItemRunningQuantityValue();
-                                conn.ArgSQLParam = itemParam;
-                                conn.ExecuteMySQL();
-                            }
+                            //update running quantity and value of master data
+                            conn.ArgSQLCommand = RecomputeQuery.UpdateItemRunningQuantityValue();
+                            conn.ArgSQLParam = itemParam;
+                            conn.ExecuteMySQL();
 
                             #endregion
 
