@@ -182,7 +182,8 @@ namespace SOFOS2_Migration_Tool.Service
                             SET
                                 d.runningQty = @runningQuantity,
                                 d.runningValue = @runningValue,
-                                d.averageCost = @cost
+                                d.averageCost = @cost,
+                                d.cost = @cost
                             WHERE h.reference = @reference
                             AND d.itemcode = @itemCode AND uomCode = @uomCode; ");
                     break;
