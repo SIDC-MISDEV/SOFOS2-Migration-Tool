@@ -34,8 +34,8 @@ namespace SOFOS2_Migration_Tool.Service
                                     l.idaccount AS 'AccountCode',
                                     c.account AS 'AccountName',
                                     l.PaidToDate AS 'PaidToDate',
-                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'SB', 'CG','VS', 'GO', 'PI', 'RO'), l.debit - l.discount - l.kanegodiscount, l.credit - l.discount - l.kanegodiscount) AS 'Total',
-                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'SB', 'CG','VS', 'GO', 'PI', 'RO'), l.debit, l.credit) as 'GrossTotal',
+                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'SB', 'CG', 'PI', 'EC', 'CE'), l.debit - l.discount - l.kanegodiscount, l.credit - l.discount - l.kanegodiscount) AS 'Total',
+                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'SB', 'CG', 'PI', 'EC', 'CE'), l.debit, l.credit) as 'GrossTotal',
                                     SUM(i.selling * i.quantity) AS 'TotalBasedOnDetails',
                                     l.amountReceived AS 'AmountTendered',
                                     0 AS 'InterestPaid',
@@ -91,7 +91,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     INNER JOIN stocks s ON i.idstock = s.idstock
                                     LEFT JOIN files f ON l.idfile = f.idfile
                                     LEFT JOIN coa c ON l.idaccount = c.idaccount
-                                    where LEFT(l.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG')
+                                    where LEFT(l.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE')
                                     AND date(l.date) = @date
                                     GROUP BY l.reference
                                     ORDER BY l.date ASC;
@@ -154,7 +154,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     INNER JOIN pcosting p ON i.idstock = p.idstock AND i.unit = p.unit
                                     WHERE
                                     /*left(i.reference, 2) = @transType AND date(l.date) = @date*/
-                                    LEFT(i.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG')
+                                    LEFT(i.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE')
                                     AND date(l.date) = @date
                                     GROUP BY i.reference, i.idstock, i.unit
                                     ORDER BY l.reference ASC;
@@ -178,7 +178,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     extracted AS 'Extracted',
                                     0 AS 'OrDetailNum'
                                      FROM transactionpayments
-                                    WHERE LEFT(reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG') AND date(date) = @date;
+                                    WHERE LEFT(reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE') AND date(date) = @date;
                                      ");
                     break;
                 default:
