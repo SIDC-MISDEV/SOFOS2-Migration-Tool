@@ -85,7 +85,9 @@ namespace SOFOS2_Migration_Tool.Service
                                     ) AS 'VatAmount',
                                     /* end of VatAmount*/
                                     DATE_FORMAT(l.timeStamp, '%Y-%m-%d %H:%i:%s') AS 'SystemDate',
-                                    null AS 'ColaReference'
+                                    null AS 'ColaReference',
+                                    l.sow,
+                                    LPAD(parity, 5, '0') as parity
                                     FROM ledger l
                                     INNER JOIN invoice i ON l.reference = i.reference
                                     INNER JOIN stocks s ON i.idstock = s.idstock
@@ -195,8 +197,8 @@ namespace SOFOS2_Migration_Tool.Service
             switch (process)
             {
                 case SalesEnum.SalesHeader:
-                    sQuery.Append(@"INSERT INTO SAPT0 (transNum, transDate, transType, reference, crossreference, NoEffectOnInventory, customerType, memberId, memberName, employeeID, employeeName, youngCoopID, youngCoopName, accountCode, accountName, paidToDate, Total, amountTendered, interestPaid, interestBalance, cancelled, status, extracted, colaReference, segmentCode, businessSegment, branchCode, signatory, remarks, systemDate, idUser, lrBatch, lrType, srDiscount, feedsDiscount, vat, vatExemptSales, vatAmount, warehouseCode, lrReference, kanegoDiscount, grossTotal, series, lastpaymentdate, allowNoEffectInventory, printed, TerminalNo, AccountNo) 
-                            VALUES (@transNum, @transDate, @transType, @reference, @crossreference, @NoEffectOnInventory, @customerType, @memberId, @memberName, @employeeID, @employeeName, @youngCoopID, @youngCoopName, @accountCode, @accountName, @paidToDate, @Total, @amountTendered, @interestPaid, @interestBalance, @cancelled, @status, @extracted, @colaReference, @segmentCode, @businessSegment, @branchCode, @signatory, @remarks, @systemDate, @idUser, @lrBatch, @lrType, @srDiscount, @feedsDiscount, @vat, @vatExemptSales, @vatAmount, @warehouseCode, @lrReference, @kanegoDiscount, @grossTotal, @series, @lastpaymentdate, @allowNoEffectInventory, @printed, @TerminalNo, @AccountNo)");
+                    sQuery.Append(@"INSERT INTO SAPT0 (transNum, transDate, transType, reference, crossreference, NoEffectOnInventory, customerType, memberId, memberName, employeeID, employeeName, youngCoopID, youngCoopName, accountCode, accountName, paidToDate, Total, amountTendered, interestPaid, interestBalance, cancelled, status, extracted, colaReference, segmentCode, businessSegment, branchCode, signatory, remarks, systemDate, idUser, lrBatch, lrType, srDiscount, feedsDiscount, vat, vatExemptSales, vatAmount, warehouseCode, lrReference, kanegoDiscount, grossTotal, series, lastpaymentdate, allowNoEffectInventory, printed, TerminalNo, AccountNo, sow, parity) 
+                            VALUES (@transNum, @transDate, @transType, @reference, @crossreference, @NoEffectOnInventory, @customerType, @memberId, @memberName, @employeeID, @employeeName, @youngCoopID, @youngCoopName, @accountCode, @accountName, @paidToDate, @Total, @amountTendered, @interestPaid, @interestBalance, @cancelled, @status, @extracted, @colaReference, @segmentCode, @businessSegment, @branchCode, @signatory, @remarks, @systemDate, @idUser, @lrBatch, @lrType, @srDiscount, @feedsDiscount, @vat, @vatExemptSales, @vatAmount, @warehouseCode, @lrReference, @kanegoDiscount, @grossTotal, @series, @lastpaymentdate, @allowNoEffectInventory, @printed, @TerminalNo, @AccountNo, @sow, @parity)");
 
                     break;
                 case SalesEnum.SalesDetail:
