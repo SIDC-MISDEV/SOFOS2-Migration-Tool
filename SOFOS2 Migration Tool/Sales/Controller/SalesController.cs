@@ -163,8 +163,9 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                                 SegmentCode = Global.MainSegment,
                                 BusinessSegment = Global.BusinessSegment,
                                 BranchCode = Global.BranchCode,
-                                KanegoDiscount = Convert.ToDecimal(dr["kanegodiscount"])
-
+                                KanegoDiscount = Convert.ToDecimal(dr["kanegodiscount"]),
+                                Sow = dr["sow"].ToString(),
+                                Parity = dr["parity"].ToString()
                             });
                         }
                     }
@@ -626,8 +627,9 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             { "@allowNoEffectInventory", false }, // for check
                             { "@printed", "0" }, // for check
                             { "@TerminalNo", "TerminalNo" }, // for check
-                            { "@AccountNo", null } // for check
-
+                            { "@AccountNo", null }, // for check
+                            { "@sow", item.Sow },
+                            { "@parity", item.Parity }
                         };
 
             conn.ArgSQLCommand = SalesQuery.InsertSalesQuery(SalesEnum.SalesHeader);

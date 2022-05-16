@@ -61,19 +61,7 @@ namespace SOFOS2_Migration_Tool.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("mahabang_parang")]
-        public string SOURCE_DB {
-            get {
-                return ((string)(this["SOURCE_DB"]));
-            }
-            set {
-                this["SOURCE_DB"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("sofos2_mpmar14")]
+        [global::System.Configuration.DefaultSettingValueAttribute("sofos2_main")]
         public string DESTINATION_DB {
             get {
                 return ((string)(this["DESTINATION_DB"]));
@@ -97,13 +85,25 @@ namespace SOFOS2_Migration_Tool.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("SIDC-1-2-1-6")]
+        [global::System.Configuration.DefaultSettingValueAttribute("SIDC-1-2-1-3")]
         public string BRANCH_CODE {
             get {
                 return ((string)(this["BRANCH_CODE"]));
             }
             set {
                 this["BRANCH_CODE"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("main_office")]
+        public string SOURCE_DB {
+            get {
+                return ((string)(this["SOURCE_DB"]));
+            }
+            set {
+                this["SOURCE_DB"] = value;
             }
         }
     }

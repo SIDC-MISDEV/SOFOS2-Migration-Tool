@@ -38,7 +38,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                 Quantity = Convert.ToDecimal(dr["Quantity"]),
                                 TransactionValue = Convert.ToDecimal(dr["Total"]),
                                 TransactionType = dr["transactiontype"].ToString(),
-                                TransDate = dr["transdate"].ToString()
+                                TransDate = dr["transdate"].ToString(),
+                                AllowNoEffectInventory = Convert.ToBoolean(dr["AllowNoEffectInventory"])
                             });
                         }
                     }
@@ -147,15 +148,11 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         tranRunQty = 0;
                         tranRunVal = 0;
 
-
                         if (!string.IsNullOrEmpty(item.ItemCode) && uomExists)
                         {
-
-
                             Process process;
 
                             Enum.TryParse(tran.TransactionType, out process);
-
 
                             //tranRunQty = Math.Round((tran.Quantity * tran.Conversion) + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
                             tranRunQty = Math.Round(tran.Quantity + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
@@ -170,6 +167,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                 errorItem.Add(new ItemProblem
                                 {
                                     ItemCode = item.ItemCode,
+                                    Reference = tran.Reference,
                                     CurrentRunningQuantity = item.RunningQuantity,
                                     CurrentRunningValue = item.RunningValue,
                                     TransactionRunningQuantity = tranRunQty,
@@ -180,12 +178,6 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             }
                             else
                             {
-
-                                //if(process == Process.Sales)
-                                //    tranRunVal = Math.Round((item.Cost * (tran.Quantity * tran.Conversion)) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
-                                //else
-                                //    tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
-
                                 if (process == Process.Sales || process == Process.ReturnFromCustomer)
                                     tranRunVal = Math.Round((item.Cost * tran.Quantity) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
                                 else
@@ -249,7 +241,6 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                             #region Update running quantity and running value of master data
 
-
                             itemParam = new Dictionary<string, object>()
                                 {
                                      { "@itemCode", tran.ItemCode },
@@ -283,38 +274,43 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         }
                         else
                         {
-                            itemsNotFound.Add(new ItemProblem
+                            var exist = itemsNotFound.Find(n => n.ItemCode.Contains($"{tran.ItemCode}-{tran.UomCode}"));
+
+                            if(exist == null)
                             {
-                                ItemCode = $"{tran.ItemCode}-{tran.UomCode}",
-                                CurrentRunningQuantity = item.RunningQuantity,
-                                CurrentRunningValue = item.RunningValue,
-                                TransactionRunningQuantity = tran.Quantity,
-                                TransactionValue = tran.TransactionValue
-                            });
+                                itemsNotFound.Add(new ItemProblem
+                                {
+                                    ItemCode = $"{tran.ItemCode}-{tran.UomCode}",
+                                    Reference = tran.Reference,
+                                    CurrentRunningQuantity = item.RunningQuantity,
+                                    CurrentRunningValue = item.RunningValue,
+                                    TransactionRunningQuantity = tran.Quantity,
+                                    TransactionValue = tran.TransactionValue
+                                });
+                            }
                         }
 
                     }
 
-                    if (errorItem.Count < 1)
+                    if (itemsNotFound.Count < 1)
                     {
-                        if (itemsNotFound.Count < 1)
+                        if (errorItem.Count < 1)
                             conn.CommitTransaction();
                         else
                         {
                             conn.RollbackTransaction();
-                            NoItemLogs(itemsNotFound);
+                            NegativeRunningQuantityItemLogs(errorItem);
 
-                            throw new Exception($@"Missing items detected. Please check error log file.");
+                            throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
                         }
                     }
                     else
                     {
                         conn.RollbackTransaction();
-                        NegativeRunningQuantityItemLogs(errorItem);
+                        NoItemLogs(itemsNotFound);
 
-                        throw new Exception($@"Negative running quantity of items detected. Please check error log file.");
+                        throw new Exception($@"Missing items detected. Please check error log file.");
                     }
-
                 }
             }
             catch

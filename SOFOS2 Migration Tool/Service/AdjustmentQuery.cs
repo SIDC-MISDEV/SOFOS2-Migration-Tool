@@ -58,7 +58,8 @@ namespace SOFOS2_Migration_Tool.Service
                                     i.idUser AS 'IdUser',
                                     DATE_FORMAT(i.date, '%Y-%m-%d %H:%i:%s') AS 'SystemDate',
                                     0 AS 'RunningValue',
-                                    '' AS 'Category'
+                                    '' AS 'Category',
+                                    i.unitQuantity as Conversion
                                     FROM invoice i
                                     INNER JOIN ledger l ON i.reference = l.reference
                                     INNER JOIN stocks s ON i.idstock = s.idstock
@@ -90,8 +91,8 @@ namespace SOFOS2_Migration_Tool.Service
 
                     break;
                 case AdjustmentEnum.AdjustmentDetail:
-                    sQuery.Append(@"INSERT INTO IIA10 (transNum, itemCode, itemDescription, category, runningQuantity, actualCount, variance, systemDate, transDate, idUser, price, uomCode, total, runningValue) 
-                            VALUES (@transNum, @itemCode, @itemDescription, @category, @runningQuantity, @actualCount, @variance, @systemDate, @transDate, @idUser, @price, @uomCode, @total, @runningValue)");
+                    sQuery.Append(@"INSERT INTO IIA10 (transNum, itemCode, itemDescription, category, runningQuantity, actualCount, variance, systemDate, transDate, idUser, price, uomCode, total, runningValue, conversion) 
+                            VALUES (@transNum, @itemCode, @itemDescription, @category, @runningQuantity, @actualCount, @variance, @systemDate, @transDate, @idUser, @price, @uomCode, @total, @runningValue, @conversion)");
 
                     break;
 

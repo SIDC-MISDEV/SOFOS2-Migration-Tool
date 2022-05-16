@@ -21,7 +21,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     left(l.reference,2) AS 'TransType',
                                     l.reference AS 'Reference',
                                     l.crossreference AS 'Crossreference',
-                                    0 AS 'NoEffectOnInventory',
+                                    CASE WHEN LEFT(l.reference, 2) =  'GO' OR LEFT(l.reference, 2) =  'VS' OR LEFT(l.reference, 2) =  'RO' THEN 1 ELSE 0 END AS 'NoEffectOnInventory',
                                     CASE WHEN f.type = 'NON-MEMBER' AND left(l.reference, 2) NOT IN ('CO','CT') THEN 'Non-Member'
 									     WHEN (f.type = 'MEMBER' OR f.type = 'AMEMBER') AND left(l.reference, 2) NOT IN ('CO','CT') THEN 'Member'
 										 ELSE 'Employee' END as CustomerType,
@@ -34,8 +34,8 @@ namespace SOFOS2_Migration_Tool.Service
                                     l.idaccount AS 'AccountCode',
                                     c.account AS 'AccountName',
                                     l.PaidToDate AS 'PaidToDate',
-                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT'), l.debit - l.discount - l.kanegodiscount, l.credit - l.discount - l.kanegodiscount) AS 'Total',
-                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT'), l.debit, l.credit) as 'GrossTotal',
+                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'SB', 'CG', 'PI', 'EC', 'CE'), l.debit - l.discount - l.kanegodiscount, l.credit - l.discount - l.kanegodiscount) AS 'Total',
+                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'SB', 'CG', 'PI', 'EC', 'CE'), l.debit, l.credit) as 'GrossTotal',
                                     SUM(i.selling * i.quantity) AS 'TotalBasedOnDetails',
                                     l.amountReceived AS 'AmountTendered',
                                     0 AS 'InterestPaid',
@@ -84,15 +84,16 @@ namespace SOFOS2_Migration_Tool.Service
                                         END
                                     ) AS 'VatAmount',
                                     /* end of VatAmount*/
-                                    
                                     DATE_FORMAT(l.timeStamp, '%Y-%m-%d %H:%i:%s') AS 'SystemDate',
-                                    null AS 'ColaReference'
+                                    null AS 'ColaReference',
+                                    l.sow,
+                                    LPAD(parity, 5, '0') as parity
                                     FROM ledger l
                                     INNER JOIN invoice i ON l.reference = i.reference
                                     INNER JOIN stocks s ON i.idstock = s.idstock
                                     LEFT JOIN files f ON l.idfile = f.idfile
                                     LEFT JOIN coa c ON l.idaccount = c.idaccount
-                                    where LEFT(l.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','GO','RT','CP','SB','PI','CB','BT','CS','RT','CL')
+                                    where LEFT(l.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE')
                                     AND date(l.date) = @date
                                     GROUP BY l.reference
                                     ORDER BY l.date ASC;
@@ -155,7 +156,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     INNER JOIN pcosting p ON i.idstock = p.idstock AND i.unit = p.unit
                                     WHERE
                                     /*left(i.reference, 2) = @transType AND date(l.date) = @date*/
-                                    LEFT(i.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','GO','RT','CP','SB','PI','CB','BT','CS','RT','CL')
+                                    LEFT(i.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE')
                                     AND date(l.date) = @date
                                     GROUP BY i.reference, i.idstock, i.unit
                                     ORDER BY l.reference ASC;
@@ -179,7 +180,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     extracted AS 'Extracted',
                                     0 AS 'OrDetailNum'
                                      FROM transactionpayments
-                                    WHERE LEFT(reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','GO','RT','CP','SB','PI','CB','BT','CS','RT','CL') AND date(date) = @date;
+                                    WHERE LEFT(reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE') AND date(date) = @date;
                                      ");
                     break;
                 default:
@@ -196,8 +197,8 @@ namespace SOFOS2_Migration_Tool.Service
             switch (process)
             {
                 case SalesEnum.SalesHeader:
-                    sQuery.Append(@"INSERT INTO SAPT0 (transNum, transDate, transType, reference, crossreference, NoEffectOnInventory, customerType, memberId, memberName, employeeID, employeeName, youngCoopID, youngCoopName, accountCode, accountName, paidToDate, Total, amountTendered, interestPaid, interestBalance, cancelled, status, extracted, colaReference, segmentCode, businessSegment, branchCode, signatory, remarks, systemDate, idUser, lrBatch, lrType, srDiscount, feedsDiscount, vat, vatExemptSales, vatAmount, warehouseCode, lrReference, kanegoDiscount, grossTotal, series, lastpaymentdate, allowNoEffectInventory, printed, TerminalNo, AccountNo) 
-                            VALUES (@transNum, @transDate, @transType, @reference, @crossreference, @NoEffectOnInventory, @customerType, @memberId, @memberName, @employeeID, @employeeName, @youngCoopID, @youngCoopName, @accountCode, @accountName, @paidToDate, @Total, @amountTendered, @interestPaid, @interestBalance, @cancelled, @status, @extracted, @colaReference, @segmentCode, @businessSegment, @branchCode, @signatory, @remarks, @systemDate, @idUser, @lrBatch, @lrType, @srDiscount, @feedsDiscount, @vat, @vatExemptSales, @vatAmount, @warehouseCode, @lrReference, @kanegoDiscount, @grossTotal, @series, @lastpaymentdate, @allowNoEffectInventory, @printed, @TerminalNo, @AccountNo)");
+                    sQuery.Append(@"INSERT INTO SAPT0 (transNum, transDate, transType, reference, crossreference, NoEffectOnInventory, customerType, memberId, memberName, employeeID, employeeName, youngCoopID, youngCoopName, accountCode, accountName, paidToDate, Total, amountTendered, interestPaid, interestBalance, cancelled, status, extracted, colaReference, segmentCode, businessSegment, branchCode, signatory, remarks, systemDate, idUser, lrBatch, lrType, srDiscount, feedsDiscount, vat, vatExemptSales, vatAmount, warehouseCode, lrReference, kanegoDiscount, grossTotal, series, lastpaymentdate, allowNoEffectInventory, printed, TerminalNo, AccountNo, sow, parity) 
+                            VALUES (@transNum, @transDate, @transType, @reference, @crossreference, @NoEffectOnInventory, @customerType, @memberId, @memberName, @employeeID, @employeeName, @youngCoopID, @youngCoopName, @accountCode, @accountName, @paidToDate, @Total, @amountTendered, @interestPaid, @interestBalance, @cancelled, @status, @extracted, @colaReference, @segmentCode, @businessSegment, @branchCode, @signatory, @remarks, @systemDate, @idUser, @lrBatch, @lrType, @srDiscount, @feedsDiscount, @vat, @vatExemptSales, @vatAmount, @warehouseCode, @lrReference, @kanegoDiscount, @grossTotal, @series, @lastpaymentdate, @allowNoEffectInventory, @printed, @TerminalNo, @AccountNo, @sow, @parity)");
 
                     break;
                 case SalesEnum.SalesDetail:
