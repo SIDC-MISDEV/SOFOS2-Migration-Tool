@@ -155,7 +155,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             Enum.TryParse(tran.TransactionType, out process);
 
                             //tranRunQty = Math.Round((tran.Quantity * tran.Conversion) + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
-                            tranRunQty = Math.Round(tran.Quantity + item.RunningQuantity, 2, MidpointRounding.AwayFromZero);
+                            tranRunQty = Math.Round(tran.Quantity + item.RunningQuantity, 3, MidpointRounding.AwayFromZero);
 
                             if (tranRunQty == 0)
                             {
