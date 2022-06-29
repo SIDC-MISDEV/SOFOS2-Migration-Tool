@@ -147,7 +147,7 @@ namespace SOFOS2_Migration_Tool
                 var salesDetails = salesController.GetSalesItems(date);
                 var salesPayment = salesController.GetSalesPayment(date);
                 if (salesHeader.Count > 0)
-                    salesController.InsertSales(salesHeader, salesDetails, salesPayment);
+                    salesController.InsertSales(salesHeader, salesDetails, salesPayment, date);
 
 
                 ReturnFromCustomerController returnFromCustomerController = new ReturnFromCustomerController();

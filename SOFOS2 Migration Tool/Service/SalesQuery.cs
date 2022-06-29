@@ -22,11 +22,12 @@ namespace SOFOS2_Migration_Tool.Service
                                     l.reference AS 'Reference',
                                     l.crossreference AS 'Crossreference',
                                     CASE WHEN LEFT(l.reference, 2) =  'GO' OR LEFT(l.reference, 2) =  'VS' OR LEFT(l.reference, 2) =  'RO' THEN 1 ELSE 0 END AS 'NoEffectOnInventory',
-                                    CASE WHEN f.type = 'NON-MEMBER' AND left(l.reference, 2) NOT IN ('CO','CT') THEN 'Non-Member'
+                                    CASE WHEN (f.type = 'NON-MEMBER' OR f.type = 'SIDC') AND left(l.reference, 2) NOT IN ('CO','CT') THEN 'Non-Member'
 									     WHEN (f.type = 'MEMBER' OR f.type = 'AMEMBER') AND left(l.reference, 2) NOT IN ('CO','CT') THEN 'Member'
-										 ELSE 'Employee' END as CustomerType,
-                                    IF(f.type in ('SIDC','MEMBER','AMEMBER'),l.idFile, l.idfile) AS 'MemberId',
-                                    IF(f.type in ('SIDC','MEMBER','AMEMBER'),f.name,'') AS 'MemberName',
+									     WHEN f.type = 'EMPLOYEE' THEN 'Employee'
+										 ELSE 'Branch' END as CustomerType,
+                                    IF(f.type in ('SIDC','MEMBER','AMEMBER', 'NON-MEMBER','WAREHOUSE'),l.idFile, e.idfile) AS 'MemberId',
+                                    IF(f.type in ('SIDC','MEMBER','AMEMBER', 'WAREHOUSE'),f.name, '') AS 'MemberName',
                                     IF(f.type = 'EMPLOYEE',l.idFile,'') AS 'EmployeeID',
                                     IF(f.type = 'EMPLOYEE',f.name,'') AS 'EmployeeName',
                                     null AS 'YoungCoopID',
@@ -93,6 +94,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     INNER JOIN stocks s ON i.idstock = s.idstock
                                     LEFT JOIN files f ON l.idfile = f.idfile
                                     LEFT JOIN coa c ON l.idaccount = c.idaccount
+                                    LEFT JOIN employees e ON l.idfile = e.idemployee
                                     where LEFT(l.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE')
                                     AND date(l.date) = @date
                                     GROUP BY l.reference
@@ -232,6 +234,19 @@ namespace SOFOS2_Migration_Tool.Service
         public static StringBuilder GetKanegoNonRiceDiscount()
         {
             return new StringBuilder(@"SELECT id, amountFrom, amountTo, percentage FROM sds00;");
+        }
+
+        public static StringBuilder UpdateAccountNumber()
+        {
+            return new StringBuilder(@"UPDATE sapt0 SET accountCode = @accountCode, accountName = @accountName WHERE transtype = @transtype AND date(transdate) = @date");
+        }
+
+        public static StringBuilder GetAccountNumber()
+        {
+            return new StringBuilder(@"SELECT t.transtype, t.accountCode, a.accountName
+                    FROM sst00 t
+                    INNER JOIN aca00 a ON t.accountCode = a.accountCode
+                    where transtype IN ('CT', 'CO');");
         }
     }
 

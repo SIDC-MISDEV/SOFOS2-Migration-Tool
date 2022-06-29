@@ -116,4 +116,11 @@ namespace SOFOS2_Migration_Tool.Sales.Model
         public decimal NumberBagsTo { get; set; }
         public decimal DiscountPerTwentyFiveKilo { get; set; }
     }
+
+    public class TransType
+    {
+        public string TransactionType { get; set; }
+        public string AccountCode { get; set; }
+        public string AccountName { get; set; }
+    }
 }
