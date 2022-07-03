@@ -201,7 +201,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             result.Add(new SalesItem
                             {
                                 Reference = dr["Reference"].ToString(),
-                                Barcode = dr["Barcode"] == null ? "" : dr["Barcode"].ToString(),
+                                Barcode = dr["Barcode"] == DBNull.Value ? "" : dr["Barcode"].ToString(),
                                 ItemCode = dr["ItemCode"].ToString(),
                                 ItemDescription = dr["ItemDescription"].ToString(),
                                 UomCode = dr["UomCode"].ToString(),
