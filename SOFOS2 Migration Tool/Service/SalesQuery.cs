@@ -170,9 +170,9 @@ namespace SOFOS2_Migration_Tool.Service
                                     reference AS 'Reference',
                                     CASE WHEN idPaymentMethod = 'GC' THEN 'Gift Check' ELSE idpaymentmethod END AS 'PaymentCode',
                                     amount AS 'Amount',
-                                    checkNo as 'CheckNumber',
+                                    IF(idpaymentmethod = 'CASH', NULL, checkno) as 'CheckNumber',
                                     bank AS 'BankCode',
-                                    DATE_FORMAT(checkDate, '%Y-%m-%d %H:%i:%s') AS 'CheckDate',
+                                    IF(idpaymentmethod = 'CASH', NULL, DATE_FORMAT(checkDate, '%Y-%m-%d %H:%i:%s')) AS 'CheckDate',
                                     DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') AS 'SystemDate',
                                     idUser AS 'idUser',
                                     left(reference, 2) AS 'TransType',
@@ -182,8 +182,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     extracted AS 'Extracted',
                                     0 AS 'OrDetailNum'
                                      FROM transactionpayments
-                                    WHERE LEFT(reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE') AND date(date) = @date;
-                                     ");
+                                    WHERE LEFT(reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE') AND date(date) = @date;");
                     break;
                 default:
                     break;
