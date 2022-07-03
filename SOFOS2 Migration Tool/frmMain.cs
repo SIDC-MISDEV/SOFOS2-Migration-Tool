@@ -34,6 +34,18 @@ namespace SOFOS2_Migration_Tool
             {
                 Global g = new Global();
                 g.InitializeBranch();
+
+                txtBranchCode.Text = Global.BranchCode;
+                txtWarehouseCode.Text = Global.WarehouseCode;
+                lblBranchName.Text = Global.BranchName;
+
+                if(string.IsNullOrEmpty(txtBranchCode.Text) || string.IsNullOrEmpty(txtWarehouseCode.Text))
+                {
+                    var confirm = MessageBox.Show(this, "Branch code and warehouse code is missing. Do you still want to continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                    if (confirm.Equals(DialogResult.No))
+                        this.Close();
+                }
             }
             catch (Exception er)
             {
