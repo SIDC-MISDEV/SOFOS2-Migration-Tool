@@ -43,7 +43,7 @@ namespace SOFOS2_Migration_Tool.Service
 
                     sQuery.Append(@"SELECT
 	                        i.reference,
-	                        p.barcode,
+	                        IF(length(trim(p.barcode)) > 0, p.barcode, CONCAT(i.idstock, '-',i.unit)) AS 'Barcode',
 	                        i.idstock 'ItemCode',
                             s.name 'Description',
 	                        i.unit 'UOM',
@@ -110,7 +110,7 @@ namespace SOFOS2_Migration_Tool.Service
 
                     sQuery.Append(@"SELECT
                             i.reference,
-	                        p.barcode,
+	                        IF(length(trim(p.barcode)) > 0, p.barcode, CONCAT(i.idstock, '-',i.unit)) AS 'Barcode',
 	                        i.idstock 'ItemCode',
 	                        s.name,
 	                        i.unit 'UOMCode',

@@ -44,7 +44,7 @@ namespace SOFOS2_Migration_Tool.Service
                     sQuery.Append(@"SELECT
                                     DATE_FORMAT(l.date, '%Y-%m-%d %H:%i:%s') AS 'TransDate',
                                     i.reference AS 'Reference',
-                                    p.barcode AS 'Barcode',
+                                    IF(length(trim(p.barcode)) > 0, p.barcode, CONCAT(i.idstock, '-',i.unit)) AS 'Barcode',
                                     i.idstock AS 'ItemCode',
                                     s.name AS 'ItemDescription',
                                     i.unit AS 'UomCode',
