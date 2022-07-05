@@ -245,7 +245,27 @@ namespace SOFOS2_Migration_Tool.Service
             return new StringBuilder(@"SELECT t.transtype, t.accountCode, a.accountName
                     FROM sst00 t
                     INNER JOIN aca00 a ON t.accountCode = a.accountCode
-                    where transtype IN ('CT', 'CO');");
+                    where transtype IN ('CT', 'CO', 'CI');");
+        }
+
+        public static StringBuilder GetAccountNumberCreditLimit()
+        {
+            return new StringBuilder(@"SELECT memberid, transtype, accountNumber from acl00 WHERE transtype != 'CI' AND memberid IN (SELECT employeeid FROM sapt0 WHERE length(employeeid) > 0 AND date(transdate) = @date)
+                UNION ALL
+                SELECT memberid, transtype, accountNumber from acl00 WHERE transtype = 'CI' AND chargetype = 'NON-COLLATERAL' AND memberid IN(SELECT memberid FROM sapt0 WHERE memberid <> 'NM00000' AND date(transdate) = @date)");
+        }
+
+        public static StringBuilder UpdateAccountNumberCreditLimit(bool isEmployee)
+        {
+            string query = string.Empty;
+
+            if (isEmployee)
+                query = @"UPDATE sapt0 SET accountNo = @accountno WHERE transtype = @transtype AND employeeid = @memberid AND date(transdate) = @date";
+            else
+                query = @"UPDATE sapt0 SET accountNo = @accountno WHERE transtype = @transtype AND memberid = @memberid AND date(transdate) = @date";
+
+
+            return new StringBuilder(query);
         }
     }
 

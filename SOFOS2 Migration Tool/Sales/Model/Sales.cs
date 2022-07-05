@@ -123,4 +123,11 @@ namespace SOFOS2_Migration_Tool.Sales.Model
         public string AccountCode { get; set; }
         public string AccountName { get; set; }
     }
+
+    public class CreditLimit
+    {
+        public string MemberID { get; set; }
+        public string TransType { get; set; }
+        public string AccountNumber { get; set; }
+    }
 }

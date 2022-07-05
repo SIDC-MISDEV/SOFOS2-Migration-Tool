@@ -354,6 +354,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                     }
 
                     UpdateAccountNumber(conn, queueDate);
+                    UpdateAccountNumberTransactionMember(conn, queueDate);
 
                     conn.CommitTransaction();
                 }
@@ -680,6 +681,60 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             { "@transtype", ttype.TransactionType },
                             { "@accountName", ttype.AccountName },
                             { "@accountCode", ttype.AccountCode },
+                            { "@date", date }
+                        };
+
+                        result += conn.ExecuteMySQL();
+                    }
+                }
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        private void UpdateAccountNumberTransactionMember(MySQLHelper conn, string date)
+        {
+            try
+            {
+                var list = new List<CreditLimit>();
+                int result = 0;
+                StringBuilder queryTemp = new StringBuilder();
+
+                conn.ArgSQLCommand = SalesQuery.GetAccountNumberCreditLimit();
+                conn.ArgSQLParam = new Dictionary<string, object>() { { "@date", date } };
+                using (var dr = conn.MySQLReaderCheckConn())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new CreditLimit
+                        {
+                            MemberID = dr["memberid"].ToString(),
+                            TransType = dr["transtype"].ToString(),
+                            AccountNumber = dr["accountnumber"].ToString()
+                        });
+                    }
+                }
+
+                if (list.Count > 0)
+                {
+                    foreach (var creditlimit in list)
+                    {
+                        queryTemp = new StringBuilder();
+
+                        if (creditlimit.TransType.Equals("CO") || creditlimit.TransType.Equals("CT"))
+                            queryTemp = SalesQuery.UpdateAccountNumberCreditLimit(true);
+                        else
+                            queryTemp = SalesQuery.UpdateAccountNumberCreditLimit(false);
+
+                        conn.ArgSQLCommand = queryTemp;
+                        conn.ArgSQLParam = new Dictionary<string, object>()
+                        {
+                            { "@transtype", creditlimit.TransType },
+                            { "@memberid", creditlimit.MemberID },
+                            { "@accountno", creditlimit.AccountNumber },
                             { "@date", date }
                         };
 
