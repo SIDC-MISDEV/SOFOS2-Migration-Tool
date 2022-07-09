@@ -147,6 +147,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         averageCost = 0;
                         tranRunQty = 0;
                         tranRunVal = 0;
+                        transVal = 0;
 
                         if (!string.IsNullOrEmpty(item.ItemCode) && uomExists)
                         {
