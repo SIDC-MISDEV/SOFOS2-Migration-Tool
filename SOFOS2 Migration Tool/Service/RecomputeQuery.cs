@@ -110,6 +110,7 @@ namespace SOFOS2_Migration_Tool.Service
                             SET
                                 d.runningQty = @runningQuantity,
                                 d.cost = @cost * d.conversion,
+                                d.transValue = @transvalue,
                                 d.runningValue = @runningValue
                             WHERE h.reference = @reference
                             AND d.itemcode = @itemCode AND uomCode = @uomCode; ");
@@ -121,6 +122,7 @@ namespace SOFOS2_Migration_Tool.Service
                             INNER JOIN iia10 d ON h.transNum = d.transNum
                             SET
                                 d.runningQuantity = @runningQuantity,
+                                d.transValue = @transvalue,
                                 d.runningValue = @runningValue
                             WHERE h.reference = @reference
                             AND d.itemcode = @itemCode AND uomCode = @uomCode; ");
@@ -132,6 +134,7 @@ namespace SOFOS2_Migration_Tool.Service
                             INNER JOIN iii10 d ON h.transNum = d.transNum
                             SET
                                 d.runningQty = @runningQuantity,
+                                d.transValue = @transvalue,
                                 d.runningValue = @runningValue,
                                 d.averageCost = @cost
                             WHERE h.reference = @reference
@@ -144,6 +147,7 @@ namespace SOFOS2_Migration_Tool.Service
                             INNER JOIN prg10 d ON h.transNum = d.transNum
                             SET
                                 d.runningQty = @runningQuantity,
+                                d.transValue = @transvalue,
                                 d.runningValue = @runningValue,
                                 d.averageCost = @cost
                             WHERE h.reference = @reference
@@ -156,6 +160,7 @@ namespace SOFOS2_Migration_Tool.Service
                             INNER JOIN iir10 d ON h.transNum = d.transNum
                             SET
                                 d.runningQty = @runningQuantity,
+                                d.transValue = @transvalue,
                                 d.runningValue = @runningValue,
                                 d.averageCost = @cost
                             WHERE h.reference = @reference
@@ -168,6 +173,7 @@ namespace SOFOS2_Migration_Tool.Service
                             INNER JOIN prv10 d ON h.transNum = d.transNum
                             SET
                                 d.runningQty = @runningQuantity,
+                                d.transValue = @transvalue,
                                 d.runningValue = @runningValue,
                                 d.averageCost = @cost
                             WHERE h.reference = @reference
@@ -181,6 +187,7 @@ namespace SOFOS2_Migration_Tool.Service
                             INNER JOIN sapr1 d ON h.transNum = d.transNum
                             SET
                                 d.runningQty = @runningQuantity,
+                                d.transValue = @transvalue,
                                 d.runningValue = @runningValue,
                                 d.averageCost = @cost,
                                 d.cost = @cost

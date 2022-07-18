@@ -168,6 +168,15 @@ namespace SOFOS2_Migration_Tool.Service
             cnn.Open();
             return cmd.ExecuteReader();
         }
+
+        public MySqlDataReader MySQLReaderCheckConn()
+        {
+            if(cnn.State == ConnectionState.Closed)
+                cnn.Open();
+
+            return cmd.ExecuteReader();
+        }
+
         public MySqlDataReader MySQLExecuteReaderBeginTransaction()
         {
             if (cnn.State == ConnectionState.Closed)

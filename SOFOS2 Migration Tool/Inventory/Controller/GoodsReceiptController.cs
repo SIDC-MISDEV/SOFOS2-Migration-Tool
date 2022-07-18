@@ -252,8 +252,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             { "@reference", item.Reference },
                             { "@crossreference", item.Crossreference },
                             { "@invRequestRefence", item.InvRequestRefence },
-                            { "@toWarehouse", item.ToWarehouse },
-                            { "@fromWarehouse", Global.WarehouseCode },
+                            { "@toWarehouse", Global.WarehouseCode},
+                            { "@fromWarehouse", item.ToWarehouse },
 
                             { "@segmentCode", Global.MainSegment },
                             { "@businessSegment", Global.BusinessSegment },

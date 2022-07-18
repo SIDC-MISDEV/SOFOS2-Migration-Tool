@@ -127,7 +127,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                     uomNotFound = new List<ItemProblem>();
                 Item item = null;
                 StringBuilder sQuery = new StringBuilder();
-                decimal averageCost = 0, tranRunQty = 0, tranRunVal = 0;
+                decimal averageCost = 0, tranRunQty = 0, tranRunVal = 0, transVal = 0;
                 bool uomExists = false;
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
@@ -147,6 +147,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                         averageCost = 0;
                         tranRunQty = 0;
                         tranRunVal = 0;
+                        transVal = 0;
 
                         if (!string.IsNullOrEmpty(item.ItemCode) && uomExists)
                         {
@@ -161,6 +162,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             {
                                 tranRunVal = 0;
                                 tranRunQty = 0;
+                                transVal = Math.Abs(tran.TransactionValue);
                             }
                             else if (tranRunQty < 0)
                             {
@@ -179,9 +181,15 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             else
                             {
                                 if (process == Process.Sales || process == Process.ReturnFromCustomer)
+                                {
                                     tranRunVal = Math.Round((item.Cost * tran.Quantity) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+                                    transVal = Math.Round((item.Cost * tran.Quantity), 2, MidpointRounding.AwayFromZero);
+                                }
                                 else
+                                {
                                     tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+                                    transVal = tran.TransactionValue;
+                                }
 
 
                                 averageCost = Math.Round(tranRunVal / tranRunQty, 2, MidpointRounding.AwayFromZero);
@@ -202,7 +210,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                         { "@runningValue", tranRunVal },
                                         { "@uomCode", tran.UomCode },
                                         { "@reference", tran.Reference },
-                                        { "@cost", item.Cost }
+                                        { "@cost", item.Cost },
+                                        { "@transvalue", Math.Abs(transVal) }
                                     };
 
                                     sQuery = RecomputeQuery.UpdateRunningQuantityValue(process);
@@ -221,7 +230,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                         { "@runningValue", tranRunVal},
                                         { "@uomCode", tran.UomCode },
                                         { "@reference", tran.Reference },
-                                        { "@cost",  averageCost }
+                                        { "@cost",  averageCost },
+                                        { "@transvalue", Math.Abs(transVal) }
                                     };
 
                                     sQuery = RecomputeQuery.UpdateRunningQuantityValue(process);

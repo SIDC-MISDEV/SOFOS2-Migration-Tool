@@ -201,7 +201,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             result.Add(new SalesItem
                             {
                                 Reference = dr["Reference"].ToString(),
-                                Barcode = dr["Barcode"] == null ? "" : dr["Barcode"].ToString(),
+                                Barcode = dr["Barcode"] == DBNull.Value ? "" : dr["Barcode"].ToString(),
                                 ItemCode = dr["ItemCode"].ToString(),
                                 ItemDescription = dr["ItemDescription"].ToString(),
                                 UomCode = dr["UomCode"].ToString(),
@@ -292,7 +292,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
         #endregion GET
         #region INSERT
 
-        public void InsertSales(List<Sales.Model.Sales> _header, List<SalesItem> _detail, List<TransactionPayment> _payments)
+        public void InsertSales(List<Sales.Model.Sales> _header, List<SalesItem> _detail, List<TransactionPayment> _payments, string queueDate)
         {
             string currentReference = "";
             transType = "";
@@ -304,8 +304,6 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
-
-
                     conn.BeginTransaction();
 
                     transNum = global.GetLatestTransNum("sapt0", "transNum");
@@ -354,6 +352,9 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                         UpdateLastReference(conn, series, transType);
                         
                     }
+
+                    UpdateAccountNumber(conn, queueDate);
+                    UpdateAccountNumberTransactionMember(conn, queueDate);
 
                     conn.CommitTransaction();
                 }
@@ -646,6 +647,106 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
             conn.ArgSQLCommand = Query.UpdateReferenceCount();
             conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", transType } };
             conn.ExecuteMySQL();
+        }
+
+        private void UpdateAccountNumber(MySQLHelper conn, string date)
+        {
+            try
+            {
+                var list = new List<TransType>();
+                int result = 0;
+
+                conn.ArgSQLCommand = SalesQuery.GetAccountNumber();
+
+                using (var dr = conn.MySQLReaderCheckConn())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new TransType
+                        {
+                            TransactionType = dr["transtype"].ToString(),
+                            AccountCode = dr["accountcode"].ToString(),
+                            AccountName = dr["accountName"].ToString()
+                        });
+                    }
+                }
+
+                if (list.Count > 0)
+                {
+                    foreach (var ttype in list)
+                    {
+                        conn.ArgSQLCommand = SalesQuery.UpdateAccountNumber();
+                        conn.ArgSQLParam = new Dictionary<string, object>()
+                        {
+                            { "@transtype", ttype.TransactionType },
+                            { "@accountName", ttype.AccountName },
+                            { "@accountCode", ttype.AccountCode },
+                            { "@date", date }
+                        };
+
+                        result += conn.ExecuteMySQL();
+                    }
+                }
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        private void UpdateAccountNumberTransactionMember(MySQLHelper conn, string date)
+        {
+            try
+            {
+                var list = new List<CreditLimit>();
+                int result = 0;
+                StringBuilder queryTemp = new StringBuilder();
+
+                conn.ArgSQLCommand = SalesQuery.GetAccountNumberCreditLimit();
+                conn.ArgSQLParam = new Dictionary<string, object>() { { "@date", date } };
+                using (var dr = conn.MySQLReaderCheckConn())
+                {
+                    while (dr.Read())
+                    {
+                        list.Add(new CreditLimit
+                        {
+                            MemberID = dr["memberid"].ToString(),
+                            TransType = dr["transtype"].ToString(),
+                            AccountNumber = dr["accountnumber"].ToString()
+                        });
+                    }
+                }
+
+                if (list.Count > 0)
+                {
+                    foreach (var creditlimit in list)
+                    {
+                        queryTemp = new StringBuilder();
+
+                        if (creditlimit.TransType.Equals("CO") || creditlimit.TransType.Equals("CT"))
+                            queryTemp = SalesQuery.UpdateAccountNumberCreditLimit(true);
+                        else
+                            queryTemp = SalesQuery.UpdateAccountNumberCreditLimit(false);
+
+                        conn.ArgSQLCommand = queryTemp;
+                        conn.ArgSQLParam = new Dictionary<string, object>()
+                        {
+                            { "@transtype", creditlimit.TransType },
+                            { "@memberid", creditlimit.MemberID },
+                            { "@accountno", creditlimit.AccountNumber },
+                            { "@date", date }
+                        };
+
+                        result += conn.ExecuteMySQL();
+                    }
+                }
+            }
+            catch
+            {
+
+                throw;
+            }
         }
         #endregion Private Methods
     }
