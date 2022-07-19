@@ -162,7 +162,11 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             {
                                 tranRunVal = 0;
                                 tranRunQty = 0;
-                                transVal = Math.Abs(tran.TransactionValue);
+
+                                if (process == Process.Sales || process == Process.ReturnFromCustomer)
+                                    transVal = Math.Round((item.Cost * tran.Quantity), 2, MidpointRounding.AwayFromZero);
+                                else
+                                    transVal = Math.Abs(tran.TransactionValue);
                             }
                             else if (tranRunQty < 0)
                             {
