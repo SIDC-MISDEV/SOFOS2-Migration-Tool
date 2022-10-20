@@ -187,6 +187,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             cancelledDocument.Crossreference = item.Reference;
                             cancelledDocument.Reference = global.GetLatestTransactionReference(conn, "POS", "CD");
                             cancelledDocument.TransType = "CD";
+                            cancelledDocument.Cancelled = false;
 
                             CreateReturnFromCustomerHeaderDocument(conn, cancelledDocument, transNum, global);
                             CreateReturnFromCustomerDetailDocument(conn, details, transNum);
