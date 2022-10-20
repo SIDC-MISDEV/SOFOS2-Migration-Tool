@@ -23,6 +23,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                 string newinterestaccount = "430400000000000";
                 string duetointercompany = "212010000000000";
                 string miscellaneousincome = "440400000000000";
+                string growingincome = "410100000000000";
+                string expensespayable = "214010000000000";
 
                 var filter = new Dictionary<string, object>()
                 {
@@ -32,6 +34,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@newinterestaccount", newinterestaccount },
                     { "@duetointercompany", duetointercompany },
                     { "@miscellaneousincome", miscellaneousincome },
+                    { "@growingincome", growingincome },
+                    { "@expensespayable", expensespayable },
                     { "@transprefix", transprefix }
                 };
 
@@ -100,6 +104,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                 string newinterestaccount = "430400000000000";
                 string duetointercompany = "212010000000000";
                 string miscellaneousincome = "440400000000000";
+                string growingincome = "410100000000000";
+                string expensespayable = "214010000000000";
 
                 var filter = new Dictionary<string, object>()
                 {
@@ -109,6 +115,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     { "@newinterestaccount", newinterestaccount },
                     { "@duetointercompany", duetointercompany },
                     { "@miscellaneousincome", miscellaneousincome },
+                    { "@growingincome", growingincome },
+                    { "@expensespayable", expensespayable },
                     { "@cash", paymentmode.FirstOrDefault(n => n.Value == "CASH").Key },
                     { "@check", paymentmode.FirstOrDefault(n => n.Value == "CHECK").Key },
                     { "@giftcheck", paymentmode.FirstOrDefault(n => n.Value == "Gift Check").Key },
