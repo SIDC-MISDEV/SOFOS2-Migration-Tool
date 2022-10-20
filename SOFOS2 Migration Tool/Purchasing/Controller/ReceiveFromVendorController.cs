@@ -116,7 +116,8 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
             {
                 Global g = new Global();
                 int transNum = 0;
-                long series = 0;
+                long series = 0,
+                    cancelledSeries = 0; ;
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
@@ -128,7 +129,44 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                     {
                         series = Convert.ToInt32(item.Reference.Replace(transType, ""));
 
-                        var param = new Dictionary<string, object>()
+                        CreateRVHeader(conn, transNum, item);
+                        CreateRVDetail(conn, _detail, transNum, item.Reference, item.IdUser, item.TransDate);
+
+                        if (item.Cancelled)
+                        {
+                            transNum++;
+                            item.CrossReference = item.Reference;
+                            item.Reference = g.GetLatestTransactionReference(conn, "PURCHASING(RV)", "CD");
+                            item.TransType = "CD";
+                            item.Cancelled = false;
+                            cancelledSeries = Convert.ToInt32(item.Reference.Replace(item.TransType, ""));
+
+                            CreateRVHeader(conn, transNum, item);
+                            CreateRVDetail(conn, _detail, transNum, item.CrossReference, item.IdUser, item.TransDate, cancelled: true);
+
+                            UpdateLastReference(conn, cancelledSeries, item.TransType, "PURCHASING(RV)");
+                        }
+
+                        transNum++;
+                    }
+
+                    UpdateLastReference(conn, series, transType);
+
+                    conn.CommitTransaction();
+                }
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        private void CreateRVHeader(MySQLHelper conn, int transNum, ReceiveFromVendor item)
+        {
+            try
+            {
+                var param = new Dictionary<string, object>()
                         {
                             { "@vendorCode", item.VendorCode },
                             { "@vendorName", item.VendorName },
@@ -151,17 +189,28 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                             {"@extracted", item.Extracted }
                         };
 
-                        //Saving transaction header
-                        conn.ArgSQLCommand = PurchasingQuery.InsertTransaction(PR.RVHeader);
-                        conn.ArgSQLParam = param;
-                        conn.ExecuteMySQL();
+                //Saving transaction header
+                conn.ArgSQLCommand = PurchasingQuery.InsertTransaction(PR.RVHeader);
+                conn.ArgSQLParam = param;
+                conn.ExecuteMySQL();
+            }
+            catch
+            {
 
-                        #region Insert Details
-                        var details = _detail.Where(n => n.Reference == item.Reference).ToList();
+                throw;
+            }
+        }
 
-                        foreach (var detail in details)
-                        {
-                            var detailParam = new Dictionary<string, object>()
+        private void CreateRVDetail(MySQLHelper conn, List<ReceiveFromVendorItem> _detail, int transNum, string reference, string idUser, string transDate, bool cancelled = false)
+        {
+            try
+            {
+                #region Insert Details
+                var details = _detail.Where(n => n.Reference == reference).ToList();
+
+                foreach (var detail in details)
+                {
+                    var detailParam = new Dictionary<string, object>()
                                 {
                                     {"@barcode", detail.Barcode },
                                     {"@transNum", transNum },
@@ -174,43 +223,57 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                                     {"@price", detail.Price },
                                     {"@total", detail.Total },
                                     {"@conversion", detail.Conversion },
-                                    {"@transDate", item.TransDate },
-                                    {"@iduser", item.IdUser },
+                                    {"@transDate", transDate },
+                                    {"@iduser", idUser },
                                     {"@accountCode", detail.AccountCode }
                                 };
 
-                            var lppParam = new Dictionary<string, object>()
+                    var lppParam = new Dictionary<string, object>()
                             {
                                 { "@itemCode", detail.ItemCode },
                                 { "@uomCode", detail.UOMCode },
                                 { "@cost", detail.Price }
                             };
 
-                            //Saving transaction details
-                            conn.ArgSQLCommand = PurchasingQuery.InsertTransaction(PR.RVDetail);
-                            conn.ArgSQLParam = detailParam;
-                            conn.ExecuteMySQL();
-
-                            //Updating last purchase price
-                            conn.ArgSQLCommand = PurchasingQuery.UpdateLastPurchasePrice();
-                            conn.ArgSQLParam = lppParam;
-                            conn.ExecuteMySQL();
-
-                        }
-                        #endregion
-
-                        transNum++;
-
-
-                    }
-
-                    conn.ArgSQLCommand = Query.UpdateReferenceCount();
-                    conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series }, { "@transtype", transType } };
+                    //Saving transaction details
+                    conn.ArgSQLCommand = PurchasingQuery.InsertTransaction(PR.RVDetail);
+                    conn.ArgSQLParam = detailParam;
                     conn.ExecuteMySQL();
 
+                    if (!cancelled)
+                    {
+                        //Updating last purchase price
+                        conn.ArgSQLCommand = PurchasingQuery.UpdateLastPurchasePrice();
+                        conn.ArgSQLParam = lppParam;
+                        conn.ExecuteMySQL();
+                    }
 
-                    conn.CommitTransaction();
                 }
+                #endregion
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        private void UpdateLastReference(MySQLHelper conn, long series, string transType, string module = "")
+        {
+            try
+            {
+                if (transType == "CD")
+                {
+                    conn.ArgSQLCommand = Query.UpdateCancelledReferenceCount();
+                    conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series }, { "@transtype", transType }, { "@module", module } };
+                }
+                else
+                {
+                    conn.ArgSQLCommand = Query.UpdateReferenceCount();
+                    conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series }, { "@transtype", transType } };
+                }
+
+                conn.ExecuteMySQL();
             }
             catch
             {
