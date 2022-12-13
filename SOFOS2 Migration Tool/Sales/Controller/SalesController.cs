@@ -289,6 +289,37 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                 throw;
             }
         }
+
+        public List<Item> GetUpdatedSellingPrice()
+        {
+            try
+            {
+                var list = new List<Item>();
+
+                using (var conn = new MySQLHelper(Global.SourceDatabase, SalesQuery.GetSalesQuery(SalesEnum.SellingPrice)))
+                {
+                    using (var dr = conn.MySQLReader())
+                    {
+                        while (dr.Read())
+                        {
+                            list.Add(new Item
+                            {
+                                ItemCode = dr["idstock"].ToString(),
+                                UomCode = dr["unit"].ToString(),
+                                SellingPrice = Convert.ToDecimal(dr["selling"])
+                            });
+                        }
+                    }
+                }
+
+                return list;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         #endregion GET
         #region INSERT
 
@@ -383,6 +414,38 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
         }
 
         #endregion INSERT
+
+        public int UpdateSellingPrice(List<Item> items)
+        {
+            StringBuilder sb = new StringBuilder();
+            int result = 0;
+
+            try
+            {
+                foreach (var item in items)
+                {
+                    sb.Append($"UPDATE iiuom SET sellingprice = {item.SellingPrice} WHERE itemcode = '{item.ItemCode}' AND uomcode = '{item.UomCode}';{Environment.NewLine}");
+                }
+
+                using (var conn = new MySQLHelper(Global.DestinationDatabase))
+                {
+                    conn.ArgSQLCommand = sb;
+
+                    conn.BeginTransaction();
+
+                    result = conn.ExecuteMySQL();
+
+                    conn.CommitTransaction();
+                }
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
 
         #endregion Public Methods
 

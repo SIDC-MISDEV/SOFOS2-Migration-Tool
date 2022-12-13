@@ -250,8 +250,13 @@ namespace SOFOS2_Migration_Tool
             string message = string.Empty;
             switch(processEnum){
                 case ProcessEnum.Migrate:
-                    message = string.Format("Migrate Sofos1 {0} transactions dated : {1}.", moduleEnum.ToString(), date);
+
+                    if(moduleEnum == ModuleEnum.SellingPrice)
+                        message = string.Format("Migrate Sofos1 {0} as of  {1}.", moduleEnum.ToString(), date);
+                    else
+                        message = string.Format("Migrate Sofos1 {0} transactions dated : {1}.", moduleEnum.ToString(), date);
                     break;
+
                 case ProcessEnum.Recompute:
                     switch (moduleEnum)
                     {
@@ -345,6 +350,7 @@ namespace SOFOS2_Migration_Tool
             pcbRecomputeSalesCreditLimit.BackgroundImage = null;
             pcbMembers.BackgroundImage = null;
             pcbSales.BackgroundImage = null;
+            pbSellingPrice.BackgroundImage = null;
         }
 
         private void btnRecomputeSalesCreditLimit_Click(object sender, EventArgs e)
@@ -454,6 +460,45 @@ namespace SOFOS2_Migration_Tool
 
                 #endregion
 
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, string.Format("Error : {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnSellingPrice_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                int result = 0;
+                string msg = string.Empty;
+                MessageBoxIcon icon;
+
+                if (UserConfirmation(ProcessEnum.Migrate, ModuleEnum.SellingPrice))
+                    return;
+
+                #region Update selling price
+                SalesController controller = new SalesController();
+
+                var items = controller.GetUpdatedSellingPrice();
+
+                result = controller.UpdateSellingPrice(items);
+
+                if(result > 0)
+                {
+                    msg = $"{result.ToString("N0")} Item Uom updated succesfully";
+                    pcbMembers.BackgroundImage = checkedImage;
+                    icon = MessageBoxIcon.Information;
+                }
+                else
+                {
+                    msg = "No item with selling price detected in POS1.";
+                    icon = MessageBoxIcon.Warning;
+                }
+
+                MessageBox.Show(this, msg, "Information", MessageBoxButtons.OK, icon);
+                #endregion
             }
             catch (Exception ex)
             {

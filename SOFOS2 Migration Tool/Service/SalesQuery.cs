@@ -184,6 +184,14 @@ namespace SOFOS2_Migration_Tool.Service
                                      FROM transactionpayments
                                     WHERE LEFT(reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE') AND date(date) = @date;");
                     break;
+                case SalesEnum.SellingPrice:
+
+                    sQuery.Append(@"SELECT
+	                                    idstock, unit, selling
+                                    FROM pcosting WHERE selling > 0
+                                    order by idstock, unit ASC;");
+
+                    break;
                 default:
                     break;
             }
@@ -272,6 +280,6 @@ namespace SOFOS2_Migration_Tool.Service
 
     public enum SalesEnum
     {
-        SalesHeader, SalesDetail, SalesPayment
+        SalesHeader, SalesDetail, SalesPayment, SellingPrice
     }
 }
