@@ -488,8 +488,9 @@ namespace SOFOS2_Migration_Tool
                 if(result > 0)
                 {
                     msg = $"{result.ToString("N0")} Item Uom updated succesfully";
-                    pcbMembers.BackgroundImage = checkedImage;
+                    pbSellingPrice.BackgroundImage = checkedImage;
                     icon = MessageBoxIcon.Information;
+                    btnSellingPrice.Enabled = false;
                 }
                 else
                 {

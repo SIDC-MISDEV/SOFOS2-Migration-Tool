@@ -134,12 +134,15 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
 
                         if (item.Cancelled)
                         {
+                            DateTime cancelledDate = new DateTime();
                             transNum++;
                             item.CrossReference = item.Reference;
                             item.Reference = g.GetLatestTransactionReference(conn, "PURCHASING(RV)", "CD");
                             item.TransType = "CD";
                             item.Cancelled = false;
                             cancelledSeries = Convert.ToInt32(item.Reference.Replace(item.TransType, ""));
+                            cancelledDate = Convert.ToDateTime(item.TransDate).AddSeconds(20);
+                            item.TransDate = cancelledDate.ToString("yyyy-MM-dd hh:mm:ss");
 
                             CreateRVHeader(conn, transNum, item);
                             CreateRVDetail(conn, _detail, transNum, item.CrossReference, item.IdUser, item.TransDate, cancelled: true);

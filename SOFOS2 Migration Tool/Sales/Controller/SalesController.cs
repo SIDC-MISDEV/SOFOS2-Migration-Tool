@@ -306,7 +306,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             {
                                 ItemCode = dr["idstock"].ToString(),
                                 UomCode = dr["unit"].ToString(),
-                                SellingPrice = Convert.ToDecimal(dr["selling"])
+                                SellingPrice = Convert.ToDecimal(dr["selling"]),
+                                MarkUp = Convert.ToDecimal(dr["markup"])
                             });
                         }
                     }
@@ -424,7 +425,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
             {
                 foreach (var item in items)
                 {
-                    sb.Append($"UPDATE iiuom SET sellingprice = {item.SellingPrice} WHERE itemcode = '{item.ItemCode}' AND uomcode = '{item.UomCode}';{Environment.NewLine}");
+                    sb.Append($"UPDATE iiuom SET sellingprice = {item.SellingPrice}, markup = {item.MarkUp} WHERE itemcode = '{item.ItemCode}' AND uomcode = '{item.UomCode}';{Environment.NewLine}");
                 }
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))

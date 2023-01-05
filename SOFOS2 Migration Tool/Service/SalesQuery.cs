@@ -188,7 +188,7 @@ namespace SOFOS2_Migration_Tool.Service
                 case SalesEnum.SellingPrice:
 
                     sQuery.Append(@"SELECT
-	                                    idstock, unit, selling
+	                                    idstock, unit, selling,markup
                                     FROM pcosting WHERE selling > 0
                                     order by idstock, unit ASC;");
 
