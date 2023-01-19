@@ -26,7 +26,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as memberName,
                                     'CLOSED' as status,
                                     cancelled,
-                                    'Migration Tool' as remarks, 
+                                    CONCAT(reference,'-','Migration Tool') as remarks,
                                     1 as type,
                                     @principalaccount as accountCode, 
                                     signatory as paidBy,
@@ -74,7 +74,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     cancelled,
                                     reference as remarks 
                                     FROM ledger 
-                                     WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount,@duetointercompany,@miscellaneousincome) AND credit > 0 AND date(date)=@transdate GROUP BY reference ORDER BY reference ASC");
+                                     WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount,@duetointercompany,@miscellaneousincome,@growingincome,@expensespayable) AND credit > 0 AND date(date)=@transdate GROUP BY reference ORDER BY reference ASC");
                     break;
 
                 case payment.JVDetail:
@@ -91,14 +91,14 @@ namespace SOFOS2_Migration_Tool.Service
                                     idfile as memberId,
                                     '' as memberName,
                                     '' as accountName,
-                                    '' as refTransType,
+                                      if(idaccount=@oldinterestaccount or idaccount=@newinterestaccount,'JV','') as refTransType,
                                     0 as intComputed,
                                     '0.00' as paidToDate,
                                     'CLOSED' as status,
                                     '' as lastpaymentdate,
                                     '' as AccountNo
                                     FROM ledger 
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount,@duetointercompany,@miscellaneousincome,@cash,@check,@giftcheck) AND date(date)=@transdate");
+                                   WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount,@duetointercompany,@miscellaneousincome,@growingincome,@expensespayable,@cash,@check,@giftcheck) AND date(date)=@transdate");
                     break;
 
                 case payment.ORHeader:
@@ -307,6 +307,11 @@ namespace SOFOS2_Migration_Tool.Service
                             VALUES (@transNum,@crossReference,@amount,@idUser,@balance,@accountCode,@pType,@accountName)");
 
                     break;
+                case payment.NewJVDetail:
+
+                    sQuery.Append(@"INSERT INTO FJV10 ( transNum, accountCode, crossReference, idUser, debit, credit, memberId, memberName, accountName, intComputed, paidToDate, status,  AccountNo) 
+                            VALUES ( @transNum, @accountCode, @crossReference, @idUser, @debit, @credit, @memberId, @memberName, @accountName, @intComputed, @paidToDate, @status,  @AccountNo)");
+                    break;
 
                 case payment.JVHeader:
 
@@ -364,6 +369,11 @@ namespace SOFOS2_Migration_Tool.Service
 
                     sQuery.Append(@"UPDATE fp000 a INNER JOIN fp100 b ON a.transNum=b.transNum SET crossReference=@crossreference, balance=@balance, amount=@amount WHERE memberId=@memberid AND AccountNo=@accountno AND b.transnum=@transnum AND b.accountcode=@accountcode AND b.detailNum=@detailnum");
                     break;
+
+                case payment.JVTransactionPayments:
+
+                    sQuery.Append(@"UPDATE fjv00 a INNER JOIN fjv10 b ON a.transNum=b.transNum SET crossReference=@crossreference, credit=@amount , paidtodate=@amount WHERE memberId=@memberid AND AccountNo=@accountno AND b.transnum=@transnum AND b.accountcode=@accountcode AND b.detailNum=@detailnum");
+                    break;
                 case payment.CreditLimit:
 
                     sQuery.Append(@"UPDATE acl00 SET chargeAmount=chargeAmount-@amount WHERE memberId=@memberid AND accountNumber=@accountno");
@@ -381,6 +391,6 @@ namespace SOFOS2_Migration_Tool.Service
 
     public enum payment
     {
-        CRHeader, CRDetail, NewCRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, JVInvoice, CreditLimit, TransactionPayments, Interest, Balance, GetDetailNum, JVRemarks, ORPayment, ORDetailNum, ORReference
+        CRHeader, CRDetail, NewCRDetail, JVHeader, JVDetail, ORHeader, ORDetail, Invoice, JVInvoice, CreditLimit, TransactionPayments, Interest, Balance, GetDetailNum, JVRemarks, ORPayment, ORDetailNum, ORReference, NewJVDetail, JVTransactionPayments
     }
 }

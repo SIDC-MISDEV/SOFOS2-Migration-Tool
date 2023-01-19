@@ -384,8 +384,14 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             { "@accountcode", accountcode },
                             { "@balance", 0 }
                         };
-
-                    conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                    if (prefix=="CR")
+                    {
+                        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                    }
+                    else if (prefix == "JV")
+                    {
+                        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.JVTransactionPayments);
+                    }
                     conn.ArgSQLParam = param;
 
                     //Execute insert header
@@ -411,7 +417,14 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             { "@balance", 0 }
                         };
 
-                    conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                    if (prefix == "CR")
+                    {
+                        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                    }
+                    else if (prefix == "JV")
+                    {
+                        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.JVTransactionPayments);
+                    }
                     conn.ArgSQLParam = param;
 
                     //Execute insert header
@@ -435,7 +448,14 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             { "@balance", 0 }
                         };
 
-                    conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                    if (prefix == "CR")
+                    {
+                        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                    }
+                    else if (prefix == "JV")
+                    {
+                        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.JVTransactionPayments);
+                    }
                     conn.ArgSQLParam = param;
 
                     //Execute insert header
@@ -460,7 +480,14 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                             };
 
-                    conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                    if (prefix == "CR")
+                    {
+                        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                    }
+                    else if (prefix == "JV")
+                    {
+                        conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.JVTransactionPayments);
+                    }
                     conn.ArgSQLParam = param;
 
                     //Execute insert header
@@ -473,6 +500,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     //pending process
                     balance = balance - paymentamount;
                     string accountname = g.GetAccountName(accountcode);
+                    string membername = g.GetMemberName(memberid);
 
                     if (prefix == "CR")
                     {
@@ -490,6 +518,31 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             };
 
                         conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
+                        conn.ArgSQLParam = param;
+
+                        //Execute insert header
+                        conn.ExecuteMySQL();
+                    }
+                    else if (prefix == "JV")
+                    {
+                        var param = new Dictionary<string, object>()
+                            {
+                                { "@transNum", transnum },
+                                { "@accountcode", accountcode },
+                                { "@crossreference", crossreference },
+                                { "@idUser", iduser },
+                                { "@debit", 0 },
+                                { "@credit", paidamount },
+                                { "@memberId", memberid },
+                                { "@memberName", membername },
+                                { "@accountName", accountname },
+                                { "@intComputed", 0 },
+                                { "@paidToDate", paidtodate },
+                                { "@status", "CLOSED" },
+                                { "@AccountNo", accountnumber }
+                            };
+
+                        conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewJVDetail);
                         conn.ArgSQLParam = param;
 
                         //Execute insert header
@@ -504,6 +557,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                 else if (total != paidtodate && _count == 0 && isAllocated == true)
                 {
                     string accountname = g.GetAccountName(accountcode);
+                    string membername = g.GetMemberName(memberid);
                     if (prefix == "CR")
                     {
                         var param = new Dictionary<string, object>()
@@ -525,7 +579,32 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                         //Execute insert header
                         conn.ExecuteMySQL();
                     }
-                    
+                    else if (prefix == "JV")
+                    {
+                        var param = new Dictionary<string, object>()
+                            {
+                                { "@transNum", transnum },
+                                { "@accountcode", accountcode },
+                                { "@crossreference", crossreference },
+                                { "@idUser", iduser },
+                                { "@debit", 0 },
+                                { "@credit", paidamount },
+                                { "@memberId", memberid },
+                                { "@memberName", membername },
+                                { "@accountName", accountname },
+                                { "@intComputed", 0 },
+                                { "@paidToDate", paidtodate },
+                                { "@status", "CLOSED" },
+                                { "@AccountNo", accountnumber }
+                            };
+
+                        conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewJVDetail);
+                        conn.ArgSQLParam = param;
+
+                        //Execute insert header
+                        conn.ExecuteMySQL();
+                    }
+
                     UpdateAccountCreditLimit(conn, memberid, accountnumber, paidamount);
                     isAllocated = false;
                     balance = 0;
@@ -534,6 +613,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                 else if (total == paidtodate && _count == 0 && isAllocated == true)
                 {
                     string accountname = g.GetAccountName(accountcode);
+                    string membername = g.GetMemberName(memberid);
                     if (prefix == "CR")
                     {
                         var param = new Dictionary<string, object>()
@@ -550,6 +630,31 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             };
 
                         conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
+                        conn.ArgSQLParam = param;
+
+                        //Execute insert header
+                        conn.ExecuteMySQL();
+                    }
+                    else if (prefix == "JV")
+                    {
+                        var param = new Dictionary<string, object>()
+                            {
+                                { "@transNum", transnum },
+                                { "@accountcode", accountcode },
+                                { "@crossreference", crossreference },
+                                { "@idUser", iduser },
+                                { "@debit", 0 },
+                                { "@credit", paidamount },
+                                { "@memberId", memberid },
+                                { "@memberName", membername },
+                                { "@accountName", accountname },
+                                { "@intComputed", 0 },
+                                { "@paidToDate", paidtodate },
+                                { "@status", "CLOSED" },
+                                { "@AccountNo", accountnumber }
+                            };
+
+                        conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewJVDetail);
                         conn.ArgSQLParam = param;
 
                         //Execute insert header
