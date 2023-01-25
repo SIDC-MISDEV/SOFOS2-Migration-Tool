@@ -17,8 +17,12 @@ namespace SOFOS2_Migration_Tool.Payment.Model
         public string Status { get; set; }
         public bool Cancelled { get; set; }
         public string Remarks { get; set; }
-
-        //Details
+        public JournalVoucherDetail JVDetails { get; set; }
+    }
+    public class JournalVoucherDetail
+    {
+        public int TransNum { get; set; }
+        public string Reference { get; set; }
         public string AccountCode { get; set; }
         public string CrossReference { get; set; }
         public decimal Debit { get; set; }
@@ -31,5 +35,7 @@ namespace SOFOS2_Migration_Tool.Payment.Model
         public string PaidToDate { get; set; }
         public string LastPaymentDate { get; set; }
         public string AccountNumber { get; set; }
+        public string Status { get; set; }
+        public string IdUser { get; set; }
     }
 }

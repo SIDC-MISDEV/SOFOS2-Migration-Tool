@@ -63,42 +63,28 @@ namespace SOFOS2_Migration_Tool.Service
 
                 case payment.JVHeader:
 
-                    sQuery.Append(@"SELECT 
-                                    '' transNum, 
-                                    '' as transNum,
-                                    reference, 
-                                    sum(credit) as total, 
-                                    DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') as transDate,
-                                    idUser,
-                                    'CLOSED' as status,
+                    sQuery.Append(@"select reference, 
+                                    sum(credit) 'total', 
+                                    DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') as 'transDate',
+                                    idUser, 
+                                    '' as 'status',
                                     cancelled,
-                                    reference as remarks 
-                                    FROM ledger 
-                                     WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount,@duetointercompany,@miscellaneousincome,@growingincome,@expensespayable) AND credit > 0 AND date(date)=@transdate GROUP BY reference ORDER BY reference ASC");
+                                    CONCAT(reference,'-','Migration Tool') as 'remarks'
+                                    from ledger where cancelled=0 AND left(reference,2)=@transprefix AND date(date)=@transdate group by reference order by date");
                     break;
 
                 case payment.JVDetail:
 
-                    sQuery.Append(@"SELECT
-                                    '' as detailNum, 
-                                    '' transNum,
-                                    reference, 
-                                    idaccount as accountCode,
-                                    '' as crossReference,
-                                    idUser,
-                                    if(debit is null,0.00,debit) as debit,
-                                    if(credit is null,0.00,credit) as credit, 
-                                    idfile as memberId,
-                                    '' as memberName,
-                                    '' as accountName,
-                                      if(idaccount=@oldinterestaccount or idaccount=@newinterestaccount,'JV','') as refTransType,
-                                    0 as intComputed,
-                                    '0.00' as paidToDate,
-                                    'CLOSED' as status,
-                                    '' as lastpaymentdate,
-                                    '' as AccountNo
-                                    FROM ledger 
-                                   WHERE LEFT(reference,2)=@transprefix AND idaccount IN (@principalaccount,@oldinterestaccount,@newinterestaccount,@duetointercompany,@miscellaneousincome,@growingincome,@expensespayable,@cash,@check,@giftcheck) AND date(date)=@transdate");
+                    sQuery.Append(@"select reference, 
+                                    idaccount as 'accountCode', 
+                                    (ifnull(debit,0)) as 'debit', 
+                                    idUser, 
+                                    (ifnull(credit,0)) as 'credit',
+                                    idfile as 'memberId',
+                                    '' as memberName, 
+                                    ''as 'accountName', 
+                                    '' as 'status', 
+                                    '' as 'AccountNo' from ledger where cancelled=0 AND left(reference,2)=@transprefix AND date(date)=@transdate order by date;");
                     break;
 
                 case payment.ORHeader:
@@ -122,7 +108,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     '' as series,
                                     '' as refTransType
                                     FROM ledger 
-                                    WHERE LEFT(reference,2)=@transprefix AND idaccount NOT IN  ('112010000000001', '112020000000003','112050000000003','112050000000003','112010000000015', '112010000000011','112050000000003', '112050000000003', '112010000000002', '112030000000019','212010000000000','430400000000000'  ) AND credit > 0 AND date(date)=@transdate GROUP BY reference ORDER BY reference ASC");
+                                    WHERE LEFT(reference,2)=@transprefix AND idaccount NOT IN  ('112010000000001', '112020000000003','112050000000003','112050000000003','112010000000015', '112010000000011','112050000000003', '112050000000003', '112010000000002', '112030000000019','212010000000000','430400000000000') AND credit > 0 AND date(date)=@transdate GROUP BY reference ORDER BY reference ASC");
                     break;
 
                 case payment.ORDetail:

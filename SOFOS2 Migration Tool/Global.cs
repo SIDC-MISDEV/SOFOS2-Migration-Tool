@@ -58,7 +58,7 @@ namespace SOFOS2_Migration_Tool
             }
         }
 
-        public string GetCRReference(string tableName, string fieldName)
+        public string GetReference(string tableName, string fieldName, string prefix)
         {
             try
             {
@@ -67,7 +67,7 @@ namespace SOFOS2_Migration_Tool
                 string zeroText = "";
                 string reference = "";
 
-                query = $@"SELECT {fieldName} FROM {tableName} WHERE transType = 'CR' ORDER BY {fieldName} DESC LIMIT 1;";
+                query = $@"SELECT {fieldName} FROM {tableName} WHERE transType = '{prefix}' ORDER BY {fieldName} DESC LIMIT 1;";
 
 
                 using (var conn = new MySQLHelper(DestinationDatabase, new StringBuilder(query)))
@@ -85,7 +85,7 @@ namespace SOFOS2_Migration_Tool
                     }
                     while (numZero != 0);
 
-                    result = string.Concat("CR", zeroText, reference);
+                    result = string.Concat(prefix, zeroText, reference);
 
                 }
 
