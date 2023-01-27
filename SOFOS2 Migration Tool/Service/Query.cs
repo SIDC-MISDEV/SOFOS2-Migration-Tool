@@ -125,5 +125,10 @@ namespace SOFOS2_Migration_Tool.Service
         {
             return new StringBuilder("SELECT MAX(membernum) FROM cci00;");
         }
+
+        public static StringBuilder UpdateStatus(string table)
+        {
+            return new StringBuilder(@"UPDATE "+table+" SET status = @status WHERE transnum = @transnum;");
+        }
     }
 }

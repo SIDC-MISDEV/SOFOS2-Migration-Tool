@@ -17,44 +17,31 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             try
             {
                 var result = new List<JournalVoucher>();
-                var refRemarks = new List<string>();
-                string principalaccount = "112010000000001";
-                string oldinterestaccount = "441200000000000";
-                string newinterestaccount = "430400000000000";
-                string duetointercompany = "212010000000000";
-                string miscellaneousincome = "440400000000000";
-                string growingincome = "410100000000000";
-                string expensespayable = "214010000000000";
+                //var refRemarks = new List<string>();
+                //string principalaccount = "112010000000001";
+                //string oldinterestaccount = "441200000000000";
+                //string newinterestaccount = "430400000000000";
+                //string duetointercompany = "212010000000000";
+                //string miscellaneousincome = "440400000000000";
+                //string growingincome = "410100000000000";
+                //string expensespayable = "214010000000000";
 
                 var filter = new Dictionary<string, object>()
                 {
                     { "@transdate", date },
-                    { "@principalaccount", principalaccount },
-                    { "@oldinterestaccount", oldinterestaccount },
-                    { "@newinterestaccount", newinterestaccount },
-                    { "@duetointercompany", duetointercompany },
-                    { "@miscellaneousincome", miscellaneousincome },
-                    { "@growingincome", growingincome },
-                    { "@expensespayable", expensespayable },
                     { "@transprefix", transprefix }
                 };
 
-
-                using (var conn = new MySQLHelper(Global.DestinationDatabase, PaymentQuery.GetQuery(payment.JVRemarks)))
-                {
-                    using (var dr = conn.MySQLReader())
-                    {
-                        while (dr.Read())
-                        {
-                            refRemarks.Add(dr["remarks"].ToString());
-                        }
-                    }
-
-                
-                           
-                }
-
-        
+                //using (var conn = new MySQLHelper(Global.DestinationDatabase, PaymentQuery.GetQuery(payment.JVRemarks)))
+                //{
+                //    using (var dr = conn.MySQLReader())
+                //    {
+                //        while (dr.Read())
+                //        {
+                //            refRemarks.Add(dr["remarks"].ToString());
+                //        }
+                //    }  
+                //}
 
                 using (var conn = new MySQLHelper(Global.SourceDatabase, PaymentQuery.GetQuery(payment.JVHeader), filter))
 
@@ -63,23 +50,18 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     {
                         while (dr.Read())
                         {
-                            if(!refRemarks.Contains(dr["remarks"].ToString()))
+                            result.Add(new JournalVoucher
                             {
-                                result.Add(new JournalVoucher
-                                {
-                                    Reference = dr["reference"].ToString(),
-                                    Total = Convert.ToDecimal(dr["total"]),
-                                    TransDate = dr["transDate"].ToString(),
-                                    IdUser = dr["idUser"].ToString(),
-                                    Status = dr["status"].ToString(),
-                                    Cancelled = Convert.ToBoolean(dr["cancelled"]),
-                                    Remarks = dr["remarks"].ToString(),
-                                });
-                            }
+                                Reference = dr["reference"].ToString(),
+                                Total = Convert.ToDecimal(dr["total"]),
+                                TransDate = dr["transDate"].ToString(),
+                                IdUser = dr["idUser"].ToString(),
+                                Status = "CLOSED",
+                                Cancelled = Convert.ToBoolean(dr["cancelled"]),
+                                Remarks = dr["remarks"].ToString(),
+                            });
 
                         }
-
-
                     }
                 }
                 return result;
@@ -91,35 +73,21 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             }
         }
 
-        public List<JournalVoucher> GetJournalVoucherDetail(string date, string transprefix)
+        public List<JournalVoucherDetail> GetJournalVoucherDetail(string date, string transprefix)
         {
             try
             {
                 g = new Global();
-                var result = new List<JournalVoucher>();
-                paymentmode = g.GetAllPaymentMode();
+                var result = new List<JournalVoucherDetail>();
+                string status = string.Empty;
+                string _ref = string.Empty;
+                bool isAr = false;
 
-                string principalaccount = "112010000000001";
-                string oldinterestaccount = "441200000000000";
-                string newinterestaccount = "430400000000000";
-                string duetointercompany = "212010000000000";
-                string miscellaneousincome = "440400000000000";
-                string growingincome = "410100000000000";
-                string expensespayable = "214010000000000";
+                paymentmode = g.GetAllPaymentMode();
 
                 var filter = new Dictionary<string, object>()
                 {
                     { "@transdate", date },
-                    { "@principalaccount", principalaccount },
-                    { "@oldinterestaccount", oldinterestaccount },
-                    { "@newinterestaccount", newinterestaccount },
-                    { "@duetointercompany", duetointercompany },
-                    { "@miscellaneousincome", miscellaneousincome },
-                    { "@growingincome", growingincome },
-                    { "@expensespayable", expensespayable },
-                    { "@cash", paymentmode.FirstOrDefault(n => n.Value == "CASH").Key },
-                    { "@check", paymentmode.FirstOrDefault(n => n.Value == "CHECK").Key },
-                    { "@giftcheck", paymentmode.FirstOrDefault(n => n.Value == "Gift Check").Key },
                     { "@transprefix", transprefix }
                 };
 
@@ -129,51 +97,40 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     {
                         while (dr.Read())
                         {
-                            result.Add(new JournalVoucher
+                            
+                            result.Add(new JournalVoucherDetail
                             {
                                 Reference = dr["reference"].ToString(),
                                 AccountCode = dr["accountCode"].ToString(),
-                                CrossReference = dr["crossReference"].ToString(),
                                 IdUser = dr["idUser"].ToString(),
                                 Debit = Convert.ToDecimal(dr["debit"]),
                                 Credit = Convert.ToDecimal(dr["credit"]),
                                 MemberId = dr["memberId"].ToString(),
                                 MemberName = dr["memberName"].ToString(),
                                 AccountName = dr["accountName"].ToString(),
-                                DetRefTransType = dr["refTransType"].ToString(),
-                                IntComputed = dr["intComputed"].ToString(),
-                                PaidToDate = dr["paidToDate"].ToString(),
-                                LastPaymentDate = dr["lastPaymentDate"].ToString(),
-                                AccountNumber = dr["AccountNo"].ToString(),
-                                Status = dr["status"].ToString(),
+                                DetRefTransType = dr["accountCode"].ToString() == "430400000000000" || dr["accountCode"].ToString() == "441200000000000" ? "CI" : "",
+                                Status = "CLOSED",
                             });
                             g = new Global();
                             result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.MemberName = g.GetFileName(dr["memberId"].ToString()); return c; }).ToList();
                             result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.AccountNumber = g.GetAccountNumber(dr["memberId"].ToString(), "CI"); return c; }).ToList();
-                            if (dr["accountCode"].ToString() == principalaccount)
+
+                            result.Where(c => c.AccountCode == dr["accountCode"].ToString() && c.Reference == dr["reference"].ToString()).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
+                            //result.Where(c => c.AccountCode == dr["accountCode"].ToString() && c.Reference == dr["reference"].ToString()).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
+
+                            if (dr["accountCode"].ToString() == "112010000000001" && Convert.ToDecimal(dr["debit"]) != 0)
                             {
-                                result.Where(c => c.AccountCode == principalaccount).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
+                                result.Where(c => c.Debit != 0 && c.Reference == dr["reference"].ToString()).Select(c => { c.Status = "OPEN"; return c; }).ToList();
+                                result.Where(c => c.Credit != 0 && c.Reference == dr["reference"].ToString()).Select(c => { c.Status = "OPEN"; return c; }).ToList();
+                                isAr = true;
                             }
-                            else if (dr["accountCode"].ToString() == newinterestaccount)
+                            if (dr["accountCode"].ToString() == "212010000000000" && isAr == true)
                             {
-                                result.Where(c => c.AccountCode == newinterestaccount).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
+                                result.Where(c => c.Debit != 0 && c.Reference == dr["reference"].ToString()).Select(c => { c.Status = "OPEN"; return c; }).ToList();
+                                result.Where(c => c.Credit != 0 && c.Reference == dr["reference"].ToString()).Select(c => { c.Status = "OPEN"; return c; }).ToList();
+                                isAr = false;
                             }
-                            else if (dr["accountCode"].ToString() == oldinterestaccount)
-                            {
-                                result.Where(c => c.AccountCode == oldinterestaccount).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
-                            }
-                            else if (dr["accountCode"].ToString() == duetointercompany)
-                            {
-                                result.Where(c => c.AccountCode == duetointercompany).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
-                            }
-                            else if (dr["accountCode"].ToString() == miscellaneousincome)
-                            {
-                                result.Where(c => c.AccountCode == miscellaneousincome).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
-                            }
-                            else
-                            {
-                                result.Where(c => c.AccountCode == dr["accountCode"].ToString()).Select(c => { c.AccountName = g.GetAccountName(dr["accountCode"].ToString()); return c; }).ToList();
-                            }
+
                         }
                     }
                 }
@@ -186,7 +143,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             }
         }
 
-        public void InsertJV(List<JournalVoucher> _header, List<JournalVoucher> _detail)
+        public void InsertJV(List<JournalVoucher> _header, List<JournalVoucherDetail> _detail)
         {
             try
             {
@@ -213,7 +170,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                             { "@status", item.Status },
                             { "@cancelled", item.Cancelled },
                             { "@remarks", item.Remarks }
-                        
+
                         };
 
                         conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.JVHeader);
@@ -260,8 +217,6 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     conn.ArgSQLCommand = Query.UpdateReferenceCount();
                     conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", "JV" } };
                     conn.ExecuteMySQL();
-
-
                     conn.CommitTransaction();
                 }
 
