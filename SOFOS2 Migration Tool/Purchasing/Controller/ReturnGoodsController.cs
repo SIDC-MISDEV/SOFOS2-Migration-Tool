@@ -116,7 +116,8 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
             {
                 Global g = new Global();
                 int transNum = 0;
-                long series = 0;
+                long series = 0, 
+                    cancelledSeries = 0;
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
@@ -128,7 +129,47 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                     {
                         series = Convert.ToInt32(item.Reference.Replace(transType, ""));
 
-                        var param = new Dictionary<string, object>()
+                        CreateReturnGoodsHeader(conn, transNum, item);
+                        CreateReturnGoodsDetail(conn, _detail, transNum, item.Reference, item.IdUser, item.TransDate);
+
+                        if (item.Cancelled)
+                        {
+                            DateTime cancelledDate = new DateTime();
+                            transNum++;
+                            item.CrossReference = item.Reference;
+                            item.Reference = g.GetLatestTransactionReference(conn, "PURCHASING(RG)", "CD");
+                            item.TransType = "CD";
+                            item.Cancelled = false;
+                            cancelledSeries = Convert.ToInt32(item.Reference.Replace(item.TransType, ""));
+                            cancelledDate = Convert.ToDateTime(item.TransDate).AddSeconds(20);
+                            item.TransDate = cancelledDate.ToString("yyyy-MM-dd hh:mm:ss");
+
+                            CreateReturnGoodsHeader(conn, transNum, item);
+                            CreateReturnGoodsDetail(conn, _detail, transNum, item.CrossReference, item.IdUser, item.TransDate);
+
+                            UpdateLastReference(conn, cancelledSeries, item.TransType, "PURCHASING(RG)");
+                        }
+
+                        transNum++;
+                    }
+
+                    UpdateLastReference(conn, series, transType);
+
+                    conn.CommitTransaction();
+                }
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        private void CreateReturnGoodsHeader(MySQLHelper conn, int transNum, ReturnGoods item)
+        {
+            try
+            {
+                var param = new Dictionary<string, object>()
                         {
                             { "@vendorCode", item.VendorCode },
                             { "@vendorName", item.VendorName },
@@ -150,20 +191,30 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                             {"@extracted", item.Extracted }
                         };
 
-                        //Saving transaction header
-                        conn.ArgSQLCommand = PurchasingQuery.InsertTransaction(PR.RGHeader);
-                        conn.ArgSQLParam = param;
-                        conn.ExecuteMySQL();
+                //Saving transaction header
+                conn.ArgSQLCommand = PurchasingQuery.InsertTransaction(PR.RGHeader);
+                conn.ArgSQLParam = param;
+                conn.ExecuteMySQL();
+            }
+            catch
+            {
 
-                        #region Insert Details
-                        var details = _detail.Where(n => n.Reference == item.Reference).ToList();
+                throw;
+            }
+        }
 
-                        foreach (var detail in details)
-                        {
+        private void CreateReturnGoodsDetail(MySQLHelper conn, List<ReturnGoodsItem> _detail, int transNum, string reference, string idUser, string transDate)
+        {
+            try
+            {
+                var details = _detail.Where(n => n.Reference == reference).ToList();
 
-                            /*
-                             @barcode,@transNum,@itemCode,@itemDescription,@uomCode,@uomDescription,@quantity,@price,@Total,@conversion,@accountCode,@transDate,@idUser*/
-                            var detailParam = new Dictionary<string, object>()
+                foreach (var detail in details)
+                {
+
+                    /*
+                     @barcode,@transNum,@itemCode,@itemDescription,@uomCode,@uomDescription,@quantity,@price,@Total,@conversion,@accountCode,@transDate,@idUser*/
+                    var detailParam = new Dictionary<string, object>()
                                 {
                                     {"@barcode", detail.Barcode },
                                     {"@transNum", transNum },
@@ -175,28 +226,40 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                                     {"@price", detail.Price },
                                     {"@total", detail.Total },
                                     {"@conversion", detail.Conversion },
-                                    {"@transDate", item.TransDate },
-                                    {"@iduser", item.IdUser },
+                                    {"@transDate", transDate },
+                                    {"@iduser", idUser },
                                     {"@accountCode", detail.AccountCode }
                                 };
 
-                            //Saving transaction details
-                            conn.ArgSQLCommand = PurchasingQuery.InsertTransaction(PR.RGDetail);
-                            conn.ArgSQLParam = detailParam;
-                            conn.ExecuteMySQL();
-                        }
-                        #endregion
+                    //Saving transaction details
+                    conn.ArgSQLCommand = PurchasingQuery.InsertTransaction(PR.RGDetail);
+                    conn.ArgSQLParam = detailParam;
+                    conn.ExecuteMySQL();
+                }
+            }
+            catch
+            {
 
-                        transNum++;
-                    }
+                throw;
+            }
+        }
 
+        private void UpdateLastReference(MySQLHelper conn, long series, string transType, string module = "")
+        {
+            try
+            {
+                if(transType == "CD")
+                {
+                    conn.ArgSQLCommand = Query.UpdateCancelledReferenceCount();
+                    conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series }, { "@transtype", transType }, { "@module", module } };
+                }
+                else
+                {
                     conn.ArgSQLCommand = Query.UpdateReferenceCount();
                     conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series }, { "@transtype", transType } };
-                    conn.ExecuteMySQL();
-
-
-                    conn.CommitTransaction();
                 }
+
+                conn.ExecuteMySQL();
             }
             catch
             {

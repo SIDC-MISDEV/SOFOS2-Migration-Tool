@@ -130,4 +130,12 @@ namespace SOFOS2_Migration_Tool.Sales.Model
         public string TransType { get; set; }
         public string AccountNumber { get; set; }
     }
+
+    public class Item
+    {
+        public string ItemCode { get; set; }
+        public string UomCode { get; set; }
+        public decimal SellingPrice { get; set; }
+        public decimal MarkUp { get; set; }
+    }
 }

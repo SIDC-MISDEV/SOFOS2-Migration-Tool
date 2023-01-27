@@ -12,6 +12,7 @@ namespace SOFOS2_Migration_Tool.Service
         {
             return new StringBuilder(@"UPDATE sst00 SET series = @series WHERE transtype = @transtype;");
         }
+
         public static StringBuilder UpdateBIRSeries()
         {
             return new StringBuilder(@"UPDATE ssbir SET 
@@ -125,6 +126,10 @@ namespace SOFOS2_Migration_Tool.Service
         {
             return new StringBuilder("SELECT MAX(membernum) FROM cci00;");
         }
+
+        public static StringBuilder UpdateCancelledReferenceCount()
+        {
+            return new StringBuilder(@"UPDATE sst00 SET series = @series WHERE transtype = @transtype AND module = @module;");
 
         public static StringBuilder UpdateStatus(string table)
         {

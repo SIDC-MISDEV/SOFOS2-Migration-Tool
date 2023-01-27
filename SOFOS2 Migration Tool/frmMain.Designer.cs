@@ -56,6 +56,9 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.lblBranchName = new System.Windows.Forms.Label();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.pbSellingPrice = new System.Windows.Forms.PictureBox();
+            this.btnSellingPrice = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputeSalesCreditLimit)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbRecomputePayment)).BeginInit();
@@ -67,6 +70,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pcbInventory)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbSales)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbPurchasing)).BeginInit();
+            this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbSellingPrice)).BeginInit();
             this.SuspendLayout();
             // 
             // btnRecomputeInventory
@@ -151,7 +156,7 @@
             this.groupBox1.Controls.Add(this.btnRecomputeInventory);
             this.groupBox1.Controls.Add(this.btnRecomputePayment);
             this.groupBox1.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox1.Location = new System.Drawing.Point(30, 382);
+            this.groupBox1.Location = new System.Drawing.Point(30, 362);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(324, 184);
             this.groupBox1.TabIndex = 2;
@@ -219,7 +224,7 @@
             this.groupBox2.Controls.Add(this.btnInventory);
             this.groupBox2.Controls.Add(this.btnSales);
             this.groupBox2.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox2.Location = new System.Drawing.Point(30, 55);
+            this.groupBox2.Location = new System.Drawing.Point(30, 48);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(324, 308);
             this.groupBox2.TabIndex = 1;
@@ -321,7 +326,7 @@
             this.dtpDateParam.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.dtpDateParam.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dtpDateParam.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpDateParam.Location = new System.Drawing.Point(237, 24);
+            this.dtpDateParam.Location = new System.Drawing.Point(237, 17);
             this.dtpDateParam.Name = "dtpDateParam";
             this.dtpDateParam.Size = new System.Drawing.Size(117, 25);
             this.dtpDateParam.TabIndex = 1;
@@ -332,7 +337,7 @@
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(185, 26);
+            this.label1.Location = new System.Drawing.Point(185, 19);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(45, 19);
             this.label1.TabIndex = 10;
@@ -341,7 +346,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(27, 578);
+            this.label2.Location = new System.Drawing.Point(27, 652);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(94, 17);
             this.label2.TabIndex = 11;
@@ -349,7 +354,7 @@
             // 
             // txtBranchCode
             // 
-            this.txtBranchCode.Location = new System.Drawing.Point(147, 575);
+            this.txtBranchCode.Location = new System.Drawing.Point(147, 649);
             this.txtBranchCode.Name = "txtBranchCode";
             this.txtBranchCode.ReadOnly = true;
             this.txtBranchCode.Size = new System.Drawing.Size(207, 22);
@@ -357,7 +362,7 @@
             // 
             // txtWarehouseCode
             // 
-            this.txtWarehouseCode.Location = new System.Drawing.Point(147, 603);
+            this.txtWarehouseCode.Location = new System.Drawing.Point(147, 677);
             this.txtWarehouseCode.Name = "txtWarehouseCode";
             this.txtWarehouseCode.ReadOnly = true;
             this.txtWarehouseCode.Size = new System.Drawing.Size(207, 22);
@@ -366,7 +371,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(27, 606);
+            this.label3.Location = new System.Drawing.Point(27, 680);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(122, 17);
             this.label3.TabIndex = 13;
@@ -375,7 +380,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(27, 639);
+            this.label4.Location = new System.Drawing.Point(27, 713);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(98, 17);
             this.label4.TabIndex = 15;
@@ -383,16 +388,53 @@
             // 
             // lblBranchName
             // 
-            this.lblBranchName.Location = new System.Drawing.Point(144, 639);
+            this.lblBranchName.Location = new System.Drawing.Point(144, 713);
             this.lblBranchName.Name = "lblBranchName";
             this.lblBranchName.Size = new System.Drawing.Size(210, 39);
             this.lblBranchName.TabIndex = 16;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.groupBox3.Controls.Add(this.pbSellingPrice);
+            this.groupBox3.Controls.Add(this.btnSellingPrice);
+            this.groupBox3.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox3.Location = new System.Drawing.Point(30, 547);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(324, 84);
+            this.groupBox3.TabIndex = 17;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Migation of Selling Price";
+            // 
+            // pbSellingPrice
+            // 
+            this.pbSellingPrice.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.pbSellingPrice.BackColor = System.Drawing.Color.Transparent;
+            this.pbSellingPrice.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.pbSellingPrice.Location = new System.Drawing.Point(236, 24);
+            this.pbSellingPrice.Name = "pbSellingPrice";
+            this.pbSellingPrice.Size = new System.Drawing.Size(39, 39);
+            this.pbSellingPrice.TabIndex = 13;
+            this.pbSellingPrice.TabStop = false;
+            // 
+            // btnSellingPrice
+            // 
+            this.btnSellingPrice.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnSellingPrice.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSellingPrice.Location = new System.Drawing.Point(66, 24);
+            this.btnSellingPrice.Name = "btnSellingPrice";
+            this.btnSellingPrice.Size = new System.Drawing.Size(164, 39);
+            this.btnSellingPrice.TabIndex = 7;
+            this.btnSellingPrice.Text = "Update Selling Price";
+            this.btnSellingPrice.UseVisualStyleBackColor = true;
+            this.btnSellingPrice.Click += new System.EventHandler(this.btnSellingPrice_Click);
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(381, 715);
+            this.ClientSize = new System.Drawing.Size(381, 793);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.lblBranchName);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.txtWarehouseCode);
@@ -419,6 +461,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pcbInventory)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbSales)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pcbPurchasing)).EndInit();
+            this.groupBox3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbSellingPrice)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -454,6 +498,9 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label lblBranchName;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.PictureBox pbSellingPrice;
+        private System.Windows.Forms.Button btnSellingPrice;
     }
 }
 

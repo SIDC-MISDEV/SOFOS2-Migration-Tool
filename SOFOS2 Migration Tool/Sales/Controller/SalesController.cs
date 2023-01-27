@@ -289,6 +289,38 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                 throw;
             }
         }
+
+        public List<Item> GetUpdatedSellingPrice()
+        {
+            try
+            {
+                var list = new List<Item>();
+
+                using (var conn = new MySQLHelper(Global.SourceDatabase, SalesQuery.GetSalesQuery(SalesEnum.SellingPrice)))
+                {
+                    using (var dr = conn.MySQLReader())
+                    {
+                        while (dr.Read())
+                        {
+                            list.Add(new Item
+                            {
+                                ItemCode = dr["idstock"].ToString(),
+                                UomCode = dr["unit"].ToString(),
+                                SellingPrice = Convert.ToDecimal(dr["selling"]),
+                                MarkUp = Convert.ToDecimal(dr["markup"])
+                            });
+                        }
+                    }
+                }
+
+                return list;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         #endregion GET
         #region INSERT
 
@@ -334,7 +366,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             Sales.Model.Sales cancelledDocument = (Sales.Model.Sales)item.Clone();
                             cancelledDocument.Crossreference = item.Reference;
                             cancelledDocument.Reference = global.GetLatestTransactionReference(conn,"POS", "CD");
-                            cancelledDocument.TransType = "CD"; 
+                            cancelledDocument.TransType = "CD";
+                            cancelledDocument.Cancelled = false;
 
                             CreateSalesHeaderDocument(conn, cancelledDocument, transNum, global);
                             CreateSalesDetailDocument(conn, details, transNum, item.KanegoDiscount);
@@ -382,6 +415,38 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
         }
 
         #endregion INSERT
+
+        public int UpdateSellingPrice(List<Item> items)
+        {
+            StringBuilder sb = new StringBuilder();
+            int result = 0;
+
+            try
+            {
+                foreach (var item in items)
+                {
+                    sb.Append($"UPDATE iiuom SET sellingprice = {item.SellingPrice}, markup = {item.MarkUp} WHERE itemcode = '{item.ItemCode}' AND uomcode = '{item.UomCode}';{Environment.NewLine}");
+                }
+
+                using (var conn = new MySQLHelper(Global.DestinationDatabase))
+                {
+                    conn.ArgSQLCommand = sb;
+
+                    conn.BeginTransaction();
+
+                    result = conn.ExecuteMySQL();
+
+                    conn.CommitTransaction();
+                }
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
 
         #endregion Public Methods
 
