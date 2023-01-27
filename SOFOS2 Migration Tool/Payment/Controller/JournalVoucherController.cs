@@ -56,7 +56,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                 Total = Convert.ToDecimal(dr["total"]),
                                 TransDate = dr["transDate"].ToString(),
                                 IdUser = dr["idUser"].ToString(),
-                                Status = dr["status"].ToString(),
+                                Status = "CLOSED",
                                 Cancelled = Convert.ToBoolean(dr["cancelled"]),
                                 Remarks = dr["remarks"].ToString(),
                             });

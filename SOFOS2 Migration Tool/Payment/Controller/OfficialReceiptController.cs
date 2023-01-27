@@ -212,9 +212,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                         {
 
                             detailNum++;
-
-                            
-
+                            var test = paymentmode.FirstOrDefault(n => n.Value == "CASH").Key;
                             if (detail.AccountCode != paymentmode.FirstOrDefault(n => n.Value == "CASH").Key && detail.AccountCode != paymentmode.FirstOrDefault(n => n.Value == "CHECK").Key && detail.AccountCode != paymentmode.FirstOrDefault(n => n.Value == "Gift Check").Key)
                             {
                                 
@@ -223,6 +221,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                     _transnum = transNum;
                                     _detailnum = detailNum;
                                 }
+
 
                                 var detailParam = new Dictionary<string, object>()
                                 {

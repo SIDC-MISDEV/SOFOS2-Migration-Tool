@@ -64,7 +64,7 @@ namespace SOFOS2_Migration_Tool.Service
                 case payment.JVHeader:
 
                     sQuery.Append(@"select reference, 
-                                    sum(credit) 'total', 
+                                    sum(debit) 'total', 
                                     DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') as 'transDate',
                                     idUser, 
                                     '' as 'status',
@@ -295,8 +295,8 @@ namespace SOFOS2_Migration_Tool.Service
                     break;
                 case payment.NewJVDetail:
 
-                    sQuery.Append(@"INSERT INTO FJV10 ( transNum, accountCode, crossReference, idUser, debit, credit, memberId, memberName, accountName, intComputed, paidToDate, status,  AccountNo) 
-                            VALUES ( @transNum, @accountCode, @crossReference, @idUser, @debit, @credit, @memberId, @memberName, @accountName, @intComputed, @paidToDate, @status,  @AccountNo)");
+                    sQuery.Append(@"INSERT INTO FJV10 ( transNum, accountCode, crossReference, idUser, debit, credit, memberId, memberName, accountName, intComputed,  status,  AccountNo) 
+                            VALUES ( @transNum, @accountCode, @crossReference, @idUser, @debit, @credit, @memberId, @memberName, @accountName, @intComputed, @status,  @AccountNo)");
                     break;
 
                 case payment.JVHeader:
@@ -358,7 +358,7 @@ namespace SOFOS2_Migration_Tool.Service
 
                 case payment.JVTransactionPayments:
 
-                    sQuery.Append(@"UPDATE fjv00 a INNER JOIN fjv10 b ON a.transNum=b.transNum SET crossReference=@crossreference, credit=@amount , paidtodate=@amount WHERE memberId=@memberid AND AccountNo=@accountno AND b.transnum=@transnum AND b.accountcode=@accountcode AND b.detailNum=@detailnum");
+                    sQuery.Append(@"UPDATE fjv00 a INNER JOIN fjv10 b ON a.transNum=b.transNum SET crossReference=@crossreference, credit=@amount WHERE memberId=@memberid AND AccountNo=@accountno AND b.transnum=@transnum AND b.accountcode=@accountcode AND b.detailNum=@detailnum");
                     break;
                 case payment.CreditLimit:
 

@@ -362,6 +362,32 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
             }
         }
 
+        public void UpdatePaymentStatus(MySQLHelper conn, string memberid, string accountnumber, decimal amount)
+        {
+            try
+            {
+                Global g = new Global();
+                var param = new Dictionary<string, object>()
+                        {
+                            { "@memberid", memberid },
+                            { "@accountno", accountnumber },
+                            { "@amount", amount },
+                        };
+
+                conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.CreditLimit);
+                conn.ArgSQLParam = param;
+
+                //Execute insert header
+                conn.ExecuteMySQL();
+                //conn.CommitTransaction();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public void UpdatePayment(MySQLHelper conn, string transnum, string detailnum, string memberid, string accountnumber,string prefix, string crossreference, decimal paidtodate, decimal paidamount, decimal total, decimal paymentamount, string iduser, string accountcode, int hasallocation)
         {
             try
@@ -387,15 +413,23 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     if (prefix=="CR")
                     {
                         conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                        conn.ArgSQLParam = param;
+
+                        //Execute insert header
+                        conn.ExecuteMySQL();
+                        g.UpdatePaymentStatus(conn, transnum, "fp000", "CLOSED");
                     }
                     else if (prefix == "JV")
                     {
                         conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.JVTransactionPayments);
-                    }
-                    conn.ArgSQLParam = param;
+                        conn.ArgSQLParam = param;
 
-                    //Execute insert header
-                    conn.ExecuteMySQL();
+                        //Execute insert header
+                        conn.ExecuteMySQL();
+                        g.UpdatePaymentStatus(conn, transnum, "fjv00", "CLOSED");
+                        g.UpdatePaymentStatus(conn, transnum, "fjv10", "CLOSED");
+                    }
+                    
 
                     UpdateAccountCreditLimit(conn, memberid, accountnumber, paidamount);
                     isAllocated = true;
@@ -420,16 +454,23 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     if (prefix == "CR")
                     {
                         conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.TransactionPayments);
+                        conn.ArgSQLParam = param;
+                        //Execute insert header
+                        conn.ExecuteMySQL();
+
+                        g.UpdatePaymentStatus(conn, transnum, "fp000", "CLOSED");
                     }
                     else if (prefix == "JV")
                     {
                         conn.ArgSQLCommand = PaymentQuery.UpdateQuery(payment.JVTransactionPayments);
+                        conn.ArgSQLParam = param;
+                        //Execute insert header
+                        conn.ExecuteMySQL();
+
+                        g.UpdatePaymentStatus(conn, transnum, "fjv00", "CLOSED");
+                        g.UpdatePaymentStatus(conn, transnum, "fjv10", "CLOSED");
                     }
-                    conn.ArgSQLParam = param;
-
-                    //Execute insert header
-                    conn.ExecuteMySQL();
-
+                    
                     UpdateAccountCreditLimit(conn, memberid, accountnumber, paidamount);
                     
                 }
@@ -514,14 +555,14 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                 { "@balance", 0 },
                                 { "@crossreference", crossreference },
                                 { "@accountName", accountname }
-
                             };
-
+                        
                         conn.ArgSQLCommand = PaymentQuery.InsertQuery(payment.NewCRDetail);
                         conn.ArgSQLParam = param;
-
+                        
                         //Execute insert header
                         conn.ExecuteMySQL();
+                        g.UpdatePaymentStatus(conn, transnum, "fp000", "CLOSED");
                     }
                     else if (prefix == "JV")
                     {
@@ -537,7 +578,6 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                 { "@memberName", membername },
                                 { "@accountName", accountname },
                                 { "@intComputed", 0 },
-                                { "@paidToDate", paidtodate },
                                 { "@status", "CLOSED" },
                                 { "@AccountNo", accountnumber }
                             };
@@ -547,6 +587,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                         //Execute insert header
                         conn.ExecuteMySQL();
+                        g.UpdatePaymentStatus(conn, transnum, "fjv00", "CLOSED");
+                        g.UpdatePaymentStatus(conn, transnum, "fjv10", "CLOSED");
                     }
 
                     UpdateAccountCreditLimit(conn, memberid, accountnumber, paidamount);
@@ -634,6 +676,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                         //Execute insert header
                         conn.ExecuteMySQL();
+
+                        g.UpdatePaymentStatus(conn, transnum, "fp000", "CLOSED");
                     }
                     else if (prefix == "JV")
                     {
@@ -649,7 +693,6 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                 { "@memberName", membername },
                                 { "@accountName", accountname },
                                 { "@intComputed", 0 },
-                                { "@paidToDate", paidtodate },
                                 { "@status", "CLOSED" },
                                 { "@AccountNo", accountnumber }
                             };
@@ -659,10 +702,14 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                         //Execute insert header
                         conn.ExecuteMySQL();
+
+                        g.UpdatePaymentStatus(conn, transnum, "fjv00", "CLOSED");
+                        g.UpdatePaymentStatus(conn, transnum, "fjv10", "CLOSED");
                     }
                     UpdateAccountCreditLimit(conn, memberid, accountnumber, paidamount);
                     isAllocated = false;
                     balance = 0;
+
                 }
                 else
                 {

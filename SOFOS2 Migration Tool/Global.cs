@@ -234,7 +234,6 @@ namespace SOFOS2_Migration_Tool
                 throw;
             }
         }
-        
 
         public string GetCRReference(string tableName, string fieldName, string prefix)
         {
@@ -651,5 +650,19 @@ namespace SOFOS2_Migration_Tool
             }
         }
 
+        public void UpdatePaymentStatus(MySQLHelper conn, string transnum, string table, string status)
+        {
+            try
+            {
+                conn.ArgSQLCommand = Query.UpdateStatus(table);
+                conn.ArgSQLParam = new Dictionary<string, object>() { { "@transnum", transnum }, { "@status", status } };
+                //conn.ExecuteMySQL();
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
     }
 }
