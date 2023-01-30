@@ -607,8 +607,15 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
         private void CreateSalesPayment(MySQLHelper conn, List<TransactionPayment> payments, int transNum)
         {
+            decimal change = 0;
+
             foreach (var detail in payments)
             {
+                if (detail.PaymentCode != "CASH")
+                    change = 0;
+                else
+                    change = detail.ChangeAmount;
+
                 var detailParam = new Dictionary<string, object>()
                                 {
                                     {"@transNum", transNum },
@@ -622,7 +629,7 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                                     {"@transType", detail.TransType },
                                     {"@accountCode", detail.AccountCode },
                                     {"@accountName", detail.AccountName },
-                                    {"@changeAmount", detail.ChangeAmount },
+                                    {"@changeAmount", change },
                                     {"@extracted", detail.Extracted },
                                     {"@orDetailNum", detail.OrDetailNum }
                                 };
