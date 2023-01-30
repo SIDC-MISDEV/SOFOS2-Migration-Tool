@@ -178,7 +178,7 @@ namespace SOFOS2_Migration_Tool.Service
                                         left(b.reference, 2) AS 'TransType',
                                         '' AS 'AccountCode',
                                         '' AS 'AccountName',
-                                        ROUND(b.amount - a.credit, 2) as 'ChangeAmount',
+                                        CASE WHEN left(b.reference, 2) != 'SI' THEN a.amountreceived - a.debit ELSE a.amountreceived - a.credit END as 'ChangeAmount',
                                         b.extracted AS 'Extracted',
                                         0 AS 'OrDetailNum'
                                     FROM transactionpayments b
