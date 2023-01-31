@@ -423,18 +423,27 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
 
             try
             {
-                foreach (var item in items)
-                {
-                    sb.Append($"UPDATE iiuom SET sellingprice = {item.SellingPrice}, markup = {item.MarkUp} WHERE itemcode = '{item.ItemCode}' AND uomcode = '{item.UomCode}';{Environment.NewLine}");
-                }
+                
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
-                    conn.ArgSQLCommand = sb;
-
                     conn.BeginTransaction();
 
-                    result = conn.ExecuteMySQL();
+                    
+
+                    for (int i = 0; i < items.Count - 1; i++)
+                    {
+                        conn.ArgSQLCommand = new StringBuilder($"UPDATE iiuom SET sellingprice = @selling{i}, markup = @markup{i} WHERE itemcode = @itemCode{i} AND uomcode = @uomCode{i};");
+                        conn.ArgSQLParam = new Dictionary<string, object>()
+                            {
+                                { $"@selling{i}", items[i].SellingPrice },
+                                { $"@markup{i}", items[i].MarkUp },
+                                { $"@itemCode{i}", items[i].ItemCode },
+                                { $"@uomCode{i}", items[i].UomCode }
+                            }; 
+
+                        result += conn.ExecuteMySQL();
+                    }
 
                     conn.CommitTransaction();
                 }
