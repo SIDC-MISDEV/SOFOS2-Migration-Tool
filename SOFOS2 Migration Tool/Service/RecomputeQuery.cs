@@ -62,7 +62,7 @@ namespace SOFOS2_Migration_Tool.Service
                         UNION ALL
 
                         -- RR 
-                        select h.reference, d.itemcode, d.uomCode, d.conversion, d.quantity * d.conversion, d.price as 'cost', d.total,'Receiving' as 'TransactionType', h.transDate, 0 as `AllowNoEffectInventory`
+                        select h.reference, d.itemcode, d.uomCode, d.conversion, d.quantity * d.conversion, ROUND(d.price/d.conversion, 2) as 'cost', d.total,'Receiving' as 'TransactionType', h.transDate, 0 as `AllowNoEffectInventory`
                         from iir00 h 
                         INNER JOIN iir10 d ON h.transNum = d.transNum
                         WHERE date(h.transDate) = @date
