@@ -27,6 +27,7 @@ namespace SOFOS2_Migration_Tool.Purchasing.Model
         public string TransDate { get; set; }
         public string IdUser { get; set; }
         public string Extracted { get; set; }
+        public DateTime SystemDate { get; set; }
     }
 
     public class ReturnGoodsItem

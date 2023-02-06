@@ -78,7 +78,8 @@ namespace SOFOS2_Migration_Tool.Service
 	                        left(l.reference, 2) 'TransType',
 	                        l.cancelled,
 	                        l.extracted,
-                            l.idUser
+                            l.idUser,
+                            l.timestamp as systemdate
                         FROM ledger l
                         INNER JOIN files f ON l.idfile = f.idfile
                         where left(reference, 2) = @transType AND date(l.date) = @date;");
@@ -98,7 +99,8 @@ namespace SOFOS2_Migration_Tool.Service
 	                        left(l.reference, 2) 'TransType',
 	                        l.cancelled,
 	                        l.extracted,
-                            l.idUser
+                            l.idUser,
+                            l.timestamp as systemdate
                         FROM ledger l
                         INNER JOIN files f ON l.idfile = f.idfile
                         where left(reference, 2) = @transType AND date(l.date) = @date;");
@@ -156,8 +158,8 @@ namespace SOFOS2_Migration_Tool.Service
 
                 case PR.RVHeader:
 
-                    sQuery.Append(@"INSERT INTO PRV00 (vendorCode,vendorName,transNum,reference,crossreference,prReference,Total,transType,toWarehouse,fromWarehouse,segmentCode,businessSegment,branchCode,remarks,cancelled,transDate,idUser,status, extracted) 
-                            VALUES (@vendorCode,@vendorName,@transNum,@reference,@crossreference,@inventoryRequest,@Total,@transType,@toWarehouse,@fromWarehouse,@segmentCode,@businessSegment,@branchCode,@remarks,@cancelled,@transDate,@idUser,@status, @extracted)");
+                    sQuery.Append(@"INSERT INTO PRV00 (vendorCode,vendorName,transNum,reference,crossreference,prReference,Total,transType,toWarehouse,fromWarehouse,segmentCode,businessSegment,branchCode,remarks,cancelled,transDate,idUser,status, extracted, systemdate) 
+                            VALUES (@vendorCode,@vendorName,@transNum,@reference,@crossreference,@inventoryRequest,@Total,@transType,@toWarehouse,@fromWarehouse,@segmentCode,@businessSegment,@branchCode,@remarks,@cancelled,@transDate,@idUser,@status, @extracted, @systemdate)");
 
                     break;
                 case PR.RVDetail:
@@ -169,8 +171,8 @@ namespace SOFOS2_Migration_Tool.Service
 
                 case PR.RGHeader:
 
-                    sQuery.Append(@"INSERT INTO PRG00 (vendorCode,vendorName,transNum,reference,crossreference,Total,transType,toWarehouse,fromWarehouse,segmentCode,businessSegment,branchCode,remarks,cancelled,transDate,idUser,status,extracted) 
-                        VALUES (@vendorCode,@vendorName,@transNum,@reference,@crossreference,@Total,@transType,@toWarehouse,@fromWarehouse,@segmentCode,@businessSegment,@branchCode,@remarks,@cancelled,@transDate,@idUser, @status, @extracted)");
+                    sQuery.Append(@"INSERT INTO PRG00 (vendorCode,vendorName,transNum,reference,crossreference,Total,transType,toWarehouse,fromWarehouse,segmentCode,businessSegment,branchCode,remarks,cancelled,transDate,idUser,status,extracted, systemdate) 
+                        VALUES (@vendorCode,@vendorName,@transNum,@reference,@crossreference,@Total,@transType,@toWarehouse,@fromWarehouse,@segmentCode,@businessSegment,@branchCode,@remarks,@cancelled,@transDate,@idUser, @status, @extracted, @systemdate)");
 
                     break;
 

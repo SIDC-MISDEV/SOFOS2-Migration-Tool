@@ -51,7 +51,8 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                                 Status = "CLOSED",
                                 TransDate = dr["date"].ToString(),
                                 IdUser = dr["idUser"].ToString(),
-                                Extracted = dr["extracted"].ToString()
+                                Extracted = dr["extracted"].ToString(),
+                                SystemDate = Convert.ToDateTime(dr["systemdate"])
                             });
                         }
                     }
@@ -188,7 +189,8 @@ namespace SOFOS2_Migration_Tool.Purchasing.Controller
                             { "@transDate", item.TransDate },
                             { "@idUser", item.IdUser },
                             { "@status", item.Status },
-                            {"@extracted", item.Extracted }
+                            {"@extracted", item.Extracted },
+                            { "@systemdate", item.SystemDate}
                         };
 
                 //Saving transaction header
