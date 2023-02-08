@@ -314,7 +314,7 @@ namespace SOFOS2_Migration_Tool
                 RecomputeController recompute = new RecomputeController();
                 var trans = recompute.GetTransactions(date);
                 if(trans.Count > 0)
-                    recompute.UpdateRunningQuantityValueCost(trans);
+                    recompute.UpdateRunningQuantityValueCost(trans, dtpDateParam.Value.ToString("yyyy-MM-dd"));
                 #endregion
 
                 string message = string.Format(@"No transactions(Purchasing, Inventory or Sales module) found in SOFOS2 dated : {0}.", date);

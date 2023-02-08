@@ -46,8 +46,8 @@ namespace SOFOS2_Migration_Tool.Service
                                     /* start of Status*/
                                     (
                                         CASE
-                                            WHEN LEFT(l.reference, 2) IN ('CI','CO','AP','CT') and l.PaidToDate = l.debit THEN 'CLOSED'
-                                            WHEN LEFT(l.reference, 2) IN ('CI','CO','AP','CT') and l.PaidToDate != l.debit THEN 'OPEN'
+                                            WHEN LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'WR') and l.PaidToDate = l.debit THEN 'CLOSED'
+                                            WHEN LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'WR') and l.PaidToDate != l.debit THEN 'OPEN'
                                             ELSE 'CLOSED'
                                         END
                                     ) AS 'Status',

@@ -114,7 +114,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
             }
         }
 
-        public void UpdateRunningQuantityValueCost(List<Transactions> _transactions)
+        public void UpdateRunningQuantityValueCost(List<Transactions> _transactions, string migrateDate)
         {
             try
             {
@@ -302,6 +302,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                     }
 
+                    int result = UpdateMultipleItemInOneTransaction(conn, migrateDate);
+
                     if (itemsNotFound.Count < 1)
                     {
                         if (errorItem.Count < 1)
@@ -325,6 +327,142 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
             }
             catch
             {
+                throw;
+            }
+        }
+
+        public int UpdateMultipleItemInOneTransaction(MySQLHelper conn, string date)
+        {
+            try
+            {
+                List<Item> listItem = new List<Item>(),
+                    specificItem = new List<Item>();
+                int result = 0;
+
+                listItem = GetMultipleItemInOneTrans(conn, migrationDate: date);
+
+                if (listItem.Count > 1)
+                {
+                    foreach (var item in listItem)
+                    {
+                        Process p;
+                        Enum.TryParse(item.Module, out p);
+
+                        specificItem = GetItemMultiple(conn, p, item);
+
+                        result += UpdateTransValueMultipleItem(conn, specificItem, p);
+                    }
+                }
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        public List<Item> GetItemMultiple(MySQLHelper conn, Process p, Item item)
+        {
+            try
+            {
+                var result = new List<Item>();
+
+                conn.ArgSQLCommand = RecomputeQuery.GetItemMultiple(p);
+                conn.ArgSQLParam = new Dictionary<string, object>()
+                {
+                    { "@itemcode", item.ItemCode },
+                    { "@transnum", item.TransNum }
+                };
+
+                using (var dr = conn.MySQLExecuteReaderBeginTransaction())
+                {
+                    while (dr.Read())
+                    {
+                        result.Add(new Item
+                        {
+                            DetailNum = Convert.ToInt32(dr["detailnum"]),
+                            ItemCode = dr["itemcode"].ToString(),
+                            UomCode = dr["uomcode"].ToString(),
+                            TransValue = Convert.ToDecimal(dr["transvalue"])
+                        });
+                    }
+                }
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        private int UpdateTransValueMultipleItem(MySQLHelper conn, List<Item> trans, Process p)
+        {
+            try
+            {
+                int result = 0,
+                    multipleUom = 0;
+                decimal tempVal = 0;
+
+                multipleUom = trans.Select(r => r.UomCode).Distinct().Count();
+
+                foreach (var item in trans)
+                {
+                    tempVal += item.TransValue;
+                }
+
+                conn.ArgSQLCommand = RecomputeQuery.UpdateMultipleUomTransValue(p);
+                conn.ArgSQLParam = new Dictionary<string, object>()
+                {
+                    { "@itemcode", trans[0].ItemCode },
+                    { "@transvalue", tempVal },
+                    { "@detailnum", trans[0].DetailNum }
+                };
+
+                result = conn.ExecuteMySQL();
+
+                return result;
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
+        private List<Item> GetMultipleItemInOneTrans(MySQLHelper conn, string migrationDate)
+        {
+            try
+            {
+                var result = new List<Item>();
+
+                conn.ArgSQLCommand = RecomputeQuery.GetMultipleItemInOneTransaction();
+                conn.ArgSQLParam = new Dictionary<string, object>()
+                {
+                    { "@date", migrationDate }
+                };
+
+                using (var dr = conn.MySQLExecuteReaderBeginTransaction())
+                {
+                    while (dr.Read())
+                    {
+                        result.Add(new Item
+                        {
+                            Module = dr["module"].ToString(),
+                            TransNum = Convert.ToInt32(dr["transnum"]),
+                            ItemCode = dr["itemcode"].ToString()
+                        });
+                    }
+                }
+
+                return result;
+            }
+            catch
+            {
+
                 throw;
             }
         }
