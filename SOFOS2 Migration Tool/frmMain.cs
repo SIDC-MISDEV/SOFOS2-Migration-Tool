@@ -314,7 +314,7 @@ namespace SOFOS2_Migration_Tool
                 RecomputeController recompute = new RecomputeController();
                 var trans = recompute.GetTransactions(date);
                 if(trans.Count > 0)
-                    recompute.UpdateRunningQuantityValueCost(trans);
+                    recompute.UpdateRunningQuantityValueCost(trans, dtpDateParam.Value.ToString("yyyy-MM-dd"));
                 #endregion
 
                 string message = string.Format(@"No transactions(Purchasing, Inventory or Sales module) found in SOFOS2 dated : {0}.", date);
@@ -364,7 +364,7 @@ namespace SOFOS2_Migration_Tool
                     reComputeSalesCreditController.UpdateChargeAmount(reComputeSalesCredit);
                 #endregion
 
-                string message = string.Format(@"No transactions in Sales module (CI,CT,CO and AP) found in SOFOS2 dated : {0}.", date);
+                string message = string.Format(@"No transactions in Sales module (CI,CT,CO, AP and WR) found in SOFOS2 dated : {0}.", date);
                 if (reComputeSalesCredit.Count > 0)
                     message = string.Format(@" ({0}) sales transactions with credit was recomputed successfully.", reComputeSalesCredit.Count);
 

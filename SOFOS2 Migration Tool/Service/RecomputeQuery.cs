@@ -217,6 +217,124 @@ namespace SOFOS2_Migration_Tool.Service
             //return new StringBuilder(@"UPDATE iiuom set sellingPrice = IF(cost > 0 AND markup > 0, ROUND((cost * (markup/100)) + cost, 2) , 0) where itemCode=@itemCode;");
             return new StringBuilder(@"UPDATE iiuom set sellingPrice = ROUND((@cost * (markup/100)) + @cost, 2) where itemCode=@itemCode;");
         }
+
+        public static StringBuilder GetMultipleItemInOneTransaction()
+        {
+            return new StringBuilder(@"SELECT
+	                                        x.module, x.transnum, x.itemcode, x.count
+                                        FROM(
+                                        SELECT 'Sales' as module, transnum, itemcode, count(itemcode) 'count', a.transdate FROM sapt1 b
+										INNER JOIN sapt0 a USING(transnum)
+                                        GROUP BY transnum, itemcode
+                                        HAVING COUNT(itemcode) > 1
+                                        UNION ALL
+                                        SELECT 'ReturnFromCustomer' as module, transnum, itemcode, count(itemcode) 'count', a.transdate FROM sapr1 b
+										INNER JOIN sapr0 a USING(transnum)
+                                        GROUP BY transnum, itemcode
+                                        HAVING COUNT(itemcode) > 1
+                                        UNION ALL
+                                        SELECT 'ReceiveFromVendor' as module, transnum, itemcode, count(itemcode) 'count', a.transdate FROM prv10 b
+										INNER JOIN prv00 a USING(transnum)
+                                        GROUP BY transnum, itemcode
+                                        HAVING COUNT(itemcode) > 1
+                                        UNION ALL
+                                        SELECT 'ReturnGoods' as module, transnum, itemcode, count(itemcode) 'count', a.transdate FROM prg10 b
+										INNER JOIN prg00 a USING(transnum)
+                                        GROUP BY transnum, itemcode
+                                        HAVING COUNT(itemcode) > 1
+                                        UNION ALL
+                                        SELECT 'Issuance' as module,transnum, itemcode, count(itemcode) 'count', a.transdate FROM iii10 b
+										INNER JOIN iii00 a USING(transnum)
+                                        GROUP BY transnum, itemcode
+                                        HAVING COUNT(itemcode) > 1
+                                        UNION ALL
+                                        SELECT 'Receiving' as module,transnum, itemcode, count(itemcode) 'count', a.transdate FROM iir10 b
+										INNER JOIN iir00 a USING(transnum)
+                                        GROUP BY transnum, itemcode
+                                        HAVING COUNT(itemcode) > 1
+                                        UNION ALL
+                                        SELECT 'InventoryAdjustment' as module,transnum, itemcode, count(itemcode) 'count', a.transdate FROM iia10 b
+										INNER JOIN iia00 a USING(transnum)
+                                        GROUP BY transnum, itemcode
+                                        HAVING COUNT(itemcode) > 1
+                                        ) as x WHERE DATE(x.transdate) = @date;
+                                        ");
+        }
+
+        public static StringBuilder GetItemMultiple(Process p)
+        {
+            var sb = new StringBuilder();
+            string table = string.Empty;
+
+            switch (p)
+            {
+                case Process.Sales:
+                    table = "sapt1";
+                    break;
+                case Process.ReturnFromCustomer:
+                    table = "sapr1";
+                    break;
+                case Process.ReceiveFromVendor:
+                    table = "prv10";
+                    break;
+                case Process.ReturnGoods:
+                    table = "prg10";
+                    break;
+                case Process.Issuance:
+                    table = "iii10";
+                    break;
+                case Process.Receiving:
+                    table = "iir10";
+                    break;
+                case Process.Adjustment:
+                    table = "iia10";
+                    break;
+                default:
+                    break;
+            }
+
+            sb.Append($@"SELECT detailnum, itemcode, uomcode, transValue FROM {table} where transnum = @transnum and itemcode = @itemcode ORDER BY detailnum asc");
+
+            return sb;
+        }
+
+        public static StringBuilder UpdateMultipleUomTransValue(Process p)
+        {
+            var sb = new StringBuilder();
+            string table = string.Empty,
+                table2 = string.Empty;
+
+            switch (p)
+            {
+                case Process.Sales:
+                    table = "sapt1";
+                    break;
+                case Process.ReturnFromCustomer:
+                    table = "sapr1";
+                    break;
+                case Process.ReceiveFromVendor:
+                    table = "prv10";
+                    break;
+                case Process.ReturnGoods:
+                    table = "prg10";
+                    break;
+                case Process.Issuance:
+                    table = "iii10";
+                    break;
+                case Process.Receiving:
+                    table = "iir10";
+                    break;
+                case Process.Adjustment:
+                    table = "iia10";
+                    break;
+                default:
+                    break;
+            }
+
+            sb.Append($@"UPDATE {table} SET transvalue = @transvalue where detailnum = @detailnum and itemcode = @itemcode;");
+
+            return sb;
+        }
     }
 
     public enum Process

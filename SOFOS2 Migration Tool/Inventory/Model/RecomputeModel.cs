@@ -17,6 +17,10 @@ namespace SOFOS2_Migration_Tool.Inventory.Model
         public decimal Conversion { get; set; }
         public decimal CurrentRunVal { get; set; }
         public decimal CurrentRunQty { get; set; }
+        public int TransNum { get; set; }
+        public int DetailNum { get; set; }
+        public string Module { get; set; }
+        public decimal TransValue { get; set; }
     }
 
     public class Transactions
@@ -31,6 +35,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Model
         public string TransactionType { get; set; }
         public string TransDate { get; set; }
         public bool AllowNoEffectInventory { get; set; }
+        public int DetailNum { get; set; }
     }
 
     public class ItemProblem

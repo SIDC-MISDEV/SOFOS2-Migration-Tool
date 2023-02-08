@@ -35,8 +35,8 @@ namespace SOFOS2_Migration_Tool.Service
                                     l.idaccount AS 'AccountCode',
                                     c.account AS 'AccountName',
                                     l.PaidToDate AS 'PaidToDate',
-                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'SB', 'CG', 'PI', 'EC', 'CE'), l.debit - l.discount - l.kanegodiscount, l.credit - l.discount - l.kanegodiscount) AS 'Total',
-                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'SB', 'CG', 'PI', 'EC', 'CE'), l.debit, l.credit) as 'GrossTotal',
+                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'SB', 'CG', 'PI', 'EC', 'CE', 'WR'), l.debit - l.discount - l.kanegodiscount, l.credit - l.discount - l.kanegodiscount) AS 'Total',
+                                    IF(LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'SB', 'CG', 'PI', 'EC', 'CE', 'WR'), l.debit, l.credit) as 'GrossTotal',
                                     SUM(i.selling * i.quantity) AS 'TotalBasedOnDetails',
                                     l.amountReceived AS 'AmountTendered',
                                     0 AS 'InterestPaid',
@@ -46,8 +46,8 @@ namespace SOFOS2_Migration_Tool.Service
                                     /* start of Status*/
                                     (
                                         CASE
-                                            WHEN LEFT(l.reference, 2) IN ('CI','CO','AP','CT') and l.PaidToDate = l.debit THEN 'CLOSED'
-                                            WHEN LEFT(l.reference, 2) IN ('CI','CO','AP','CT') and l.PaidToDate != l.debit THEN 'OPEN'
+                                            WHEN LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'WR') and l.PaidToDate = l.debit THEN 'CLOSED'
+                                            WHEN LEFT(l.reference, 2) IN ('CI','CO','AP','CT', 'WR') and l.PaidToDate != l.debit THEN 'OPEN'
                                             ELSE 'CLOSED'
                                         END
                                     ) AS 'Status',
@@ -95,7 +95,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     LEFT JOIN files f ON l.idfile = f.idfile
                                     LEFT JOIN coa c ON l.idaccount = c.idaccount
                                     LEFT JOIN employees e ON l.idfile = e.idemployee
-                                    where LEFT(l.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE')
+                                    where LEFT(l.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE', 'WR')
                                     AND date(l.date) = @date
                                     GROUP BY l.reference
                                     ORDER BY l.date ASC;
@@ -158,7 +158,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     INNER JOIN pcosting p ON i.idstock = p.idstock AND i.unit = p.unit
                                     WHERE
                                     /*left(i.reference, 2) = @transType AND date(l.date) = @date*/
-                                    LEFT(i.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE')
+                                    LEFT(i.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE', 'WR')
                                     AND date(l.date) = @date
                                     GROUP BY i.reference, i.idstock, i.unit
                                     ORDER BY l.reference ASC;
@@ -183,7 +183,7 @@ namespace SOFOS2_Migration_Tool.Service
                                         0 AS 'OrDetailNum'
                                     FROM transactionpayments b
                                     INNER JOIN ledger a ON a.reference = b.reference      
-                                    WHERE LEFT(b.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE') AND date(b.date) = @date;");
+                                    WHERE LEFT(b.reference, 2) IN ('SI','CI','CO','AP','CT','EC','FS','RT','CP','SB','PI','CB','BT','CS','RT','CL', 'CG', 'OL', 'CE','WR') AND date(b.date) = @date;");
                     break;
                 case SalesEnum.SellingPrice:
 
