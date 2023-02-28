@@ -574,7 +574,13 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                     detail.KanegoDiscount = 0;
                 }
 
-                discountedTotal = (detail.SellingPrice * detail.Quantity) - detail.KanegoDiscount - detail.Feedsdiscount;
+                if (detail.KanegoDiscount > 0 || detail.Feedsdiscount > 0)
+                    discountedTotal = (detail.SellingPrice * detail.Quantity) - detail.KanegoDiscount - detail.Feedsdiscount;
+                else
+                    discountedTotal = detail.Total;
+
+
+
 
                 var detailParam = new Dictionary<string, object>()
                                 {

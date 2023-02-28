@@ -35,6 +35,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                 ItemCode = dr["ItemCode"].ToString(),
                                 UomCode = dr["UomCode"].ToString(),
                                 Conversion = Convert.ToDecimal(dr["conversion"]),
+                                Cost = Convert.ToDecimal(dr["cost"]),
                                 Quantity = Convert.ToDecimal(dr["Quantity"]),
                                 TransactionValue = Convert.ToDecimal(dr["Total"]),
                                 TransactionType = dr["transactiontype"].ToString(),
@@ -162,7 +163,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             {
                                 tranRunVal = 0;
                                 tranRunQty = 0;
-                                transVal = Math.Abs(tran.TransactionValue);
+                                transVal = Math.Round(item.Cost * Math.Abs(tran.Quantity), 2, MidpointRounding.AwayFromZero);
                             }
                             else if (tranRunQty < 0)
                             {
@@ -185,10 +186,15 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                     tranRunVal = Math.Round((item.Cost * tran.Quantity) + item.RunningValue, 2, MidpointRounding.AwayFromZero);
                                     transVal = Math.Round((item.Cost * tran.Quantity), 2, MidpointRounding.AwayFromZero);
                                 }
+                                else if (process == Process.Receiving || process == Process.ReceiveFromVendor)
+                                {
+                                    transVal = Math.Round(tran.Cost * tran.Quantity, 2, MidpointRounding.AwayFromZero);
+                                    tranRunVal = Math.Round(transVal + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+                                }
                                 else
                                 {
-                                    tranRunVal = Math.Round(tran.TransactionValue + item.RunningValue, 2, MidpointRounding.AwayFromZero);
-                                    transVal = tran.TransactionValue;
+                                    transVal = Math.Round(item.Cost * tran.Quantity, 2, MidpointRounding.AwayFromZero);
+                                    tranRunVal = Math.Round(transVal + item.RunningValue, 2, MidpointRounding.AwayFromZero);
                                 }
 
 
