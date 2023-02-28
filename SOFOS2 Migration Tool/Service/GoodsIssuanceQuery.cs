@@ -46,7 +46,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     INNER JOIN invoice i ON l.reference = i.reference
                                     LEFT JOIN coa c ON l.idaccount = c.idaccount
                                     where LEFT(l.reference, 2) IN ('ST', 'AU', 'SO','SP','SF')
-                                    AND date(l.date) = @date
+                                    AND date(l.date) = @date  AND l.cancelled = 0 AND i.cancelled = 0 
                                     GROUP BY l.reference
                                     ORDER BY l.date ASC;
                             ");
@@ -81,7 +81,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     INNER JOIN pcosting p ON i.idstock = p.idstock AND i.unit = p.unit
                                     WHERE
                                     LEFT(i.reference, 2) IN ('ST', 'AU', 'SO','SP','SF')
-                                    AND date(l.date) = @date
+                                    AND date(l.date) = @date  AND l.cancelled = 0 AND i.cancelled = 0 
                                     GROUP BY i.reference, i.idstock, i.unit,i.Cost
                                     ORDER BY l.reference ASC;
                                     ");

@@ -42,7 +42,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     FROM ledger l
                                     INNER JOIN invoice i ON l.reference = i.reference
                                     LEFT JOIN coa c ON l.idaccount = c.idaccount
-                                    where LEFT(l.reference, 2) IN ('RR','TR')
+                                    where LEFT(l.reference, 2) IN ('RR','TR') AND l.cancelled = 0 AND i.cancelled = 0 
                                     AND date(l.date) = @date
                                     GROUP BY l.reference
                                     ORDER BY l.date ASC;
@@ -62,7 +62,8 @@ namespace SOFOS2_Migration_Tool.Service
                                     SUM(i.quantity) AS 'Quantity',
                                     SUM(i.quantity) AS 'Remaining',
                                     i.Cost AS 'Price',
-                                    SUM(i.amount) AS 'Total',
+                                    -- SUM(i.amount) AS 'Total',
+                                    ROUND(i.cost * i.quantity, 2) AS 'Total',
                                     i.unitQuantity AS 'Conversion',
                                     DATE_FORMAT(i.timeStamp, '%Y-%m-%d %H:%i:%s') AS 'SystemDate',
                                     i.idUser AS 'IdUser',
@@ -77,7 +78,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     INNER JOIN stocks s ON i.idstock = s.idstock
                                     INNER JOIN pcosting p ON i.idstock = p.idstock AND i.unit = p.unit
                                     WHERE
-                                    LEFT(i.reference, 2) IN ('RR','TR')
+                                    LEFT(i.reference, 2) IN ('RR','TR') AND l.cancelled = 0 AND i.cancelled = 0 
                                     AND date(l.date) = @date
                                     GROUP BY i.reference, i.idstock, i.unit,i.Cost
                                     ORDER BY l.reference ASC;
