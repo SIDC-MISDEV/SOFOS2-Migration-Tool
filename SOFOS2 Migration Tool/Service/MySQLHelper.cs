@@ -187,6 +187,29 @@ namespace SOFOS2_Migration_Tool.Service
             return cmd.ExecuteReader();
         }
 
+        public DataTable GetMySQLDataTableAsync()
+        {
+            try
+            {
+                cnn.Open();
+                using (var dr = cmd.ExecuteReader())
+                {
+                    var dt = new DataTable();
+                    dt.Load(dr);
+                    return dt;
+                }
+            }
+            catch
+            {
+
+                throw;
+            }
+            finally
+            {
+                cnn.Close();
+            }
+        }
+
         #region Disposing Interface
         /// <summary>
         /// Interface Dispose

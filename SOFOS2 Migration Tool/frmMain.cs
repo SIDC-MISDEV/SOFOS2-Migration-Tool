@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using SOFOS2_Migration_Tool.Enums;
 using SOFOS2_Migration_Tool.Accounting.Controller;
 using SOFOS2_Migration_Tool.Customer.Controller;
+using SOFOS2_Migration_Tool.Migration.Controller;
 
 namespace SOFOS2_Migration_Tool
 {
@@ -27,7 +28,10 @@ namespace SOFOS2_Migration_Tool
         {
             InitializeComponent();
             date = dtpDateParam.Value.ToString("yyyy-MM-dd");
+
+            StartProcess();
         }
+
         private void frmMain_Load(object sender, EventArgs e)
         {
             try
@@ -53,8 +57,25 @@ namespace SOFOS2_Migration_Tool
                 this.BeginInvoke(new MethodInvoker(Close));
             }
         }
-        
 
+        private void StartProcess()
+        {
+            try
+            {
+                int errorCount = 0;
+                var controller = new PreMigrationController();
+                errorCount = controller.CheckForErrorData();
+
+                if (errorCount > 0)
+                    throw new Exception($"System detected {errorCount} files generated from pre-migration error checking.");
+
+            }
+            catch (Exception er)
+            {
+                MessageBox.Show(this, er.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.BeginInvoke(new MethodInvoker(Close));
+            }
+        }
 
 
         private void btnPayment_Click(object sender, EventArgs e)
