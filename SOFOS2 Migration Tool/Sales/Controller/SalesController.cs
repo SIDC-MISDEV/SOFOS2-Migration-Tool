@@ -550,9 +550,10 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                                 }).ToList()
                                 .ForEach(r =>
                                 {
-                                    riceTotal += riceKanegoDiscount
-                                                        .Where(kanego => kanego.NumberBagsFrom <= (r.Packaging * r.Quantity) && kanego.NumberBagsTo >= (r.Packaging * r.Quantity))
-                                                        .Select(discount => discount.DiscountPerTwentyFiveKilo).FirstOrDefault();
+                                    riceTotal += (r.Packaging * r.Quantity) * riceKanegoDiscount
+                                        .Where(kanego => kanego.NumberBagsFrom <= (r.Packaging * r.Quantity) && kanego.NumberBagsTo >= (r.Packaging * r.Quantity))
+                                        .Select(discount => discount.DiscountPerTwentyFiveKilo).FirstOrDefault();
+
                                 });
                             }
 
