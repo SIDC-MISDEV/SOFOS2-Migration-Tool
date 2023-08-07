@@ -72,11 +72,16 @@ namespace SOFOS2_Migration_Tool
                 if (errorCount > 0)
                     throw new Exception($"System detected {errorCount} files generated from {migrationDb}  error checking.");
 
+                if(!isPremigration && errorCount < 1)
+                    MessageBox.Show(this, "No detected errors based on Post-migration scripts.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
             }
             catch (Exception er)
             {
                 MessageBox.Show(this, er.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                this.BeginInvoke(new MethodInvoker(Close));
+                
+                if(isPremigration)
+                    this.BeginInvoke(new MethodInvoker(Close));
             }
         }
 
