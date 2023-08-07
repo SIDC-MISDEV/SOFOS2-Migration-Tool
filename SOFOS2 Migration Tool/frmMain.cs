@@ -29,7 +29,7 @@ namespace SOFOS2_Migration_Tool
             InitializeComponent();
             date = dtpDateParam.Value.ToString("yyyy-MM-dd");
 
-            StartProcess();
+            StartProcess(true);
         }
 
         private void frmMain_Load(object sender, EventArgs e)
@@ -58,16 +58,19 @@ namespace SOFOS2_Migration_Tool
             }
         }
 
-        private void StartProcess()
+        private void StartProcess(bool isPremigration)
         {
             try
             {
                 int errorCount = 0;
-                var controller = new PreMigrationController();
+                string migrationDb = string.Empty;
+                var controller = new MigrationController(isPremigration);
+
                 errorCount = controller.CheckForErrorData();
+                migrationDb = isPremigration ? "Pre-migration" : "Post-migration";
 
                 if (errorCount > 0)
-                    throw new Exception($"System detected {errorCount} files generated from pre-migration error checking.");
+                    throw new Exception($"System detected {errorCount} files generated from {migrationDb}  error checking.");
 
             }
             catch (Exception er)
@@ -523,6 +526,18 @@ namespace SOFOS2_Migration_Tool
             catch (Exception ex)
             {
                 MessageBox.Show(this, string.Format("Error : {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnPostMigrate_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                StartProcess(false);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, string.Format(ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

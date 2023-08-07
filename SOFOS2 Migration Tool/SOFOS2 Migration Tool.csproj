@@ -65,8 +65,7 @@
     <Compile Include="Helper\DataTableToCSV.cs" />
     <Compile Include="Helper\ObjectToCSV.cs" />
     <Compile Include="Helper\ThreadHelper.cs" />
-    <Compile Include="Migration\Controller\PostMigrationController.cs" />
-    <Compile Include="Migration\Controller\PreMigrationController.cs" />
+    <Compile Include="Migration\Controller\MigrationController.cs" />
     <Compile Include="Migration\Migration.cs" />
     <Compile Include="Payment\Controller\CollectionReceiptController.cs" />
     <Compile Include="Payment\Controller\JournalVoucherController.cs" />
