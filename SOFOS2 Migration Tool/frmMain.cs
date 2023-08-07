@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using SOFOS2_Migration_Tool.Enums;
 using SOFOS2_Migration_Tool.Accounting.Controller;
 using SOFOS2_Migration_Tool.Customer.Controller;
+using SOFOS2_Migration_Tool.Migration.Controller;
 
 namespace SOFOS2_Migration_Tool
 {
@@ -27,7 +28,10 @@ namespace SOFOS2_Migration_Tool
         {
             InitializeComponent();
             date = dtpDateParam.Value.ToString("yyyy-MM-dd");
+
+            StartProcess(true);
         }
+
         private void frmMain_Load(object sender, EventArgs e)
         {
             try
@@ -53,8 +57,28 @@ namespace SOFOS2_Migration_Tool
                 this.BeginInvoke(new MethodInvoker(Close));
             }
         }
-        
 
+        private void StartProcess(bool isPremigration)
+        {
+            try
+            {
+                int errorCount = 0;
+                string migrationDb = string.Empty;
+                var controller = new MigrationController(isPremigration);
+
+                errorCount = controller.CheckForErrorData();
+                migrationDb = isPremigration ? "Pre-migration" : "Post-migration";
+
+                if (errorCount > 0)
+                    throw new Exception($"System detected {errorCount} files generated from {migrationDb}  error checking.");
+
+            }
+            catch (Exception er)
+            {
+                MessageBox.Show(this, er.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.BeginInvoke(new MethodInvoker(Close));
+            }
+        }
 
 
         private void btnPayment_Click(object sender, EventArgs e)
@@ -502,6 +526,18 @@ namespace SOFOS2_Migration_Tool
             catch (Exception ex)
             {
                 MessageBox.Show(this, string.Format("Error : {0}", ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnPostMigrate_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                StartProcess(false);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, string.Format(ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

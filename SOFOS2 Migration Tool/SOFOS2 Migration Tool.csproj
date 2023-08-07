@@ -62,7 +62,11 @@
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
+    <Compile Include="Helper\DataTableToCSV.cs" />
     <Compile Include="Helper\ObjectToCSV.cs" />
+    <Compile Include="Helper\ThreadHelper.cs" />
+    <Compile Include="Migration\Controller\MigrationController.cs" />
+    <Compile Include="Migration\Migration.cs" />
     <Compile Include="Payment\Controller\CollectionReceiptController.cs" />
     <Compile Include="Payment\Controller\JournalVoucherController.cs" />
     <Compile Include="Payment\Controller\OfficialReceiptController.cs" />
