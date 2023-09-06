@@ -126,12 +126,12 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
         public void InsertAdjustment(List<Adjustment> _header, List<AdjustmentItems> _detail)
         {
-            transType = "";
             try
             {
                 Global global = new Global();
                 int transNum = 0;
-                long series = 0;
+                long series = 0,
+                    cancelledSeries = 0;
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
@@ -141,6 +141,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                     foreach (var item in _header)
                     {
+                        series = Convert.ToInt32(item.Reference.Replace(transType, ""));
+
                         transType = item.TransType;
 
                         #region Creation of Document
@@ -152,12 +154,31 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                         #endregion Creation of Document
 
+                        #region Creation of of Cancelled Document if cancelled
+                        if (item.Cancelled)
+                        {
+                            DateTime cancelledDate = new DateTime();
+                            transNum++;
+                            item.Crossreference = item.Reference;
+                            item.Reference = global.GetLatestTransactionReference(conn, "ADJUSTMENT", "CD");
+                            item.TransType = "CD";
+                            item.Cancelled = false;
+                            cancelledSeries = Convert.ToInt32(item.Reference.Replace(item.TransType, ""));
+                            cancelledDate = Convert.ToDateTime(item.TransDate).AddSeconds(20);
+                            item.TransDate = cancelledDate.ToString("yyyy-MM-dd hh:mm:ss");
+
+                            CreateAdjustmentHeaderDocument(conn, item, transNum, global);
+                            CreateAdjustmentDetailDocument(conn, details, transNum);
+
+                            UpdateLastReference(conn, cancelledSeries, item.TransType, "ADJUSTMENT");
+                        }
+                        #endregion
+
                         transNum++;
-                        series = Convert.ToInt32(item.Reference.Replace(transType, "")) + 1;
-
-                        UpdateLastReference(conn, series, transType);
-
+                        //series = Convert.ToInt32(item.Reference.Replace(transType, "")) + 1;
                     }
+
+                    UpdateLastReference(conn, series, transType);
 
                     conn.CommitTransaction();
                 }
@@ -257,10 +278,19 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
         }
 
-        private void UpdateLastReference(MySQLHelper conn, long series, string transType)
+        private void UpdateLastReference(MySQLHelper conn, long series, string transType, string module = "")
         {
-            conn.ArgSQLCommand = Query.UpdateReferenceCount();
-            conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", transType } };
+            if (transType == "CD")
+            {
+                conn.ArgSQLCommand = Query.UpdateCancelledReferenceCount();
+                conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series }, { "@transtype", transType }, { "@module", module } };
+            }
+            else
+            {
+                conn.ArgSQLCommand = Query.UpdateReferenceCount();
+                conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series }, { "@transtype", transType } };
+            }
+
             conn.ExecuteMySQL();
         }
         #endregion Private Methods
