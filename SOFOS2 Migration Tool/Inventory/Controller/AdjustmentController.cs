@@ -162,13 +162,16 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             item.Crossreference = item.Reference;
                             item.Reference = global.GetLatestTransactionReference(conn, "ADJUSTMENT", "CD");
                             item.TransType = "CD";
-                            item.Cancelled = false;
                             cancelledSeries = Convert.ToInt32(item.Reference.Replace(item.TransType, ""));
                             cancelledDate = Convert.ToDateTime(item.TransDate).AddSeconds(20);
                             item.TransDate = cancelledDate.ToString("yyyy-MM-dd hh:mm:ss");
+                            item.Total = item.Total * -1;
+                            item.Cancelled = false;//set false to save CD no cancelled
 
                             CreateAdjustmentHeaderDocument(conn, item, transNum, global);
-                            CreateAdjustmentDetailDocument(conn, details, transNum);
+                            item.Cancelled = true; //return original state
+                            CreateAdjustmentDetailDocument(conn, details, transNum, item.Cancelled);
+                            
 
                             UpdateLastReference(conn, cancelledSeries, item.TransType, "ADJUSTMENT");
                         }
@@ -211,10 +214,15 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
         #region Private Methods
 
-        private void CreateAdjustmentDetailDocument(MySQLHelper conn, List<AdjustmentItems> details, int transNum)
+        private void CreateAdjustmentDetailDocument(MySQLHelper conn, List<AdjustmentItems> details, int transNum, bool cancelled = false)
         {
+            decimal variance = 0,
+                total = 0;
             foreach (var detail in details)
             {
+                variance = !cancelled ? detail.Variance : detail.Variance * -1;
+                total = !cancelled ? detail.Total : detail.Total * -1;
+
                 var detailParam = new Dictionary<string, object>()
                                 {
                                     {"@barcode", detail.Barcode },
@@ -225,9 +233,9 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                     {"@category", detail.Category },
                                     {"@runningQuantity", detail.RunningQuantity },
                                     {"@actualCount", detail.ActualCount },
-                                    {"@variance", detail.Variance },
+                                    {"@variance", variance },
                                     {"@price", detail.Price },
-                                    {"@total", detail.Total },
+                                    {"@total", total },
                                     {"@warehouseCode", Global.WarehouseCode },
                                     {"@systemDate", detail.SystemDate },
                                     {"@idUser", detail.IdUser },
