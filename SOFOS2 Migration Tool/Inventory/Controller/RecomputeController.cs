@@ -165,7 +165,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                 tranRunQty = 0;
                                 transVal = Math.Round(item.Cost * Math.Abs(tran.Quantity), 2, MidpointRounding.AwayFromZero);
                             }
-                            else if (tranRunQty < 0)
+                            else if (tranRunQty < 0 && process != Process.Adjustment)
                             {
                                 errorItem.Add(new ItemProblem
                                 {
