@@ -167,6 +167,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             item.TransDate = cancelledDate.ToString("yyyy-MM-dd hh:mm:ss");
                             item.Total = item.Total * -1;
                             item.Cancelled = false;//set false to save CD no cancelled
+                            item.Status = "CLOSED";
 
                             CreateAdjustmentHeaderDocument(conn, item, transNum, global);
                             item.Cancelled = true; //return original state
