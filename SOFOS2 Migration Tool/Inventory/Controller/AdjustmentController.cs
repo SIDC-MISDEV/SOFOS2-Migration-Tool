@@ -126,12 +126,12 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
         public void InsertAdjustment(List<Adjustment> _header, List<AdjustmentItems> _detail)
         {
-            transType = "";
             try
             {
                 Global global = new Global();
                 int transNum = 0;
-                long series = 0;
+                long series = 0,
+                    cancelledSeries = 0;
 
                 using (var conn = new MySQLHelper(Global.DestinationDatabase))
                 {
@@ -141,6 +141,8 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                     foreach (var item in _header)
                     {
+                        series = Convert.ToInt32(item.Reference.Replace(transType, ""));
+
                         transType = item.TransType;
 
                         #region Creation of Document
@@ -152,12 +154,35 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                         #endregion Creation of Document
 
+                        #region Creation of of Cancelled Document if cancelled
+                        if (item.Cancelled)
+                        {
+                            DateTime cancelledDate = new DateTime();
+                            transNum++;
+                            item.Crossreference = item.Reference;
+                            item.Reference = global.GetLatestTransactionReference(conn, "ADJUSTMENT", "CD");
+                            item.TransType = "CD";
+                            cancelledSeries = Convert.ToInt32(item.Reference.Replace(item.TransType, ""));
+                            cancelledDate = Convert.ToDateTime(item.TransDate).AddSeconds(20);
+                            item.TransDate = cancelledDate.ToString("yyyy-MM-dd hh:mm:ss");
+                            item.Total = item.Total * -1;
+                            item.Cancelled = false;//set false to save CD no cancelled
+                            item.Status = "CLOSED";
+
+                            CreateAdjustmentHeaderDocument(conn, item, transNum, global);
+                            item.Cancelled = true; //return original state
+                            CreateAdjustmentDetailDocument(conn, details, transNum, item.Cancelled);
+                            
+
+                            UpdateLastReference(conn, cancelledSeries, item.TransType, "ADJUSTMENT");
+                        }
+                        #endregion
+
                         transNum++;
-                        series = Convert.ToInt32(item.Reference.Replace(transType, "")) + 1;
-
-                        UpdateLastReference(conn, series, transType);
-
+                        //series = Convert.ToInt32(item.Reference.Replace(transType, "")) + 1;
                     }
+
+                    UpdateLastReference(conn, series, transType);
 
                     conn.CommitTransaction();
                 }
@@ -190,10 +215,15 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
         #region Private Methods
 
-        private void CreateAdjustmentDetailDocument(MySQLHelper conn, List<AdjustmentItems> details, int transNum)
+        private void CreateAdjustmentDetailDocument(MySQLHelper conn, List<AdjustmentItems> details, int transNum, bool cancelled = false)
         {
+            decimal variance = 0,
+                total = 0;
             foreach (var detail in details)
             {
+                variance = !cancelled ? detail.Variance : detail.Variance * -1;
+                total = !cancelled ? detail.Total : detail.Total * -1;
+
                 var detailParam = new Dictionary<string, object>()
                                 {
                                     {"@barcode", detail.Barcode },
@@ -204,9 +234,9 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                     {"@category", detail.Category },
                                     {"@runningQuantity", detail.RunningQuantity },
                                     {"@actualCount", detail.ActualCount },
-                                    {"@variance", detail.Variance },
+                                    {"@variance", variance },
                                     {"@price", detail.Price },
-                                    {"@total", detail.Total },
+                                    {"@total", total },
                                     {"@warehouseCode", Global.WarehouseCode },
                                     {"@systemDate", detail.SystemDate },
                                     {"@idUser", detail.IdUser },
@@ -257,10 +287,19 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
         }
 
-        private void UpdateLastReference(MySQLHelper conn, long series, string transType)
+        private void UpdateLastReference(MySQLHelper conn, long series, string transType, string module = "")
         {
-            conn.ArgSQLCommand = Query.UpdateReferenceCount();
-            conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series - 1 }, { "@transtype", transType } };
+            if (transType == "CD")
+            {
+                conn.ArgSQLCommand = Query.UpdateCancelledReferenceCount();
+                conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series }, { "@transtype", transType }, { "@module", module } };
+            }
+            else
+            {
+                conn.ArgSQLCommand = Query.UpdateReferenceCount();
+                conn.ArgSQLParam = new Dictionary<string, object>() { { "@series", series }, { "@transtype", transType } };
+            }
+
             conn.ExecuteMySQL();
         }
         #endregion Private Methods

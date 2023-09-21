@@ -25,7 +25,7 @@ namespace SOFOS2_Migration_Tool.Service
                                     l.idFile AS 'WarehouseCode',
                                     null AS 'Remarks',
                                     l.cancelled AS 'Cancelled',
-                                    'CLOSED' AS 'Status',
+                                    CASE WHEN l.cancelled THEN 'CANCELLED' ELSE 'CLOSED' END AS 'Status',
                                     DATE_FORMAT(l.timeStamp, '%Y-%m-%d %H:%i:%s') AS 'SystemDate',
                                     l.idUser AS 'IdUser',
                                     '' AS 'TerminalNo'

@@ -165,7 +165,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                 tranRunQty = 0;
                                 transVal = Math.Round(item.Cost * Math.Abs(tran.Quantity), 2, MidpointRounding.AwayFromZero);
                             }
-                            else if (tranRunQty < 0)
+                            else if (tranRunQty < 0 && process != Process.Adjustment)
                             {
                                 errorItem.Add(new ItemProblem
                                 {
@@ -191,6 +191,19 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                     transVal = Math.Round(tran.Cost * tran.Quantity, 2, MidpointRounding.AwayFromZero);
                                     tranRunVal = Math.Round(transVal + item.RunningValue, 2, MidpointRounding.AwayFromZero);
                                 }
+                                else if (process == Process.Adjustment)
+                                {
+                                    if (tran.Quantity > 0)
+                                    {
+                                        transVal = Math.Round(tran.Cost * tran.Quantity, 2, MidpointRounding.AwayFromZero);
+                                        tranRunVal = Math.Round(transVal + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+                                    }
+                                    else
+                                    {
+                                        transVal = Math.Round(item.Cost * tran.Quantity, 2, MidpointRounding.AwayFromZero);
+                                        tranRunVal = Math.Round(transVal + item.RunningValue, 2, MidpointRounding.AwayFromZero);
+                                    }
+                                }
                                 else
                                 {
                                     transVal = Math.Round(item.Cost * tran.Quantity, 2, MidpointRounding.AwayFromZero);
@@ -206,7 +219,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                             switch (process)
                             {
                                 case Process.Sales:
-                                case Process.Adjustment:
+                                //case Process.Adjustment:
                                 case Process.ReturnFromCustomer:
 
                                     param = new Dictionary<string, object>()
@@ -217,6 +230,23 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
                                         { "@uomCode", tran.UomCode },
                                         { "@reference", tran.Reference },
                                         { "@cost", item.Cost },
+                                        { "@transvalue", Math.Abs(transVal) }
+                                    };
+
+                                    sQuery = RecomputeQuery.UpdateRunningQuantityValue(process);
+
+                                    break;
+
+                                case Process.Adjustment:
+
+                                    param = new Dictionary<string, object>()
+                                    {
+                                        { "@itemCode", tran.ItemCode },
+                                        { "@runningQuantity", tranRunQty },
+                                        { "@runningValue", tranRunVal },
+                                        { "@uomCode", tran.UomCode },
+                                        { "@reference", tran.Reference },
+                                        { "@cost", tran.Quantity > 0 ? tran.Cost : item.Cost },
                                         { "@transvalue", Math.Abs(transVal) }
                                     };
 
@@ -273,7 +303,7 @@ namespace SOFOS2_Migration_Tool.Inventory.Controller
 
                             #region Update cost of an item
 
-                            if (process.Equals(Process.Receiving) || process.Equals(Process.ReceiveFromVendor))
+                            if (process.Equals(Process.Receiving) || process.Equals(Process.ReceiveFromVendor) || (process.Equals(Process.Adjustment) && tran.Quantity > 0))
                             {
 
                                 conn.ArgSQLCommand = RecomputeQuery.UpdateItemCost();

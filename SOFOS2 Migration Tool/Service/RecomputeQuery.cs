@@ -34,10 +34,10 @@ namespace SOFOS2_Migration_Tool.Service
                         UNION ALL
 
                         -- IA 
-                        select h.reference, d.itemcode, d.uomCode, u.conversion, (d.variance * u.conversion) as 'quantity', ROUND(d.price/d.conversion, 2), d.total,'Adjustment' as 'TransactionType', h.transDate, 0 as `AllowNoEffectInventory`
+                        select h.reference, d.itemcode, d.uomCode, d.conversion, (d.variance * d.conversion) as 'quantity', ROUND(d.price/d.conversion, 2), d.total,'Adjustment' as 'TransactionType', h.transDate, 0 as `AllowNoEffectInventory`
                         from iia00 h 
                         INNER JOIN iia10 d ON h.transNum = d.transNum
-                        INNER JOIN iiuom u ON d.itemcode = u.itemcode AND d.uomCode = u.uomCode
+                        #INNER JOIN iiuom u ON d.itemcode = u.itemcode AND d.uomCode = u.uomCode
                         WHERE date(h.transDate) = @date
                         -- END IA 
 
@@ -123,7 +123,8 @@ namespace SOFOS2_Migration_Tool.Service
                             SET
                                 d.runningQuantity = @runningQuantity,
                                 d.transValue = @transvalue,
-                                d.runningValue = @runningValue
+                                d.runningValue = @runningValue,
+                                d.price = @cost
                             WHERE h.reference = @reference
                             AND d.itemcode = @itemCode AND uomCode = @uomCode; ");
 
