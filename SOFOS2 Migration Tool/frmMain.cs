@@ -93,6 +93,7 @@ namespace SOFOS2_Migration_Tool
 
             try
             {
+                
                 CollectionReceiptController crc = new CollectionReceiptController();
                 var crheader = crc.GetCollectionReceiptHeader(date, "OR");
                 var crdetail = crc.GetCollectionReceiptDetail(date, "OR");
@@ -294,7 +295,7 @@ namespace SOFOS2_Migration_Tool
                             message = string.Format("Compute payment and generate interest payment : {0}.", date);
                             break;
                         case ModuleEnum.SalesCreditLimit:
-                            message = string.Format("Compute sales (CI,CT,APL) and update credit limit dated : {0}.", date);
+                            message = string.Format("Compute sales (CI,JV,CT,APL) and update credit limit dated : {0}.", date);
                             break;
                         default:
                                 message = string.Format("Compute for {0} module is not available.", moduleEnum.ToString());
@@ -393,7 +394,7 @@ namespace SOFOS2_Migration_Tool
                     reComputeSalesCreditController.UpdateChargeAmount(reComputeSalesCredit);
                 #endregion
 
-                string message = string.Format(@"No transactions in Sales module (CI,CT,CO, AP and WR) found in SOFOS2 dated : {0}.", date);
+                string message = string.Format(@"No transactions in Sales module (CI,JV,CT,CO, AP and WR) found in SOFOS2 dated : {0}.", date);
                 if (reComputeSalesCredit.Count > 0)
                     message = string.Format(@" ({0}) sales transactions with credit was recomputed successfully.", reComputeSalesCredit.Count);
 

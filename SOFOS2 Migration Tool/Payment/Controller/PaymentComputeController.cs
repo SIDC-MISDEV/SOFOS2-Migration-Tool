@@ -566,6 +566,9 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     }
                     else if (prefix == "JV")
                     {
+                        if (membername == "")
+                            membername = g.GetFileName(memberid);
+
                         var param = new Dictionary<string, object>()
                             {
                                 { "@transNum", transnum },
@@ -623,6 +626,9 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     }
                     else if (prefix == "JV")
                     {
+                        if (membername == "")
+                            membername = g.GetFileName(memberid);
+
                         var param = new Dictionary<string, object>()
                             {
                                 { "@transNum", transnum },
@@ -681,6 +687,9 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                     }
                     else if (prefix == "JV")
                     {
+                        if (membername == "")
+                            membername = g.GetFileName(memberid);
+
                         var param = new Dictionary<string, object>()
                             {
                                 { "@transNum", transnum },
