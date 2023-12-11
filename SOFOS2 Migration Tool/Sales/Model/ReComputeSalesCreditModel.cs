@@ -10,6 +10,7 @@ namespace SOFOS2_Migration_Tool.Sales.Model
     {
         public string TransactionType { get; set; }
         public string MemberCode { get; set; }
+        public string AccountNo { get; set; }
         public decimal Amount { get; set; }
     }
 }

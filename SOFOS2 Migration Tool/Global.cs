@@ -650,6 +650,21 @@ namespace SOFOS2_Migration_Tool
             }
         }
 
+        public void UpdatePaymentStatuss(MySQLHelper conn, string transnum, string table, string status)
+        {
+            try
+            {
+                conn.ArgSQLCommand = Query.UpdateStatus(table);
+                conn.ArgSQLParam = new Dictionary<string, object>() { { "@transnum", transnum }, { "@status", status } };
+                conn.ExecuteMySQL();
+            }
+            catch
+            {
+
+                throw;
+            }
+        }
+
         public void UpdatePaymentStatus(MySQLHelper conn, string transnum, string table, string status)
         {
             try

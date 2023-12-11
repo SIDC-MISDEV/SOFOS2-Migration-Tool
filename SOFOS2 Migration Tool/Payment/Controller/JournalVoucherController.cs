@@ -110,6 +110,8 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                 AccountName = dr["accountName"].ToString(),
                                 DetRefTransType = dr["accountCode"].ToString() == "430400000000000" || dr["accountCode"].ToString() == "441200000000000" ? "CI" : "",
                                 Status = "CLOSED",
+                                IntComputed = "0",
+                                PaidToDate = "0.00"
                             });
                             g = new Global();
                             result.Where(c => c.MemberId == dr["memberId"].ToString()).Select(c => { c.MemberName = g.GetFileName(dr["memberId"].ToString()); return c; }).ToList();
@@ -120,6 +122,7 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                             if (dr["accountCode"].ToString() == "112010000000001" && Convert.ToDecimal(dr["debit"]) != 0)
                             {
+                                
                                 result.Where(c => c.Debit != 0 && c.Reference == dr["reference"].ToString()).Select(c => { c.Status = "OPEN"; return c; }).ToList();
                                 result.Where(c => c.Credit != 0 && c.Reference == dr["reference"].ToString()).Select(c => { c.Status = "OPEN"; return c; }).ToList();
                                 isAr = true;
@@ -130,7 +133,6 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
                                 result.Where(c => c.Credit != 0 && c.Reference == dr["reference"].ToString()).Select(c => { c.Status = "OPEN"; return c; }).ToList();
                                 isAr = false;
                             }
-
                         }
                     }
                 }
@@ -184,6 +186,11 @@ namespace SOFOS2_Migration_Tool.Payment.Controller
 
                         foreach (var detail in details)
                         {
+                            g = new Global();
+                            if (detail.Debit > 0 && detail.AccountCode == "112010000000001")
+                            {
+                                g.UpdatePaymentStatuss(conn, transNum.ToString(), "fjv00", "OPEN");
+                            }
                             var detailParam = new Dictionary<string, object>()
                                 {
                                     {"@transNum", transNum },

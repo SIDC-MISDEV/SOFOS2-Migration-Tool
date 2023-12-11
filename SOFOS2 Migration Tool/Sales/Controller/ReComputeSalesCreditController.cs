@@ -33,7 +33,8 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                             {
                                 TransactionType = dr["transtype"].ToString(),
                                 MemberCode = dr["MemberId"].ToString(),
-                                Amount = Convert.ToDecimal(dr["amount"])
+                                Amount = Convert.ToDecimal(dr["amount"]),
+                                AccountNo = dr["AccountNo"].ToString(),
                             });
                         }
                     }
@@ -69,8 +70,9 @@ namespace SOFOS2_Migration_Tool.Sales.Controller
                         {
                             { "@memberId", transaction.MemberCode },
                             { "@transactionType", transaction.TransactionType },
-                            { "@amount", transaction.Amount }
-                        };
+                            { "@amount", transaction.Amount },
+                            { "@accountNo", transaction.AccountNo }
+                    };
                         conn.ExecuteMySQL();
 
 
